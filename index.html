@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+        .profile-card {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+        .profile-card h2 {
+            color: #333;
+        }
+        .profile-card p {
+            color: #555;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .login-form input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            width: calc(100% - 22px);
+        }
+        .login-form button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .completed-label {
+            display: none;
+            color: red;
+            font-weight: bold;
+        }
+        .warning-label {
+            display: none;
+            color: orange;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-form">
+        <h2>Enter Account ID</h2>
+        <input type="text" id="accountIdInput" placeholder="Account ID">
+        <button onclick="authenticate()">Submit</button>
+    </div>
+
+    <div class="profile-card" id="profile4171">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 4171</p>
+        <p><strong>Account Name:</strong> DANIEL UMANA</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <div class="profile-card" id="profile3572">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 3572</p>
+        <p><strong>Account Name:</strong> EMMANUEL EKPA</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <div class="profile-card" id="profile4073">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 4073</p>
+        <p><strong>Account Name:</strong> ESTHER AMOS</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <div class="profile-card" id="profile1313">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 1313</p>
+        <p><strong>Account Name:</strong> ITOHOWO AKAN</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <div class="profile-card" id="profile5011">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 5011</p>
+        <p><strong>Account Name:</strong> IME AKPAN</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <div class="profile-card" id="profile8103">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 8103</p>
+        <p><strong>Account Name:</strong> PATIENCE UDO</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <div class="profile-card" id="profile2015">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 2015</p>
+        <p><strong>Account Name:</strong> SAMUEL AKPAN</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <div class="profile-card" id="profile5012">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 5012</p>
+        <p><strong>Account Name:</strong> SAMUEL AKPAN</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <div class="profile-card" id="profile1220">
+        <h2>Account Profile</h2>
+        <p><strong>BOT ID:</strong> 1220</p>
+        <p><strong>Account Name:</strong> SAVIOUR EKONG</p>
+        <p><strong>Token:</strong> <span class="token-count">0</span>/30</p>
+        <p><strong>Total Amount:</strong> ₦<span class="total-amount">0</span></p>
+        <p><strong>Time Elapsed:</strong> <span class="countdown-timer">00:00:00</span></p>
+        <p><strong>Last Updated:</strong> <span class="last-updated">Never</span></p>
+        <p class="completed-label">Token completed, your available balance is ₦15,000 <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn">Withdraw Token</a></p>
+        <p class="warning-label">Your BOT will restart in 7 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+    </div>
+
+    <script>
+        function authenticate() {
+            const accountId = document.getElementById('accountIdInput').value;
+            const profiles = document.querySelectorAll('.profile-card');
+            profiles.forEach(profile => profile.style.display = 'none');
+
+            const profileCard = document.getElementById(`profile${accountId}`);
+            if (profileCard) {
+                profileCard.style.display = 'block';
+                document.querySelector('.login-form').style.display = 'none';
+                startCountdown(profileCard, accountId);
+            } else {
+                alert('Invalid Account ID');
+            }
+        }
+
+        function startCountdown(profileCard, accountId) {
+            const countdownElement = profileCard.querySelector('.countdown-timer');
+            const tokenCountElement = profileCard.querySelector('.token-count');
+            const totalAmountElement = profileCard.querySelector('.total-amount');
+            const completedLabel = profileCard.querySelector('.completed-label');
+            const warningLabel = profileCard.querySelector('.warning-label');
+            const lastUpdatedElement = profileCard.querySelector('.last-updated');
+
+            // Clear localStorage data to restart counting if the file is edited
+            const currentFileVersion = 'v1.0'; // Update this version if the file is edited
+            if (localStorage.getItem('fileVersion') !== currentFileVersion) {
+                localStorage.clear();
+                localStorage.setItem('fileVersion', currentFileVersion);
+            }
+
+            let storedTime = localStorage.getItem(`timeElapsed_${accountId}`);
+            let timeElapsed = storedTime ? parseInt(storedTime) : 0;
+
+            // Check for last updated time
+            let lastUpdated = localStorage.getItem(`lastUpdated_${accountId}`);
+            let currentTime = Math.floor(Date.now() / 1000);
+            if (lastUpdated) {
+                let elapsedTime = currentTime - parseInt(lastUpdated);
+                timeElapsed += elapsedTime;
+                localStorage.setItem(`timeElapsed_${accountId}`, timeElapsed);
+
+                // Update token and total amount based on elapsed 24-hour periods
+                let daysElapsed = Math.floor(timeElapsed / (24 * 3600));
+                if (daysElapsed > 0) {
+                    const currentTokens = parseInt(tokenCountElement.textContent);
+                    const currentTotalAmount = parseInt(totalAmountElement.textContent);
+                    let newTokens = Math.min(currentTokens + daysElapsed, 30);
+                    let newTotalAmount = currentTotalAmount + (500 * daysElapsed);
+                    tokenCountElement.textContent = newTokens;
+                    totalAmountElement.textContent = newTotalAmount;
+                }
+            }
+            localStorage.setItem(`lastUpdated_${accountId}`, currentTime);
+
+            const interval = setInterval(() => {
+                if (timeElapsed < 720 * 3600) {
+                    timeElapsed++;
+                    localStorage.setItem(`timeElapsed_${accountId}`, timeElapsed);
+                    const hours = Math.floor(timeElapsed / 3600);
+                    const minutes = Math.floor((timeElapsed % 3600) / 60);
+                    const seconds = timeElapsed % 60;
+                    countdownElement.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                } else {
+                    clearInterval(interval);
+                    completedLabel.style.display = 'block';
+                    warningLabel.style.display = 'block';
+                    localStorage.removeItem(`timeElapsed_${accountId}`);
+                }
+
+                if (timeElapsed % (24 * 3600) === 0) {
+                    const currentTokens = parseInt(tokenCountElement.textContent);
+                    const currentTotalAmount = parseInt(totalAmountElement.textContent);
+                    if (currentTokens < 30) {
+                        tokenCountElement.textContent = currentTokens + 1;
+                    }
+                    totalAmountElement.textContent = currentTotalAmount + 500;
+                }
+            }, 1000);
+
+            // Update the last updated time
+            const lastUpdatedDate = new Date(currentTime * 1000).toLocaleString();
+            lastUpdatedElement.textContent = lastUpdatedDate;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const profiles = document.querySelectorAll('.profile-card');
+            profiles.forEach(profile => {
+                const accountId = profile.querySelector('p strong').textContent.split(': ')[1];
+                startCountdown(profile, accountId);
+            });
+        });
+    </script>
+</body>
+</html>
