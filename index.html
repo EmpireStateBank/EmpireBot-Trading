@@ -225,7 +225,7 @@
             const warningLabel = profileCard.querySelector('.warning-label');
             const countdownTimer = profileCard.querySelector('.countdown-timer');
 
-            if (today >= withdrawDate) {
+            if (today >= withdrawDate && today < hideDate) {
                 let countdown = 10;
                 const interval = setInterval(() => {
                     if (countdown === 0) {
@@ -239,9 +239,7 @@
                         countdown--;
                     }
                 }, 1000);
-            }
-
-            if (today >= hideDate) {
+            } else if (today >= hideDate) {
                 completedLabel.style.display = 'none';
                 warningLabel.style.display = 'none';
                 countdownTimer.style.display = 'none';
