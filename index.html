@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+        .profile-card {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+        .profile-card h2 {
+            color: #333;
+        }
+        .profile-card p {
+            color: #555;
+        }
+        .profile-card .withdraw-btn {
+            padding: 5px 15px;
+            font-size: 12px;
+            color: white;
+            background-color: green;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            display: none; /* Hidden by default */
+            margin-bottom: 10px;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .login-form input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            width: calc(100% - 22px);
+        }
+        .login-form button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .completed-label {
+            display: none; /* Hidden by default */
+        }
+        .warning-label {
+            display: none; /* Hidden by default */
+            color: orange;
+            font-weight: bold;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .countdown-timer {
+            margin-top: 10px;
+            font-weight: bold;
+            font-style: italic;
+            color: #555;
+        }
+        .withdraw-section {
+            text-align: center;
+        }
+        .error-notification {
+            color: red;
+            font-weight: bold;
+            font-size: 14px;
+            display: none; /* Hidden by default */
+        }
+        .error-notification a {
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-form">
+        <h2>Enter Account ID</h2>
+        <input type="text" id="accountIdInput" placeholder="Account ID">
+        <button onclick="authenticate()">Submit</button>
+    </div>
+
+    <!-- Profile cards -->
+    <div class="profile-card" id="profile4171">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 4171</p>
+        <p><strong>Account Name:</strong> DANIEL UMANA</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-09</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <div class="profile-card" id="profile3572">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 3572</p>
+        <p><strong>Account Name:</strong> EMMANUEL EKPA</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-16</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <div class="profile-card" id="profile4073">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 4073</p>
+        <p><strong>Account Name:</strong> ESTHER AMOS</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-09</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <div class="profile-card" id="profile1313">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 1313</p>
+        <p><strong>Account Name:</strong> ITOHOWO AKAN</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-09</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <div class="profile-card" id="profile5011">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 5011</p>
+        <p><strong>Account Name:</strong> IME AKPAN</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-09</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <div class="profile-card" id="profile8103">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 8103</p>
+        <p><strong>Account Name:</strong> PATIENCE UDO</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-09</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <div class="profile-card" id="profile2015">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 2015</p>
+        <p><strong>Account Name:</strong> SAMUEL AKPAN</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-09</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <div class="profile-card" id="profile5012">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 5012</p>
+        <p><strong>Account Name:</strong> SAMUEL AKPAN</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-09</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <div class="profile-card" id="profile1220">
+        <h2>Account Profile</h2>
+        <p><strong>First Bash. BOT ID:</strong> 1220</p>
+        <p><strong>Account Name:</strong> SAVIOUR EKONG</p>
+        <p><strong>Registered Date:</strong> 2025-04-06</p>
+        <p><strong>Expiring Date:</strong> 2025-05-09</p>
+        <div class="withdraw-section">
+            <a href="https://sambo7785.github.io/Withdraw-Token/" class="withdraw-btn completed-label">Withdraw Token</a>
+            <p class="warning-label">Your BOT will restart in 3 days. All tokens will be erased. Withdraw now to avoid losing your tokens.</p>
+        </div>
+        <div class="countdown-timer"></div>
+        <p class="error-notification">Tokens are no longer available. <a href="https://sambo7785.github.io/Regenerate-Token/">Regenerate Token</a></p>
+    </div>
+
+    <script>
+        function authenticate() {
+            const accountId = document.getElementById('accountIdInput').value;
+            const profiles = document.querySelectorAll('.profile-card');
+            profiles.forEach(profile => profile.style.display = 'none');
+
+            const profileCard = document.getElementById(`profile${accountId}`);
+            if (profileCard) {
+                profileCard.style.display = 'block';
+                document.querySelector('.login-form').style.display = 'none';
+                checkWithdrawDate(profileCard, accountId);
+            } else {
+                alert('Invalid Account ID');
+            }
+        }
+
+        function checkWithdrawDate(profileCard, accountId) {
+            const withdrawDates = {
+                "4171": "2025-05-06",
+                "3572": "2025-04-15",
+                "4073": "2025-05-06",
+                "1313": "2025-05-06",
+                "5011": "2025-05-06",
+                "8103": "2025-05-06",
+                "2015": "2025-05-06",
+                "5012": "2025-05-06",
+                "1220": "2025-05-06"
+            };
+
+            const gracePeriodEndDates = {
+                "4171": "2025-05-09",
+                "3572": "2025-04-16",
+                "4073": "2025-05-09",
+                "1313": "2025-05-09",
+                "5011": "2025-05-09",
+                "8103": "2025-05-09",
+                "2015": "2025-05-09",
+                "5012": "2025-05-09",
+                "1220": "2025-05-09"
+            };
+
+            const withdrawDate = new Date(withdrawDates[accountId]);
+            const gracePeriodEndDate = new Date(gracePeriodEndDates[accountId]);
+            const today = new Date();
+            const completedLabel = profileCard.querySelector('.completed-label');
+            const warningLabel = profileCard.querySelector('.warning-label');
+            const countdownTimer = profileCard.querySelector('.countdown-timer');
+            const errorNotification = profileCard.querySelector('.error-notification');
+
+            if (today >= gracePeriodEndDate) {
+                profileCard.querySelector('.withdraw-section').style.display = 'none';
+                errorNotification.style.display = 'block';
+            } else if (today >= withdrawDate) {
+                let countdown = 10;
+                const interval = setInterval(() => {
+                    if (countdown === 0) {
+                        completedLabel.style.display = 'inline-block';
+                        warningLabel.style.display = 'block';
+                        countdownTimer.style.display = 'none';
+                        clearInterval(interval);
+                    } else {
+                        countdownTimer.style.display = 'block';
+                        countdownTimer.textContent = `Countdown: ${countdown} seconds remaining`;
+                        countdown--;
+                    }
+                }, 1000);
+            } else {
+                countdownTimer.textContent = `Withdrawal available on: ${withdrawDate.toDateString()}`;
+                countdownTimer.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const profiles = document.querySelectorAll('.profile-card');
+            profiles.forEach(profile => {
+                const accountId = profile.querySelector('p strong').textContent.split(': ')[1];
+                checkWithdrawDate(profile, accountId);
+            });
+        });
+    </script>
+</body>
+</html>
