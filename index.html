@@ -5,22 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Status</title>
     <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #23272e;
+            --primary: #1db954;
+            --secondary: #222c36;
+            --accent: #03dac6;
+            --text-main: #fff;
+            --text-muted: #b0b3b8;
+            --btn-withdraw: #1db954;
+            --btn-withdraw-hover: #17a74a;
+            --btn-regenerate: #ff4444;
+            --btn-regenerate-hover: #c0392b;
+            --notice-bg: #272f39;
+            --notice-text: #ffe082;
+        }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a2332 0%, #1db954 100%);
+            background-color: var(--bg-color);
             text-align: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-main);
+            transition: background 0.4s;
         }
         .profile-card {
             max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-            display: none;
+            margin: 32px auto;
+            padding: 24px 18px;
+            border: 1px solid #23272e;
+            border-radius: 14px;
+            background: var(--card-bg);
+            box-shadow: 0 4px 24px rgba(30, 40, 60, 0.25);
         }
         .profile-card h2 {
-            color: #333;
+            color: var(--primary);
+            margin-bottom: 16px;
         }
         .profile-card img.profile-pic {
             width: 100px;
@@ -28,352 +49,561 @@
             object-fit: cover;
             border-radius: 50%;
             margin-bottom: 15px;
-            border: 2px solid #ccc;
+            border: 2.5px solid var(--primary);
         }
         .profile-card p {
-            color: #555;
+            color: var(--text-muted);
+            margin: 4px 0;
         }
-        .profile-card .withdraw-btn {
-            padding: 5px 15px;
-            font-size: 12px;
-            color: white;
-            background-color: green;
+        .withdraw-section {
+            margin: 18px 0 6px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .profile-card button.withdraw-btn {
+            padding: 8px 22px;
+            font-size: 15px;
+            color: #fff;
+            background: var(--btn-withdraw);
             border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            display: none; /* Hidden by default */
-            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+            box-shadow: 0 2px 8px rgba(29,185,84,0.08);
+        }
+        .profile-card button.withdraw-btn:hover {
+            background: var(--btn-withdraw-hover);
+        }
+        .profile-card button.regen-btn {
+            padding: 8px 22px;
+            font-size: 15px;
+            color: #fff;
+            background: var(--btn-regenerate);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+            box-shadow: 0 2px 8px rgba(255,68,68,0.08);
+        }
+        .profile-card button.regen-btn:hover {
+            background: var(--btn-regenerate-hover);
         }
         .login-form {
-            max-width: 300px;
-            margin: 50px auto;
-            padding: 20px;
-            text-align: center;
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 320px;
+            margin: 48px auto 0 auto;
+            padding: 22px 22px 18px 22px;
+            background: linear-gradient(135deg, #23272e 60%, #1db954 100%);
+            border: 1px solid #23272e;
+            border-radius: 15px;
+            box-shadow: 0 4px 18px rgba(30, 40, 60, 0.18);
         }
         .login-form h2 {
             margin-bottom: 20px;
-            color: #333;
+            color: var(--primary);
         }
         .login-form input {
-            padding: 10px;
+            padding: 11px;
             font-size: 16px;
             margin-bottom: 15px;
             width: calc(100% - 22px);
-            border: 1px solid #ccc;
+            border: 1px solid #30363d;
             border-radius: 6px;
             outline: none;
-            background-color: #fff;
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            background-color: #171b22;
+            color: var(--text-main);
         }
         .login-form input:focus {
-            border-color: #64b5f6;
-            box-shadow: 0 0 5px rgba(100, 181, 246, 0.5);
+            border-color: var(--primary);
+            box-shadow: 0 0 6px #1db95455;
         }
         .login-form button {
-            padding: 8px 18px;
+            padding: 10px 25px;
             font-size: 16px;
-            color: white;
-            background-color: #64b5f6;
+            color: #fff;
+            background-color: var(--primary);
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0px 3px 10px rgba(29,185,84,0.17);
+            transition: background 0.3s;
         }
         .login-form button:hover {
-            background-color: #42a5f5;
-        }
-        .completed-label {
-            display: none; /* Hidden by default */
-        }
-        .warning-label {
-            display: none; /* Hidden by default */
-            color: orange;
-            font-weight: bold;
-            font-size: 12px;
-            margin-top: 5px;
+            background-color: var(--btn-withdraw-hover);
         }
         .countdown-timer {
             margin-top: 10px;
             font-weight: bold;
             font-style: italic;
-            color: #555;
+            color: var(--accent);
         }
-        .withdraw-section {
-            text-align: center;
+        .incoming-token-notice {
+            background: var(--notice-bg);
+            color: var(--notice-text);
+            border-radius: 7px;
+            padding: 10px 8px;
+            margin: 14px 0 10px 0;
+            font-weight: 500;
+            font-size: 15px;
         }
-        .error-notification {
-            color: red;
-            font-weight: bold;
+        .token-details-table {
+            width: 100%;
+            margin: 10px 0 0 0;
+            border-collapse: collapse;
+        }
+        .token-details-table td {
+            color: var(--text-main);
             font-size: 14px;
-            display: none; /* Hidden by default */
+            padding: 4px 0;
         }
-        .error-notification a {
-            color: blue;
-            text-decoration: underline;
+        .token-details-table .label {
+            color: var(--accent);
+            text-align: left;
+            padding-right: 10px;
+            font-weight: 500;
+        }
+        .token-details-table .value {
+            text-align: right;
+            font-weight: 600;
+        }
+        .token-details-table .id {
+            color: #90caf9;
+            font-weight: 700;
+            font-size: 15px;
         }
     </style>
 </head>
 <body>
     <div class="login-form">
         <h2>Enter PIN</h2>
-        <!-- Input field with numeric keyboard and hidden entry -->
-        <input type="password" id="accountIdInput" placeholder="Account PIN" inputmode="numeric">
+        <input type="password" id="accountIdInput" placeholder="Account PIN" inputmode="numeric" style="letter-spacing: 1.5px;">
         <button onclick="authenticate()">Submit</button>
     </div>
 
     <!-- Profile cards -->
-    <div class="profile-card" id="profile4171">
+    <div class="profile-card" id="profile4171" data-account="4171">
         <h2>Account Profile</h2>
         <img src="https://via.placeholder.com/100?text=Umana41" alt="DANIEL UMANA" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">4171</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Umana41</p>
         <p><strong>Account Name:</strong> DANIEL UMANA</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
-        <p><strong>Balance:</strong> ₦0</p>
         <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('4171')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('4171')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed. <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile3572">
+    <!-- Repeat for other profiles -->
+    <div class="profile-card" id="profile3572" data-account="3572">
         <h2>Account Profile</h2>
         <img src="AddText_05-22-01.29.33.png" alt="EMMANUEL EKPA" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">3572</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Ekpa35</p>
         <p><strong>Account Name:</strong> EMMANUEL EKPA</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
-        <p><strong>Balance:</strong> ₦40,000</p>
         <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('3572')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('3572')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed. <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile4073">
+    <div class="profile-card" id="profile4073" data-account="4073">
         <h2>Account Profile</h2>
         <img src="AddText_05-25-10.37.46.png" alt="ESTHER AMOS" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">4073</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Amos40</p>
         <p><strong>Account Name:</strong> ESTHER AMOS</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
-        <p><strong>Balance:</strong> ₦10,000</p>
         <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('4073')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('4073')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed. <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile1313">
+    <div class="profile-card" id="profile1313" data-account="1313">
         <h2>Account Profile</h2>
         <img src="AddText_05-25-10.37.07.png" alt="ITOHOWO AKAN" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">1313</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Akan13</p>
         <p><strong>Account Name:</strong> ITOHOWO AKAN</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
-        <p><strong>Balance:</strong> ₦10,000</p>
         <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('1313')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('1313')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile5011">
+    <div class="profile-card" id="profile5011" data-account="5011">
         <h2>Account Profile</h2>
         <img src="https://via.placeholder.com/100?text=Akpan50" alt="IME AKPAN" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">5011</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Akpan50</p>
         <p><strong>Account Name:</strong> IME AKPAN</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
+        <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('5011')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('5011')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile8103">
+    <div class="profile-card" id="profile8103" data-account="8103">
         <h2>Account Profile</h2>
         <img src="https://via.placeholder.com/100?text=Udo81" alt="PATIENCE UDO" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">8103</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Udo81</p>
         <p><strong>Account Name:</strong> PATIENCE UDO</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
+        <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('8103')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('8103')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile2015">
+    <div class="profile-card" id="profile2015" data-account="2015">
         <h2>Account Profile</h2>
         <img src="https://via.placeholder.com/100?text=Akpan20" alt="SAMUEL AKPAN" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">2015</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Akpan20</p>
         <p><strong>Account Name:</strong> SAMUEL AKPAN</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
-        <p><strong>Balance:</strong> ₦10,000</p>
         <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('2015')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('2015')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile5012">
+    <div class="profile-card" id="profile5012" data-account="5012">
         <h2>Account Profile</h2>
         <img src="https://via.placeholder.com/100?text=Akpan50" alt="SAMUEL AKPAN" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">5012</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Akpan50</p>
         <p><strong>Account Name:</strong> SAMUEL AKPAN</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
-        <p><strong>Balance:</strong> ₦10,000</p>
         <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('5012')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('5012')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile1266">
+    <div class="profile-card" id="profile1266" data-account="1266">
         <h2>Account Profile</h2>
         <img src="AddText_05-22-09.03.57.png" alt="SAMUEL IME" class="profile-pic">
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">1266</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
         <p><strong>Referral Code:</strong> Ime12</p>
         <p><strong>Account Name:</strong> SAMUEL IME</p>
         <p><strong>Registered Date:</strong> 2025-05-11</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
-        <p><strong>Balance:</strong> ₦10,000</p>
         <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('1266')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('1266')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
-    <div class="profile-card" id="profile1220">
+    <div class="profile-card" id="profile1220" data-account="1220">
         <h2>Account Profile</h2>
         <img src="https://via.placeholder.com/100?text=Ekong12" alt="SAVIOUR EKONG" class="profile-pic">
-        <p><strong>Referral code:</strong> Ekong12</p>
+        <table class="token-details-table">
+            <tr>
+                <td class="label id">ID:</td>
+                <td class="value id"><span class="account-id">1220</span></td>
+            </tr>
+            <tr>
+                <td class="label">Current Balance:</td>
+                <td class="value"><span class="balance-value"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Incoming Token:</td>
+                <td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td>
+            </tr>
+        </table>
+        <p><strong>Referral Code:</strong> Ekong12</p>
         <p><strong>Account Name:</strong> SAVIOUR EKONG</p>
         <p><strong>Registered Date:</strong> 2025-04-06</p>
         <p><strong>Referral bonus:</strong> ₦0</p>
-        <p><strong>Balance:</strong> ₦10,000</p>
         <p><strong>Pending withdrawal:</strong> ₦0</p>
+        <div class="incoming-token-notice"></div>
         <div class="withdraw-section">
-            <a href="https://sambo7785.github.io/ATM-Machine/" class="withdraw-btn completed-label">Withdraw Token</a>
-            <p class="warning-label">You can withdraw to any bank account. ATM will close in 24 hours.</p>
+            <button class="withdraw-btn" onclick="withdrawToken('1220')">Withdraw Token</button>
+            <button class="regen-btn" onclick="regenerateToken('1220')">Regenerate Token</button>
         </div>
         <div class="countdown-timer"></div>
-        <p class="error-notification">ATM is closed <a href="https://paystack.com/pay/gw3o7xxgvo">Regenerate Token</a></p>
     </div>
-
     <script>
-        function authenticate() {
-            const accountId = document.getElementById('accountIdInput').value;
-            const profiles = document.querySelectorAll('.profile-card');
-            profiles.forEach(profile => profile.style.display = 'none');
-
-            const profileCard = document.getElementById(`profile${accountId}`);
-            if (profileCard) {
-                profileCard.style.display = 'block';
-                document.querySelector('.login-form').style.display = 'none';
-                checkWithdrawDate(profileCard, accountId);
-            } else {
-                alert('Invalid Account PIN');
-            }
+    // All details in one structure for each account
+    const accountData = {
+        "4171": {
+            id: "4171",
+            balance: 0,
+            incomingDate: "2025-06-15",
+            updatedAmount: 10000
+        },
+        "3572": {
+            id: "3572",
+            balance: 40000,
+            incomingDate: "2025-05-30",
+            updatedAmount: 50000
+        },
+        "4073": {
+            id: "4073",
+            balance: 0,
+            incomingDate: "2025-06-15",
+            updatedAmount: 10000
+        },
+        "1313": {
+            id: "1313",
+            balance: 0,
+            incomingDate: "2025-06-15",
+            updatedAmount: 10000
+        },
+        "5011": {
+            id: "5011",
+            balance: 0,
+            incomingDate: "2025-06-04",
+            updatedAmount: 10000
+        },
+        "8103": {
+            id: "8103",
+            balance: 0,
+            incomingDate: "2025-06-02",
+            updatedAmount: 10000
+        },
+        "2015": {
+            id: "2015",
+            balance: 0,
+            incomingDate: "2025-06-15",
+            updatedAmount: 10000
+        },
+        "5012": {
+            id: "5012",
+            balance: 0,
+            incomingDate: "2025-06-15",
+            updatedAmount: 10000
+        },
+        "1266": {
+            id: "1266",
+            balance: 0,
+            incomingDate: "2025-06-15",
+            updatedAmount: 10000
+        },
+        "1220": {
+            id: "1220",
+            balance: 0,
+            incomingDate: "2025-06-15",
+            updatedAmount: 10000
         }
+    };
+    const incomingTokenAmount = 10000;
 
-        function checkWithdrawDate(profileCard, accountId) {
-            const withdrawDates = {
-                "4171": "2025-05-30",
-                "3572": "2025-06-16",
-                "4073": "2025-05-30",
-                "1313": "2025-06-01",
-                "5011": "2025-05-10",
-                "8103": "2025-05-10",
-                "2015": "2025-05-29",
-                "5012": "2025-06-03",
-                "1266": "2025-06-20",
-                "1220": "2025-06-27"
-            };
-
-            const gracePeriodEndDates = {
-                "4171": "2025-05-31",
-                "3572": "2025-06-17",
-                "4073": "2025-05-31",
-                "1313": "2025-06-02",
-                "5011": "2025-05-11",
-                "8103": "2025-05-11",
-                "2015": "2025-05-30",
-                "5012": "2025-06-04",
-                "1266": "2025-06-21",
-                "1220": "2025-06-28"
-            };
-
-            const withdrawDate = new Date(withdrawDates[accountId]);
-            const gracePeriodEndDate = new Date(gracePeriodEndDates[accountId]);
-            const today = new Date();
-            const completedLabel = profileCard.querySelector('.completed-label');
-            const warningLabel = profileCard.querySelector('.warning-label');
-            const countdownTimer = profileCard.querySelector('.countdown-timer');
-            const errorNotification = profileCard.querySelector('.error-notification');
-
-            if (today >= gracePeriodEndDate) {
-                profileCard.querySelector('.withdraw-section').style.display = 'none';
-                errorNotification.style.display = 'block';
-            } else if (today >= withdrawDate) {
-                let countdown = 10;
-                const interval = setInterval(() => {
-                    if (countdown === 0) {
-                        completedLabel.style.display = 'inline-block';
-                        warningLabel.style.display = 'block';
-                        countdownTimer.style.display = 'none';
-                        clearInterval(interval);
-                    } else {
-                        countdownTimer.style.display = 'block';
-                        countdownTimer.textContent = `Countdown: ${countdown} seconds remaining`;
-                        countdown--;
-                    }
-                }, 1000);
-            } else {
-                countdownTimer.textContent = `Withdrawal available on: ${withdrawDate.toDateString()}`;
-                countdownTimer.style.display = 'block';
-            }
+    function authenticate() {
+        const accountId = document.getElementById('accountIdInput').value;
+        const profiles = document.querySelectorAll('.profile-card');
+        profiles.forEach(profile => profile.style.display = 'none');
+        const profileCard = document.getElementById(`profile${accountId}`);
+        if (profileCard) {
+            profileCard.style.display = 'block';
+            document.querySelector('.login-form').style.display = 'none';
+            updateIncomingTokenNotice(profileCard, accountId);
+        } else {
+            alert('Invalid Account PIN');
         }
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const profiles = document.querySelectorAll('.profile-card');
-            profiles.forEach(profile => {
-                const accountId = profile.querySelector('p strong').textContent.split(': ')[1];
-                checkWithdrawDate(profile, accountId);
-            });
+    function withdrawToken(accountId) {
+        alert("Withdraw Token clicked for account: " + accountId);
+        // window.location.href = "https://sambo7785.github.io/ATM-Machine/"; // Uncomment to redirect
+    }
+
+    function regenerateToken(accountId) {
+        alert("Regenerate Token clicked for account: " + accountId);
+        // window.open("https://paystack.com/pay/gw3o7xxgvo", "_blank"); // Uncomment to redirect
+    }
+
+    function updateIncomingTokenNotice(profileCard, accountId) {
+        const data = accountData[accountId];
+        if (!data) return;
+
+        const balanceSpan = profileCard.querySelector('.balance-value');
+        const noticeDiv = profileCard.querySelector('.incoming-token-notice');
+        const incomingTokenAmountSpan = profileCard.querySelector('.incoming-token-amount');
+        const incomingDateSpan = profileCard.querySelector('.incoming-date');
+
+        // Set values
+        // After incoming date, update current balance
+        const incomingDate = new Date(data.incomingDate + "T00:00:00");
+        const today = new Date();
+
+        if (today < incomingDate) {
+            balanceSpan.textContent = "₦" + data.balance.toLocaleString();
+            incomingTokenAmountSpan.textContent = "₦" + incomingTokenAmount.toLocaleString();
+            incomingDateSpan.textContent = data.incomingDate;
+            noticeDiv.style.display = "block";
+            noticeDiv.textContent = `Incoming Token of ₦10,000 will be added to your balance on ${incomingDate.toDateString()}.`;
+        } else {
+            // After date, update current balance and hide notice
+            balanceSpan.textContent = "₦" + (data.balance + incomingTokenAmount).toLocaleString();
+            incomingTokenAmountSpan.textContent = "₦0";
+            incomingDateSpan.textContent = "";
+            noticeDiv.style.display = "none";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const profiles = document.querySelectorAll('.profile-card');
+        profiles.forEach(profile => {
+            profile.style.display = 'none';
+            const accountId = profile.getAttribute('data-account');
+            updateIncomingTokenNotice(profile, accountId);
         });
+        // For admin and debugging, show in console:
+        console.table(accountData);
+    });
     </script>
 </body>
 </html>
