@@ -213,7 +213,6 @@
         </div>
         <div class="countdown-timer"></div>
     </div>
-    <!-- Repeat for other profiles -->
     <div class="profile-card" id="profile3572" data-account="3572">
         <h2>Account Profile</h2>
         <img src="AddText_05-22-01.29.33.png" alt="EMMANUEL EKPA" class="profile-pic">
@@ -516,8 +515,8 @@
         "3572": {
             id: "3572",
             balance: 50000,
-            incomingDate: "2025-07-02",
-            updatedAmount: 60000
+            incomingDate: "2025-06-03",
+            updatedAmount: 60500
         },
         "4073": {
             id: "4073",
@@ -609,20 +608,19 @@
         const incomingTokenAmountSpan = profileCard.querySelector('.incoming-token-amount');
         const incomingDateSpan = profileCard.querySelector('.incoming-date');
 
+        // Show the updated amount for user
+        balanceSpan.textContent = "₦" + (data.updatedAmount !== undefined ? data.updatedAmount.toLocaleString() : "0");
+
         // Set values
-        // After incoming date, update current balance
         const incomingDate = new Date(data.incomingDate + "T00:00:00");
         const today = new Date();
 
         if (today < incomingDate) {
-            balanceSpan.textContent = "₦" + data.balance.toLocaleString();
             incomingTokenAmountSpan.textContent = "₦" + incomingTokenAmount.toLocaleString();
             incomingDateSpan.textContent = data.incomingDate;
             noticeDiv.style.display = "block";
             noticeDiv.textContent = `Incoming Token of ₦10,000 will be added to your balance on ${incomingDate.toDateString()}.`;
         } else {
-            // After date, update current balance and hide notice
-            balanceSpan.textContent = "₦" + (data.balance + incomingTokenAmount).toLocaleString();
             incomingTokenAmountSpan.textContent = "₦0";
             incomingDateSpan.textContent = "";
             noticeDiv.style.display = "none";
