@@ -176,7 +176,7 @@
           <button type="button" class="modal-cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
           <button type="submit" class="withdraw-submit-btn" id="withdrawBtn">Withdraw</button>
         </div>
-        <input type="hidden" name="_next" value="?withdraw=success">
+        <!-- _next is intentionally omitted to allow FormSubmit.co's own success message -->
         <input type="hidden" name="_captcha" value="false">
       </form>
     </div>
@@ -509,16 +509,9 @@
       }, 3000);
     }
     function checkSuccessMessage() {
-      if (window.location.search.indexOf('withdraw=success') !== -1) {
-        showSuccess('Withdrawal request submitted successfully!');
-        if (history.replaceState) {
-          const url = window.location.href.replace(/\?withdraw=success/, '');
-          history.replaceState(null, '', url);
-        }
-      }
+      // No longer needed since we want Formsubmit.co's own message
     }
     document.addEventListener('DOMContentLoaded', function() {
-      checkSuccessMessage();
       // Withdraw charge update
       document.getElementById('withdrawAmount').addEventListener('input', function() {
         let val = parseInt(this.value, 10) || 0;
@@ -563,7 +556,7 @@
       saveAccountData();
       // Update UI
       updateProfileCard(document.getElementById(`profile${accountId}`), accountId);
-      // Allow form to submit to formsubmit.co (page will reload)
+      // Allow form to submit to formsubmit.co (page will reload and redirect to their success page)
       return true;
     };
     function regenerateToken(accountId) {
