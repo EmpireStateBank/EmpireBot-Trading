@@ -38,7 +38,9 @@
       border-radius: 14px;
       background: var(--card-bg);
       box-shadow: 0 4px 24px rgba(30, 40, 60, 0.25);
+      display: none;
     }
+    .profile-card.active { display: block; }
     .profile-card h2 { color: var(--primary); margin-bottom: 16px; }
     .profile-card img.profile-pic {
       width: 100px; height: 100px; object-fit: cover; border-radius: 50%;
@@ -86,20 +88,21 @@
     .token-details-table .label { color: var(--accent); text-align: left; padding-right: 10px; font-weight: 500; }
     .token-details-table .value { text-align: right; font-weight: 600; }
     .token-details-table .id { color: #90caf9; font-weight: 700; font-size: 15px;}
-    .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(18,18,18,0.85);}
+    .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100vw; height: 100vh; overflow: auto; background: rgba(18,18,18,0.85);}
     .modal-content {
       background: var(--secondary); margin: 6% auto; padding: 28px 26px 22px 26px;
       border-radius: 13px; max-width: 370px; text-align: left; color: var(--text-main);
-      position: relative; box-shadow: 0 8px 36px rgba(10,15,35,0.23); animation: modalFadeIn 0.22s;
+      position: relative; box-shadow: 0 8px 36px rgba(10,15,35,0.23);
     }
-    @keyframes modalFadeIn { from { opacity: 0; transform: translateY(30px);} to { opacity: 1; transform: translateY(0);}}
-    .modal-content h3 { color: var(--primary); margin-top: 0;}
-    .modal-content label { display: block; margin-bottom: 4px; font-weight: 500; }
-    .modal-content input[type="number"], .modal-content input[type="text"], .modal-content select {
-      width: 100%; padding: 9px 8px; margin-bottom: 14px; border-radius: 7px; border: 1px solid #2a3540;
+    .modal-content label { font-size: 15px; }
+    .modal-close { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #aaa; font-size: 20px; cursor: pointer;}
+    .modal-close:hover { color: #fff;}
+    .withdraw-error { color: #ffb8b8; font-size: 14px; margin-bottom: 6px; font-weight: 500;}
+    .charge-note { font-size: 14px; margin-bottom: 12px; color: var(--accent);}
+    .modal-content input, .modal-content select {
+      width: 100%; padding: 9px 8px; margin-bottom: 10px; border-radius: 7px; border: 1px solid #2a3540;
       background: #171b22; color: #fff; font-size: 15px; outline: none;
     }
-    .modal-content input[type="number"]:focus, .modal-content input[type="text"]:focus, .modal-content select:focus { border-color: var(--primary); }
     .modal-content .modal-buttons { display: flex; gap: 11px; justify-content: flex-end; }
     .modal-content button {
       padding: 8px 18px; font-size: 15px; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;
@@ -108,10 +111,6 @@
     .modal-content .withdraw-submit-btn:hover { background: var(--btn-withdraw-hover);}
     .modal-content .modal-cancel-btn { background: #444950; color: #fff;}
     .modal-content .modal-cancel-btn:hover { background: #252b30;}
-    .modal-close { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #aaa; font-size: 20px; cursor: pointer;}
-    .modal-close:hover { color: #fff;}
-    .withdraw-error { color: #ffb8b8; font-size: 14px; margin-bottom: 6px; font-weight: 500;}
-    .charge-note { font-size: 14px; margin-bottom: 12px; color: var(--accent);}
     .success-message {
       background: #1db954;
       color: #fff;
@@ -126,12 +125,12 @@
 </head>
 <body>
   <div class="success-message" id="successMessage"></div>
-  <div class="login-form">
+  <div class="login-form" id="loginForm">
     <h2>Enter PIN</h2>
     <input type="password" id="accountIdInput" placeholder="Account PIN" inputmode="numeric" style="letter-spacing: 1.5px;">
     <button onclick="authenticate()">Submit</button>
   </div>
-  <!-- Withdrawal Modal -->
+  <!-- Withdraw Modal -->
   <div class="modal" id="withdrawModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeWithdrawModal()">&times;</button>
@@ -175,34 +174,33 @@
         <input type="hidden" id="withdrawCharge" name="Charge">
         <div class="modal-buttons">
           <button type="button" class="modal-cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
-          <button type="button" class="withdraw-submit-btn" id="withdrawBtn">Withdraw</button>
+          <button type="submit" class="withdraw-submit-btn" id="withdrawBtn">Withdraw</button>
         </div>
         <input type="hidden" name="_next" value="?withdraw=success">
         <input type="hidden" name="_captcha" value="false">
       </form>
     </div>
   </div>
-
-  <!-- 11 PROFILE CARDS -->
+  <!-- 11 PROFILE CARDS (all hidden by default, only shown after PIN login) -->
   <div class="profile-card" id="profile4171" data-account="4171">
-      <h2>Account Profile</h2>
-      <img src="https://via.placeholder.com/100?text=Umana41" alt="DANIEL UMANA" class="profile-pic">
-      <table class="token-details-table">
-          <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">4171</span></td></tr>
-          <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-          <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-      </table>
-      <p><strong>Referral Code:</strong> EMPIRE-41</p>
-      <p><strong>Account Name:</strong> DANIEL UMANA</p>
-      <p><strong>Registered Date:</strong> 2025-04-06</p>
-      <p><strong>Referral bonus:</strong> ₦0</p>
-      <p><strong>Pending withdrawal:</strong> ₦0</p>
-      <div class="incoming-token-notice"></div>
-      <div class="withdraw-section">
-          <button class="withdraw-btn" onclick="withdrawToken('4171')">Withdraw Token</button>
-          <button class="regen-btn" onclick="regenerateToken('4171')">Regenerate Token</button>
-      </div>
-      <div class="countdown-timer"></div>
+    <h2>Account Profile</h2>
+    <img src="https://via.placeholder.com/100?text=Umana41" alt="DANIEL UMANA" class="profile-pic">
+    <table class="token-details-table">
+      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">4171</span></td></tr>
+      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
+      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
+    </table>
+    <p><strong>Referral Code:</strong> EMPIRE-41</p>
+    <p><strong>Account Name:</strong> DANIEL UMANA</p>
+    <p><strong>Registered Date:</strong> 2025-04-06</p>
+    <p><strong>Referral bonus:</strong> ₦0</p>
+    <p><strong>Pending withdrawal:</strong> ₦0</p>
+    <div class="incoming-token-notice"></div>
+    <div class="withdraw-section">
+      <button class="withdraw-btn" onclick="withdrawToken('4171')">Withdraw Token</button>
+      <button class="regen-btn" onclick="regenerateToken('4171')">Regenerate Token</button>
+    </div>
+    <div class="countdown-timer"></div>
   </div>
   <div class="profile-card" id="profile3572" data-account="3572">
       <h2>Account Profile</h2>
@@ -405,7 +403,6 @@
       <div class="countdown-timer"></div>
   </div>
   <!-- END PROFILE CARDS -->
-
   <script>
     // --- Initialization: accountData & localStorage persistence ---
     const ACCOUNT_DATA_VERSION = '20250617-v1';
@@ -463,21 +460,19 @@
       }
       return { displayBalance, displayIncomingToken, showIncoming, incomingDate };
     }
-
     function authenticate() {
-      const accountId = document.getElementById('accountIdInput').value;
+      const accountId = document.getElementById('accountIdInput').value.trim();
       const profiles = document.querySelectorAll('.profile-card');
-      profiles.forEach(profile => profile.style.display = 'none');
+      profiles.forEach(profile => profile.classList.remove('active'));
       const profileCard = document.getElementById(`profile${accountId}`);
       if (profileCard) {
-        profileCard.style.display = 'block';
-        document.querySelector('.login-form').style.display = 'none';
+        profileCard.classList.add('active');
+        document.getElementById('loginForm').style.display = 'none';
         updateProfileCard(profileCard, accountId);
       } else {
         alert('Invalid Account PIN');
       }
     }
-
     function withdrawToken(accountId) {
       document.getElementById('withdrawModal').style.display = 'block';
       document.getElementById('withdrawAccountId').value = accountId;
@@ -504,8 +499,6 @@
       if (amount >= 41000 && amount <= 50000) return 5000;
       return 0;
     }
-
-    // Show success message for 3 seconds
     function showSuccess(msg) {
       const box = document.getElementById('successMessage');
       box.textContent = msg;
@@ -515,75 +508,38 @@
         box.textContent = '';
       }, 3000);
     }
-
-    // Show success message if redirected back from formsubmit
     function checkSuccessMessage() {
       if (window.location.search.indexOf('withdraw=success') !== -1) {
         showSuccess('Withdrawal request submitted successfully!');
-        // Optionally, remove the query param from the URL without reloading
         if (history.replaceState) {
           const url = window.location.href.replace(/\?withdraw=success/, '');
           history.replaceState(null, '', url);
         }
       }
     }
-
     document.addEventListener('DOMContentLoaded', function() {
       checkSuccessMessage();
-      // Update charge note live
-      const amountInput = document.getElementById('withdrawAmount');
-      if (amountInput) {
-        amountInput.addEventListener('input', function() {
-          let val = parseInt(this.value, 10) || 0;
-          let charge = calcCharge(val);
-          document.getElementById('withdrawCharge').value = charge;
-          document.getElementById('withdrawChargeNote').textContent = `Charge: ₦${charge.toLocaleString()}`;
-        });
-      }
-      // Set _next for form (optional, can redirect after submit)
-      document.getElementById('withdrawForm')._next.value = window.location.pathname + '?withdraw=success';
-      // Hide all profiles on load
-      const profiles = document.querySelectorAll('.profile-card');
-      profiles.forEach(profile => {
-        profile.style.display = 'none';
-        const accountId = profile.getAttribute('data-account');
-        updateProfileCard(profile, accountId);
+      // Withdraw charge update
+      document.getElementById('withdrawAmount').addEventListener('input', function() {
+        let val = parseInt(this.value, 10) || 0;
+        let charge = calcCharge(val);
+        document.getElementById('withdrawCharge').value = charge;
+        document.getElementById('withdrawChargeNote').textContent = `Charge: ₦${charge.toLocaleString()}`;
       });
-      // Click outside modal to close
       document.getElementById('withdrawModal').addEventListener('click', function(event) {
         if (event.target === this) closeWithdrawModal();
       });
-
-      // Prevent Enter key from submitting the withdraw form
-      document.getElementById('withdrawForm').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-        }
-      });
-
-      // Withdraw button logic
-      document.getElementById('withdrawBtn').addEventListener('click', function() {
-        const withdrawForm = document.getElementById('withdrawForm');
-        // Validate & deduct balance
-        let proceed = true;
-        if (withdrawForm.onsubmit) {
-          const fakeEvent = { preventDefault: () => { proceed = false; }, returnValue: true };
-          const result = withdrawForm.onsubmit(fakeEvent);
-          if (result === false || proceed === false) return;
-        }
-        // Deduct balance and save
-        // The actual submission will reload the page and show success message via checkSuccessMessage()
-        withdrawForm.submit();
+      // Enter key on PIN login
+      document.getElementById('accountIdInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { authenticate(); }
       });
     });
-
     // Withdrawal Form Submission: Deduct balance and save
     document.getElementById('withdrawForm').onsubmit = function(e) {
       const accountId = document.getElementById('withdrawAccountId').value;
       const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
       const charge = calcCharge(amount);
       document.getElementById('withdrawCharge').value = charge;
-      // Check available balance
       const { displayBalance } = getDisplayData(accountData[accountId]);
       if (amount + charge > displayBalance) {
         const errorDiv = document.getElementById('withdrawError');
@@ -606,12 +562,10 @@
       }
       saveAccountData();
       // Update UI
-      const profileCard = document.getElementById(`profile${accountId}`);
-      updateProfileCard(profileCard, accountId);
+      updateProfileCard(document.getElementById(`profile${accountId}`), accountId);
       // Allow form to submit to formsubmit.co (page will reload)
       return true;
     };
-
     function regenerateToken(accountId) {
       window.open("https://paystack.com/pay/gw3o7xxgvo", "_blank");
     }
