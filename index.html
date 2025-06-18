@@ -405,9 +405,13 @@
   <!-- END PROFILE CARDS -->
   <script>
     // --- Initialization: accountData & localStorage persistence ---
-    const ACCOUNT_DATA_VERSION = '20250617-v1';
+
+    // Helper to get a hash (simple, not cryptographically secure)
+    function getAccountDataHash(obj) {
+      return JSON.stringify(obj);
+    }
+
     const defaultAccountData = {
-      _version: ACCOUNT_DATA_VERSION,
       "4171": {id: "4171", balance: 0, incomingDate: "2025-06-15", incomingTokenAmount: 0},
       "3572": {id: "3572", balance: 45000, incomingDate: "2025-06-25", incomingTokenAmount: 10000},
       "4073": {id: "4073", balance: 8000, incomingDate: "2025-06-19", incomingTokenAmount: 0},
@@ -421,28 +425,29 @@
       "1908": {id: "1908", balance: 0, incomingDate: "2025-07-09", incomingTokenAmount: 8000}
     };
 
+    const currentHash = getAccountDataHash(defaultAccountData);
+    const storedHash = localStorage.getItem('accountDataHash');
     let accountDataRaw = localStorage.getItem('accountData');
     let accountData = {};
-    if (accountDataRaw) {
+
+    if (!accountDataRaw || currentHash !== storedHash) {
+      // Reset if no data OR if hash changed (i.e., defaultAccountData changed)
+      localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
+      localStorage.setItem('accountDataHash', currentHash);
+      accountData = JSON.parse(JSON.stringify(defaultAccountData));
+    } else {
       try {
-        let parsed = JSON.parse(accountDataRaw);
-        if (parsed._version !== ACCOUNT_DATA_VERSION) {
-          localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
-          accountData = JSON.parse(JSON.stringify(defaultAccountData));
-        } else {
-          accountData = parsed;
-        }
+        accountData = JSON.parse(accountDataRaw);
       } catch (e) {
         localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
+        localStorage.setItem('accountDataHash', currentHash);
         accountData = JSON.parse(JSON.stringify(defaultAccountData));
       }
-    } else {
-      localStorage.setItem('accountData', JSON.stringify(defaultAccountData));
-      accountData = JSON.parse(JSON.stringify(defaultAccountData));
     }
 
     function saveAccountData() {
       localStorage.setItem('accountData', JSON.stringify(accountData));
+      // Don't update hash here, only on code change
     }
     function getDisplayData(data) {
       const today = new Date();
