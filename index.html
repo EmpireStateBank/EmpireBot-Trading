@@ -17,6 +17,8 @@
       --btn-withdraw-hover: #17a74a;
       --btn-regenerate: #ff4444;
       --btn-regenerate-hover: #c0392b;
+      --btn-transact: #0368ff;
+      --btn-transact-hover: #034bb3;
       --notice-bg: #272f39;
       --notice-text: #ffe082;
     }
@@ -47,7 +49,7 @@
       margin-bottom: 15px; border: 2.5px solid var(--primary);
     }
     .profile-card p { color: var(--text-muted); margin: 4px 0; }
-    .withdraw-section { margin: 18px 0 6px 0; display: flex; justify-content: center; gap: 15px; }
+    .withdraw-section { margin: 18px 0 6px 0; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;}
     .profile-card button.withdraw-btn {
       padding: 8px 22px; font-size: 15px; color: #fff; background: var(--btn-withdraw);
       border: none; border-radius: 5px; cursor: pointer; font-weight: 500;
@@ -60,6 +62,12 @@
       transition: background 0.2s; box-shadow: 0 2px 8px rgba(255,68,68,0.08);
     }
     .profile-card button.regen-btn:hover { background: var(--btn-regenerate-hover);}
+    .profile-card button.transact-btn {
+      padding: 8px 22px; font-size: 15px; color: #fff; background: var(--btn-transact);
+      border: none; border-radius: 5px; cursor: pointer; font-weight: 500;
+      transition: background 0.2s; box-shadow: 0 2px 8px rgba(3,104,255,0.08);
+    }
+    .profile-card button.transact-btn:hover { background: var(--btn-transact-hover);}
     .login-form {
       max-width: 320px; margin: 48px auto 0 auto; padding: 22px 22px 18px 22px;
       background: linear-gradient(135deg, #23272e 60%, #1db954 100%);
@@ -130,6 +138,31 @@
       font-weight: 500;
       font-size: 15px;
     }
+    /* Transaction History modal styles */
+    #transactionModal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100vw; height: 100vh; overflow: auto; background: rgba(18,18,18,0.85);}
+    #transactionModal .modal-content {
+      background: var(--secondary); margin: 4% auto; padding: 0;
+      border-radius: 13px; max-width: 600px; width: 98vw; min-height: 400px;
+      text-align: left; color: var(--text-main);
+      position: relative; box-shadow: 0 8px 36px rgba(10,15,35,0.23);
+      display: flex; flex-direction: column; height: 70vh;
+    }
+    #transactionModal .modal-close {
+      position: absolute; top: 10px; right: 15px; background: none; border: none; color: #aaa; font-size: 22px; cursor: pointer; z-index: 2;
+    }
+    #transactionModal .modal-close:hover { color: #fff;}
+    #transactionModal iframe {
+      border-radius: 0 0 13px 13px; border: none; width: 100%; flex: 1; min-height: 300px;
+      background: #fff;
+    }
+    #transactionModal .modal-header {
+      padding: 18px 22px 0 22px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--secondary);
+      border-radius: 13px 13px 0 0;
+    }
   </style>
 </head>
 <body>
@@ -188,9 +221,17 @@
           <button type="button" class="modal-cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
           <button type="button" class="withdraw-submit-btn" id="withdrawBtn">Withdraw</button>
         </div>
-        <!-- _next is intentionally omitted to allow FormSubmit.co's own success message -->
         <input type="hidden" name="_captcha" value="false">
       </form>
+    </div>
+  </div>
+  <!-- Transaction History Modal -->
+  <div id="transactionModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeTransactionModal()">&times;</button>
+      <div class="modal-header">Transaction History</div>
+      <!-- Replace src URL with your transaction history page if needed -->
+      <iframe id="transactionIframe" src="" allowfullscreen></iframe>
     </div>
   </div>
   <!-- 11 PROFILE CARDS (all hidden by default, only shown after PIN login) -->
@@ -211,6 +252,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('4171')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('4171')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('4171')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -231,6 +273,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('3572')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('3572')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('3572')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -251,6 +294,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('4073')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('4073')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('4073')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -271,6 +315,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('1313')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('1313')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('1313')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -291,6 +336,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('5011')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('5011')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('5011')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -311,6 +357,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('8103')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('8103')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('8103')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -331,6 +378,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('5012')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('5012')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('5012')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -351,6 +399,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('1266')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('1266')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('1266')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -371,6 +420,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('1220')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('1220')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('1220')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -391,6 +441,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('2019')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('2019')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('2019')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -411,6 +462,7 @@
     <div class="withdraw-section">
       <button class="withdraw-btn" onclick="withdrawToken('1908')">Withdraw Token</button>
       <button class="regen-btn" onclick="regenerateToken('1908')">Regenerate Token</button>
+      <button class="transact-btn" onclick="showTransactionHistory('1908')">Transaction History</button>
     </div>
     <div class="countdown-timer"></div>
   </div>
@@ -544,6 +596,10 @@
           document.getElementById('withdrawForm').requestSubmit();
         }
       });
+      // Transaction modal click-outside to close
+      document.getElementById('transactionModal').addEventListener('click', function(event) {
+        if (event.target === this) closeTransactionModal();
+      });
     });
     // Withdrawal Form Submission: Only check, do not deduct balance, just update UI
     document.getElementById('withdrawForm').onsubmit = function(e) {
@@ -591,6 +647,17 @@
         noticeDiv.style.display = "none";
         noticeDiv.textContent = "";
       }
+    }
+    // Transaction History Logic
+    function showTransactionHistory(accountId) {
+      // Set the iframe src to transaction history site, optionally pass accountId as query param
+      var url = "https://example.com/transactions?account=" + encodeURIComponent(accountId);
+      document.getElementById('transactionIframe').src = url;
+      document.getElementById('transactionModal').style.display = 'block';
+    }
+    function closeTransactionModal() {
+      document.getElementById('transactionModal').style.display = 'none';
+      document.getElementById('transactionIframe').src = '';
     }
   </script>
 </body>
