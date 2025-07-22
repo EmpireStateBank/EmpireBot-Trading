@@ -230,11 +230,11 @@
     <div class="modal-content">
       <button class="modal-close" onclick="closeTransactionModal()">&times;</button>
       <div class="modal-header">Transaction History</div>
-      <!-- Replace src URL with your transaction history page if needed -->
       <iframe id="transactionIframe" src="" allowfullscreen></iframe>
     </div>
   </div>
-  <!-- 11 PROFILE CARDS (all hidden by default, only shown after PIN login) -->
+  <!-- PROFILE CARDS (all hidden by default, only shown after PIN login) -->
+  <!-- 11 profile cards intact, unchanged from your previous file -->
   <div class="profile-card" id="profile4171" data-account="4171">
     <h2>Account Profile</h2>
     <img src="https://via.placeholder.com/100?text=Umana41" alt="DANIEL UMANA" class="profile-pic">
@@ -256,6 +256,7 @@
     </div>
     <div class="countdown-timer"></div>
   </div>
+  <!-- ... repeat for all other profiles (3572, 4073, 1313, 5011, 8103, 5012, 1266, 1220, 2019, 1908) ... -->
   <div class="profile-card" id="profile3572" data-account="3572">
     <h2>Account Profile</h2>
     <img src="AddText_05-22-01.29.33.png" alt="EMMANUEL EKPA" class="profile-pic">
@@ -277,6 +278,7 @@
     </div>
     <div class="countdown-timer"></div>
   </div>
+  <!-- ... continue for 4073, 1313, 5011, 8103, 5012, 1266, 1220, 2019, 1908 ... -->
   <div class="profile-card" id="profile4073" data-account="4073">
     <h2>Account Profile</h2>
     <img src="AddText_05-25-10.37.46.png" alt="ESTHER AMOS" class="profile-pic">
@@ -548,11 +550,7 @@
         box.textContent = '';
       }, 3000);
     }
-    function checkSuccessMessage() {
-      // No longer needed since we want Formsubmit.co's own message
-    }
     document.addEventListener('DOMContentLoaded', function() {
-      // Withdraw charge update
       document.getElementById('withdrawAmount').addEventListener('input', function() {
         let val = parseInt(this.value, 10) || 0;
         let charge = calcCharge(val);
@@ -562,23 +560,19 @@
       document.getElementById('withdrawModal').addEventListener('click', function(event) {
         if (event.target === this) closeWithdrawModal();
       });
-      // Enter key on PIN login
       document.getElementById('accountIdInput').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') { authenticate(); }
       });
-      // ==== Prevent Enter in withdraw form ====
       document.getElementById('withdrawForm').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
           return false;
         }
       });
-      // Withdraw button logic
       document.getElementById('withdrawBtn').addEventListener('click', function(e) {
         const amountInput = document.getElementById('withdrawAmount');
         const errorDiv = document.getElementById('withdrawError');
         let amount = parseInt(amountInput.value, 10) || 0;
-        // Check if amount is above 50000
         if (amount > 50000) {
           errorDiv.style.display = 'block';
           errorDiv.textContent = 'Amount cannot be more than ₦50,000.';
@@ -592,16 +586,13 @@
         } else {
           errorDiv.style.display = 'none';
           errorDiv.textContent = '';
-          // Manually trigger form submission if all checks pass
           document.getElementById('withdrawForm').requestSubmit();
         }
       });
-      // Transaction modal click-outside to close
       document.getElementById('transactionModal').addEventListener('click', function(event) {
         if (event.target === this) closeTransactionModal();
       });
     });
-    // Withdrawal Form Submission: Only check, do not deduct balance, just update UI
     document.getElementById('withdrawForm').onsubmit = function(e) {
       const accountId = document.getElementById('withdrawAccountId').value;
       const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
@@ -622,8 +613,6 @@
         e.preventDefault();
         return false;
       }
-      // Do NOT deduct from balance here, just allow the withdrawal and display the charge.
-      // Allow form to submit to formsubmit.co (page will reload and redirect to their success page)
       return true;
     };
     function regenerateToken(accountId) {
@@ -648,10 +637,9 @@
         noticeDiv.textContent = "";
       }
     }
-    // Transaction History Logic
+    // Transaction History Logic - OPEN IN MODAL IFRAME
     function showTransactionHistory(accountId) {
-      // Set the iframe src to transaction history site, optionally pass accountId as query param
-      var url = "https://empirestatebank.github.io/Transaction-History/" + encodeURIComponent(accountId);
+      var url = "https://empirestatebank.github.io/Transaction-History/?";
       document.getElementById('transactionIframe').src = url;
       document.getElementById('transactionModal').style.display = 'block';
     }
