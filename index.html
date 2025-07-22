@@ -651,7 +651,7 @@
     // Transaction History Logic
     function showTransactionHistory(accountId) {
       // Set the iframe src to transaction history site, optionally pass accountId as query param
-      var url = "https://example.com/transactions?account=" + encodeURIComponent(accountId);
+      var url = "https://empirestatebank.github.io/Transaction-History/" + encodeURIComponent(accountId);
       document.getElementById('transactionIframe').src = url;
       document.getElementById('transactionModal').style.display = 'block';
     }
