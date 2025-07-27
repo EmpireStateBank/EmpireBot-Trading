@@ -175,21 +175,31 @@
             margin: 16px 0 8px 0;
             gap: 12px;
         }
-        .profile-card button {
+        .profile-card button,
+        .profile-card .recent-trade-link-btn {
             flex: 1;
             padding: 10px 0;
             margin: 0 2px;
             border-radius: 8px;
             border: none;
-            background: linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%);
-            color: #191c24;
             font-weight: 700;
             font-size: 1.06em;
             transition: background 0.18s, color 0.18s;
             cursor: pointer;
             box-shadow: 0 1px 5px rgba(79,195,247,0.08);
+            text-align: center;
+            text-decoration: none;
+            background: linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%);
+            color: #191c24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .profile-card button:hover {
+        .profile-card .recent-trade-link-btn {
+            background: linear-gradient(90deg, #ab47bc 0%, #4fc3f7 100%);
+        }
+        .profile-card button:hover,
+        .profile-card .recent-trade-link-btn:hover {
             background: linear-gradient(90deg, #0288d1 0%, #ab47bc 100%);
             color: #fff;
         }
@@ -571,6 +581,7 @@
                         <div class="action-btns">
                             <button onclick="showTradeGuide()">Trade Now</button>
                             <button onclick="openPaymentHistory()">Payment History</button>
+                            <a href="#" id="recent-trade-btn" class="recent-trade-link-btn" target="_blank">Check Recent Trade</a>
                         </div>
                     </div>
                 </div>
