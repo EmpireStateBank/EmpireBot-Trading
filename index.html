@@ -1,652 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Account Status</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --bg-color: #121212;
-      --card-bg: #23272e;
-      --primary: #1db954;
-      --secondary: #222c36;
-      --accent: #03dac6;
-      --text-main: #fff;
-      --text-muted: #b0b3b8;
-      --btn-withdraw: #1db954;
-      --btn-withdraw-hover: #17a74a;
-      --btn-regenerate: #ff4444;
-      --btn-regenerate-hover: #c0392b;
-      --btn-transact: #0368ff;
-      --btn-transact-hover: #034bb3;
-      --notice-bg: #272f39;
-      --notice-text: #ffe082;
-    }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #1a2332 0%, #1db954 100%);
-      background-color: var(--bg-color);
-      text-align: center;
-      min-height: 100vh;
-      margin: 0;
-      color: var(--text-main);
-      transition: background 0.4s;
-    }
-    .profile-card {
-      max-width: 400px;
-      margin: 32px auto;
-      padding: 24px 18px;
-      border: 1px solid #23272e;
-      border-radius: 14px;
-      background: var(--card-bg);
-      box-shadow: 0 4px 24px rgba(30, 40, 60, 0.25);
-      display: none;
-    }
-    .profile-card.active { display: block; }
-    .profile-card h2 { color: var(--primary); margin-bottom: 16px; }
-    .profile-card img.profile-pic {
-      width: 100px; height: 100px; object-fit: cover; border-radius: 50%;
-      margin-bottom: 15px; border: 2.5px solid var(--primary);
-    }
-    .profile-card p { color: var(--text-muted); margin: 4px 0; }
-    .withdraw-section { margin: 18px 0 6px 0; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;}
-    .profile-card button.withdraw-btn {
-      padding: 8px 22px; font-size: 15px; color: #fff; background: var(--btn-withdraw);
-      border: none; border-radius: 5px; cursor: pointer; font-weight: 500;
-      transition: background 0.2s; box-shadow: 0 2px 8px rgba(29,185,84,0.08);
-    }
-    .profile-card button.withdraw-btn:hover { background: var(--btn-withdraw-hover);}
-    .profile-card button.regen-btn {
-      padding: 8px 22px; font-size: 15px; color: #fff; background: var(--btn-regenerate);
-      border: none; border-radius: 5px; cursor: pointer; font-weight: 500;
-      transition: background 0.2s; box-shadow: 0 2px 8px rgba(255,68,68,0.08);
-    }
-    .profile-card button.regen-btn:hover { background: var(--btn-regenerate-hover);}
-    .profile-card button.transact-btn {
-      padding: 8px 22px; font-size: 15px; color: #fff; background: var(--btn-transact);
-      border: none; border-radius: 5px; cursor: pointer; font-weight: 500;
-      transition: background 0.2s; box-shadow: 0 2px 8px rgba(3,104,255,0.08);
-    }
-    .profile-card button.transact-btn:hover { background: var(--btn-transact-hover);}
-    .login-form {
-      max-width: 320px; margin: 48px auto 0 auto; padding: 22px 22px 18px 22px;
-      background: linear-gradient(135deg, #23272e 60%, #1db954 100%);
-      border: 1px solid #23272e; border-radius: 15px; box-shadow: 0 4px 18px rgba(30, 40, 60, 0.18);
-    }
-    .login-form h2 { margin-bottom: 20px; color: var(--primary); }
-    .login-form input {
-      padding: 11px; font-size: 16px; margin-bottom: 15px; width: calc(100% - 22px);
-      border: 1px solid #30363d; border-radius: 6px; outline: none;
-      background-color: #171b22; color: var(--text-main);
-    }
-    .login-form input:focus { border-color: var(--primary); box-shadow: 0 0 6px #1db95455; }
-    .login-form button {
-      padding: 10px 25px; font-size: 16px; color: #fff; background-color: var(--primary);
-      border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
-      box-shadow: 0px 3px 10px rgba(29,185,84,0.17); transition: background 0.3s;
-    }
-    .login-form button:hover { background-color: var(--btn-withdraw-hover);}
-    .countdown-timer { margin-top: 10px; font-weight: bold; font-style: italic; color: var(--accent);}
-    .incoming-token-notice {
-      background: var(--notice-bg); color: var(--notice-text); border-radius: 7px;
-      padding: 10px 8px; margin: 14px 0 10px 0; font-weight: 500; font-size: 15px;
-    }
-    .token-details-table { width: 100%; margin: 10px 0 0 0; border-collapse: collapse; }
-    .token-details-table td { color: var(--text-main); font-size: 14px; padding: 4px 0; }
-    .token-details-table .label { color: var(--accent); text-align: left; padding-right: 10px; font-weight: 500; }
-    .token-details-table .value { text-align: right; font-weight: 600; }
-    .token-details-table .id { color: #90caf9; font-weight: 700; font-size: 15px;}
-    .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100vw; height: 100vh; overflow: auto; background: rgba(18,18,18,0.85);}
-    .modal-content {
-      background: var(--secondary); margin: 6% auto; padding: 28px 26px 22px 26px;
-      border-radius: 13px; max-width: 370px; text-align: left; color: var(--text-main);
-      position: relative; box-shadow: 0 8px 36px rgba(10,15,35,0.23);
-    }
-    .modal-content label { font-size: 15px; }
-    .modal-close { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #aaa; font-size: 20px; cursor: pointer;}
-    .modal-close:hover { color: #fff;}
-    .withdraw-error { color: #ffb8b8; font-size: 14px; margin-bottom: 6px; font-weight: 500;}
-    .charge-note { font-size: 14px; margin-bottom: 12px; color: var(--accent);}
-    .modal-content input, .modal-content select {
-      width: 100%; padding: 9px 8px; margin-bottom: 10px; border-radius: 7px; border: 1px solid #2a3540;
-      background: #171b22; color: #fff; font-size: 15px; outline: none;
-    }
-    .modal-content .modal-buttons { display: flex; gap: 11px; justify-content: flex-end; }
-    .modal-content button {
-      padding: 8px 18px; font-size: 15px; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;
-    }
-    .modal-content .withdraw-submit-btn { background: var(--btn-withdraw); color: #fff;}
-    .modal-content .withdraw-submit-btn:hover { background: var(--btn-withdraw-hover);}
-    .modal-content .modal-cancel-btn { background: #444950; color: #fff;}
-    .modal-content .modal-cancel-btn:hover { background: #252b30;}
-    .success-message {
-      background: #1db954;
-      color: #fff;
-      padding: 14px 10px;
-      font-weight: 600;
-      border-radius: 8px;
-      margin: 14px auto 0 auto;
-      max-width: 400px;
-      display: none;
-    }
-    .withdraw-warning {
-      background: #ffebee;
-      color: #c0392b;
-      border-radius: 7px;
-      padding: 10px 8px;
-      margin-bottom: 12px;
-      font-weight: 500;
-      font-size: 15px;
-    }
-    /* Transaction History modal styles */
-    #transactionModal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100vw; height: 100vh; overflow: auto; background: rgba(18,18,18,0.85);}
-    #transactionModal .modal-content {
-      background: var(--secondary); margin: 4% auto; padding: 0;
-      border-radius: 13px; max-width: 600px; width: 98vw; min-height: 400px;
-      text-align: left; color: var(--text-main);
-      position: relative; box-shadow: 0 8px 36px rgba(10,15,35,0.23);
-      display: flex; flex-direction: column; height: 70vh;
-    }
-    #transactionModal .modal-close {
-      position: absolute; top: 10px; right: 15px; background: none; border: none; color: #aaa; font-size: 22px; cursor: pointer; z-index: 2;
-    }
-    #transactionModal .modal-close:hover { color: #fff;}
-    #transactionModal iframe {
-      border-radius: 0 0 13px 13px; border: none; width: 100%; flex: 1; min-height: 300px;
-      background: #fff;
-    }
-    #transactionModal .modal-header {
-      padding: 18px 22px 0 22px;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--primary);
-      background: var(--secondary);
-      border-radius: 13px 13px 0 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bet Trading - Available Fixture</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #23272f;
+            --accent: #4fc3f7;
+            --accent-dark: #0288d1;
+            --accent2: #ab47bc;
+            --accent3: #ffd54f;
+            --text: #fff;
+            --muted: #bdbdbd;
+            --btn: linear-gradient(90deg, #4fc3f7 0%, #ab47bc 100%);
+            --btn-hover: linear-gradient(90deg, #0288d1 0%, #7e57c2 100%);
+            --card-bg: #191c24;
+            --success: #81c784;
+            --fail: #e57373;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: var(--primary-bg);
+            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-box {
+            background: var(--card-bg);
+            padding: 32px 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.7);
+            width: 92vw;
+            max-width: 340px;
+            text-align: center;
+        }
+        .login-box h2 {
+            font-size: 1.3em;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            background: linear-gradient(90deg, #4fc3f7, #ab47bc 60%, #ffd54f 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .login-box input {
+            width: 80%;
+            padding: 12px;
+            margin-bottom: 18px;
+            border-radius: 8px;
+            border: 1.5px solid var(--accent2);
+            background: var(--secondary-bg);
+            color: var(--text);
+            font-size: 1em;
+            transition: border 0.2s;
+        }
+        .login-box input:focus {
+            outline: none;
+            border: 1.5px solid var(--accent);
+        }
+        .login-box button {
+            padding: 12px 32px;
+            background: var(--btn);
+            color: var(--primary-bg);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            font-size: 1em;
+            letter-spacing: 0.5px;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(79,195,247,0.13);
+        }
+        .login-box button:hover {
+            background: var(--btn-hover);
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(79,195,247,0.18);
+        }
+        .profile-container {
+            width: 100vw;
+            min-height: 100vh;
+            background: var(--primary-bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 70px;
+            box-sizing: border-box;
+        }
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.24);
+            width: 96vw;
+            max-width: 410px;
+            margin-top: 20px;
+            padding: 24px 18px 28px 18px;
+            text-align: center;
+            position: relative;
+            border-top: 3px solid var(--accent2);
+        }
+        .profile-card img {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 12px;
+            border: 3px solid var(--accent3);
+            box-shadow: 0 2px 12px 2px rgba(171,71,188,0.10);
+        }
+        .profile-card .user-name {
+            font-size: 1.29em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--accent2);
+            letter-spacing: 0.5px;
+        }
+        .profile-card .indicator {
+            font-size: 1em;
+            color: var(--accent-dark);
+            margin-bottom: 16px;
+            font-weight: 500;
+            background: linear-gradient(90deg, #4fc3f7, #ffd54f 60%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .site-iframe-section {
+            margin: 25px auto 15px auto;
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            padding: 0;
+            width: 96vw;
+            max-width: 420px;
+            box-shadow: 0 2px 12px rgba(171,71,188,0.08);
+            overflow: hidden;
+            border-left: 4px solid var(--accent3);
+        }
+        .site-iframe-header {
+            font-size: 1.19em;
+            color: var(--accent2);
+            font-weight: bold;
+            padding: 13px 0 9px 0;
+            background: var(--secondary-bg);
+            border-bottom: 1.5px solid var(--accent3);
+            letter-spacing: 0.5px;
+        }
+        .site-iframe-wrapper {
+            width: 100%;
+            height: 340px;
+            background: #101015;
+            border: none;
+        }
+        .profile-card .action-btns {
+            display: flex;
+            justify-content: space-between;
+            margin: 16px 0 8px 0;
+            gap: 12px;
+        }
+        .profile-card button {
+            flex: 1;
+            padding: 10px 0;
+            margin: 0 2px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%);
+            color: #191c24;
+            font-weight: 700;
+            font-size: 1.06em;
+            transition: background 0.18s, color 0.18s;
+            cursor: pointer;
+            box-shadow: 0 1px 5px rgba(79,195,247,0.08);
+        }
+        .profile-card button:hover {
+            background: linear-gradient(90deg, #0288d1 0%, #ab47bc 100%);
+            color: #fff;
+        }
+        /* Modern Account Profile Menu */
+        .profile-menu-bar {
+            width: 100vw;
+            max-width: 100vw;
+            height: 56px;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 15;
+            box-shadow: 0 2px 18px rgba(79,195,247,0.09);
+            padding: 0 18px;
+        }
+        .profile-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text);
+        }
+        .profile-menu-btn img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--accent2);
+        }
+        .profile-menu-btn span {
+            font-size: 1.09em;
+            font-weight: 500;
+            color: var(--accent2);
+        }
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 64px;
+            right: 18px;
+            background: var(--secondary-bg);
+            box-shadow: 0 2px 12px rgba(79,195,247,0.18);
+            border-radius: 10px;
+            width: 91vw;
+            max-width: 305px;
+            z-index: 20;
+            padding: 16px 20px;
+            color: var(--text);
+            animation: fadeIn 0.2s;
+            border-top: 2px solid var(--accent3);
+        }
+        .menu-dropdown.active {
+            display: block;
+        }
+        .menu-dropdown h3 {
+            margin-top: 0;
+            color: var(--accent2);
+            font-size: 1.09em;
+            letter-spacing: 0.5px;
+        }
+        .menu-dropdown .info-row {
+            margin: 12px 0;
+            border-bottom: 1px solid var(--card-bg);
+            padding-bottom: 6px;
+        }
+        .menu-dropdown .info-title {
+            font-weight: 700;
+            font-size: 0.99em;
+            color: var(--accent3);
+        }
+        .menu-dropdown .info-val {
+            color: var(--muted);
+            font-size: 0.98em;
+        }
+        /* Payment history pop-up */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-bg.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 6px 36px rgba(171,71,188,0.17);
+            width: 94vw;
+            max-width: 380px;
+            padding: 26px 14px 18px 14px;
+            position: relative;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            border-top: 3px solid var(--accent2);
+        }
+        .modal-content h3 {
+            color: var(--accent2);
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 18px;
+            background: none;
+            border: none;
+            font-size: 1.45em;
+            color: var(--accent2);
+            cursor: pointer;
+        }
+        .payment-history-list {
+            background: var(--secondary-bg);
+            border-radius: 10px;
+            margin-top: 7px;
+            padding: 6px 3px;
+            overflow-y: auto;
+            max-height: 48vh;
+        }
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 6px;
+            border-bottom: 1px solid var(--card-bg);
+            font-size: 0.99em;
+        }
+        .payment-item:last-child { border-bottom: none; }
+        .payment-details {
+            flex: 4;
+        }
+        .payment-status {
+            flex: 1;
+            text-align: right;
+        }
+        .payment-status .success {
+            color: var(--success);
+            font-size: 1.2em;
+        }
+        .payment-status .fail {
+            color: var(--fail);
+            font-size: 1.2em;
+        }
+        @media (max-width: 480px) {
+            .profile-card, .modal-content, .site-iframe-section {
+                max-width: 98vw;
+                padding: 12px 3vw 22px 3vw;
+            }
+            .menu-dropdown {
+                max-width: 97vw;
+                padding: 10px 7vw;
+            }
+            .profile-menu-bar {
+                padding: 0 2vw;
+            }
+            .site-iframe-wrapper {
+                height: 200px;
+            }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+    </style>
 </head>
 <body>
-  <div class="success-message" id="successMessage"></div>
-  <div class="login-form" id="loginForm">
-    <h2>Enter PIN</h2>
-    <input type="password" id="accountIdInput" placeholder="Account PIN" inputmode="numeric" style="letter-spacing: 1.5px;">
-    <button onclick="authenticate()">Submit</button>
-  </div>
-  <!-- Withdraw Modal -->
-  <div class="modal" id="withdrawModal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeWithdrawModal()">&times;</button>
-      <h3>Withdraw Funds</h3>
-      <div class="withdraw-warning">
-        Notice: You are only allowed to make one withdrawal per day. Attempting multiple withdrawals within the same day may result in your account not being credited. Please withdraw responsibly[...]
-      </div>
-      <div id="withdrawError" class="withdraw-error" style="display:none;"></div>
-      <form id="withdrawForm" method="POST" action="https://formsubmit.co/empirevirtual99@gmail.com" autocomplete="off">
-        <input type="hidden" id="withdrawAccountId" name="Account ID">
-        <label for="withdrawAccountNumber">Account Number:</label>
-        <input type="number" id="withdrawAccountNumber" name="Account Number" maxlength="20" required pattern="^\d{10,}$" inputmode="numeric" placeholder="Enter Account Number (10+ digits)">
-        <label for="withdrawBank">Bank:</label>
-        <select id="withdrawBank" name="Bank" required>
-          <option value="">Select Bank</option>
-          <option>Access Bank</option>
-          <option>Fidelity Bank</option>
-          <option>First Bank</option>
-          <option>GTBank</option>
-          <option>UBA</option>
-          <option>Zenith Bank</option>
-          <option>Stanbic IBTC Bank</option>
-          <option>Union Bank</option>
-          <option>FCMB</option>
-          <option>Ecobank</option>
-          <option>Wema Bank</option>
-          <option>Polaris Bank</option>
-          <option>Sterling Bank</option>
-          <option>Keystone Bank</option>
-          <option>Unity Bank</option>
-          <option>Jaiz Bank</option>
-          <option>Citibank</option>
-          <option>Heritage Bank</option>
-        </select>
-        <label for="withdrawAccountName">Account Name:</label>
-        <input type="text" id="withdrawAccountName" name="Account Name" maxlength="40" required placeholder="Enter Account Name">
-        <label for="withdrawPhone">Beneficiary's Phone Number:</label>
-        <input type="number" id="withdrawPhone" name="Beneficiary Phone" maxlength="15" required pattern="^\d{8,}$" inputmode="numeric" placeholder="Enter Phone Number">
-        <label for="withdrawAmount">Amount (₦):</label>
-        <input type="number" id="withdrawAmount" name="Amount" min="1000" max="50000" step="100" required inputmode="numeric">
-        <label for="withdrawPin">Input PIN:</label>
-        <input type="number" id="withdrawPin" name="Withdraw PIN" maxlength="6" required inputmode="numeric" pattern="[0-9]{4,6}" placeholder="Enter PIN">
-        <div class="charge-note" id="withdrawChargeNote">Charge: ₦0</div>
-        <input type="hidden" id="withdrawCharge" name="Charge">
-        <div class="modal-buttons">
-          <button type="button" class="modal-cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
-          <button type="button" class="withdraw-submit-btn" id="withdrawBtn">Withdraw</button>
+
+    <!-- Account Profile Bar (menu at top right) -->
+    <div id="profile-menu-bar" class="profile-menu-bar" style="display:none;">
+        <button id="profile-menu-btn" class="profile-menu-btn">
+            <img src="" alt="Profile" id="profile-menu-img"/>
+            <span id="profile-menu-name"></span>
+            <svg id="profile-menu-arrow" width="18" height="18" style="vertical-align: middle;" viewBox="0 0 20 20"><polyline points="4 8 10 14 16 8" fill="none" stroke="#ab47bc" stroke-width="2"></polyline></svg>
+        </button>
+        <div id="profile-menu-dropdown" class="menu-dropdown">
+            <h3>Account Details</h3>
+            <div class="info-row"><span class="info-title">Registered Date:</span> <span class="info-val" id="registered-date"></span></div>
+            <div class="info-row"><span class="info-title">Account Name:</span> <span class="info-val" id="account-name"></span></div>
+            <div class="info-row"><span class="info-title">Account Number:</span> <span class="info-val" id="account-number"></span></div>
+            <div class="info-row"><span class="info-title">Bank Name:</span> <span class="info-val" id="bank-name"></span></div>
         </div>
-        <input type="hidden" name="_captcha" value="false">
-      </form>
     </div>
-  </div>
-  <!-- Transaction History Modal -->
-  <div id="transactionModal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeTransactionModal()">&times;</button>
-      <div class="modal-header">Transaction History</div>
-      <iframe id="transactionIframe" src="" allowfullscreen></iframe>
-    </div>
-  </div>
-  <!-- PROFILE CARDS (all hidden by default, only shown after PIN login) -->
-  <!-- 11 profile cards intact, unchanged from your previous file -->
-  <div class="profile-card" id="profile4171" data-account="4171">
-    <h2>Account Profile</h2>
-    <img src="https://via.placeholder.com/100?text=Umana41" alt="DANIEL UMANA" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">4171</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-41</p>
-    <p><strong>Account Name:</strong> DANIEL UMANA</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('4171')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('4171')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('4171')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <!-- ... repeat for all other profiles (3572, 4073, 1313, 5011, 8103, 5012, 1266, 1220, 2019, 1908) ... -->
-  <div class="profile-card" id="profile3572" data-account="3572">
-    <h2>Account Profile</h2>
-    <img src="AddText_05-22-01.29.33.png" alt="EMMANUEL EKPA" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">3572</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-32</p>
-    <p><strong>Account Name:</strong> EMMANUEL EKPA</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('3572')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('3572')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('3572')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <!-- ... continue for 4073, 1313, 5011, 8103, 5012, 1266, 1220, 2019, 1908 ... -->
-  <div class="profile-card" id="profile4073" data-account="4073">
-    <h2>Account Profile</h2>
-    <img src="AddText_05-25-10.37.46.png" alt="ESTHER AMOS" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">4073</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-43</p>
-    <p><strong>Account Name:</strong> ESTHER AMOS</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('4073')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('4073')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('4073')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <div class="profile-card" id="profile1313" data-account="1313">
-    <h2>Account Profile</h2>
-    <img src="AddText_05-25-10.37.07.png" alt="ITOHOWO AKAN" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">1313</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-13</p>
-    <p><strong>Account Name:</strong> ITOHOWO AKAN</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('1313')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('1313')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('1313')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <div class="profile-card" id="profile5011" data-account="5011">
-    <h2>Account Profile</h2>
-    <img src="https://via.placeholder.com/100?text=Akpan50" alt="IME AKPAN" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">5011</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-51</p>
-    <p><strong>Account Name:</strong> IME AKPAN</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('5011')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('5011')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('5011')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <div class="profile-card" id="profile8103" data-account="8103">
-    <h2>Account Profile</h2>
-    <img src="https://via.placeholder.com/100?text=Udo81" alt="PATIENCE UDO" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">8103</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-83</p>
-    <p><strong>Account Name:</strong> PATIENCE UDO</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('8103')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('8103')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('8103')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <div class="profile-card" id="profile5012" data-account="5012">
-    <h2>Account Profile</h2>
-    <img src="AddText_06-03-08.29.58.png" alt="SAMUEL AKPAN" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">5012</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-52</p>
-    <p><strong>Account Name:</strong> SAMUEL AKPAN</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('5012')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('5012')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('5012')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <div class="profile-card" id="profile1266" data-account="1266">
-    <h2>Account Profile</h2>
-    <img src="AddText_05-22-09.03.57.png" alt="SAMUEL IME" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">1266</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-16</p>
-    <p><strong>Account Name:</strong> SAMUEL IME</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('1266')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('1266')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('1266')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <div class="profile-card" id="profile1220" data-account="1220">
-    <h2>Account Profile</h2>
-    <img src="AddText_05-29-09.19.44.png" alt="SAVIOUR EKONG" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">1220</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-10</p>
-    <p><strong>Account Name:</strong> SAVIOUR EKONG</p>
-    <p><strong>Registered Date:</strong> 2025-04-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('1220')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('1220')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('1220')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <div class="profile-card" id="profile2019" data-account="2019">
-    <h2>Account Profile</h2>
-    <img src="AddText_06-02-03.50.45.png" alt="CHARITY HANSON" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">2019</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-29</p>
-    <p><strong>Account Name:</strong> CHARITY HANSON</p>
-    <p><strong>Registered Date:</strong> 2025-06-03</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('2019')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('2019')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('2019')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <div class="profile-card" id="profile1908" data-account="1908">
-    <h2>Account Profile</h2>
-    <img src="AddText_06-05-09.14.49.png" alt="USHIE ONEN" class="profile-pic">
-    <table class="token-details-table">
-      <tr><td class="label id">ID:</td><td class="value id"><span class="account-id">1908</span></td></tr>
-      <tr><td class="label">Current Balance:</td><td class="value"><span class="balance-value"></span></td></tr>
-      <tr><td class="label">Incoming Token:</td><td class="value"><span class="incoming-token-amount"></span> (<span class="incoming-date"></span>)</td></tr>
-    </table>
-    <p><strong>Referral Code:</strong> EMPIRE-18</p>
-    <p><strong>Account Name:</strong> USHIE ONEN</p>
-    <p><strong>Registered Date:</strong> 2025-06-06</p>
-    <p><strong>Referral bonus:</strong> ₦0</p>
-    <p><strong>Pending withdrawal:</strong> ₦0</p>
-    <div class="incoming-token-notice"></div>
-    <div class="withdraw-section">
-      <button class="withdraw-btn" onclick="withdrawToken('1908')">Withdraw Token</button>
-      <button class="regen-btn" onclick="regenerateToken('1908')">Regenerate Token</button>
-      <button class="transact-btn" onclick="showTransactionHistory('1908')">Transaction History</button>
-    </div>
-    <div class="countdown-timer"></div>
-  </div>
-  <!-- END PROFILE CARDS -->
-  <script>
-    // --- Initialization: accountData (no localStorage at all) ---
-    const accountData = {
-      "4171": {id: "4171", balance: 0, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-      "3572": {id: "3572", balance: 45000, incomingDate: "2025-06-25", incomingTokenAmount: 10000},
-      "4073": {id: "4073", balance: 8000, incomingDate: "2025-06-19", incomingTokenAmount: 0},
-      "1313": {id: "1313", balance: 0, incomingDate: "2025-07-25", incomingTokenAmount: 10000},
-      "5011": {id: "5011", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-      "8103": {id: "8103", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-      "5012": {id: "5012", balance: 0, incomingDate: "2025-07-20", incomingTokenAmount: 20000},
-      "1266": {id: "1266", balance: 8000, incomingDate: "2025-07-30", incomingTokenAmount: 10000},
-      "1220": {id: "1220", balance: 8000, incomingDate: "2025-06-15", incomingTokenAmount: 0},
-      "2019": {id: "2019", balance: 8000, incomingDate: "2025-08-15", incomingTokenAmount: 10000},
-      "1908": {id: "1908", balance: 0, incomingDate: "2025-07-09", incomingTokenAmount: 8000}
-    };
 
-    function getDisplayData(data) {
-      const today = new Date();
-      const incomingDate = new Date(data.incomingDate + "T00:00:00");
-      let displayBalance = data.balance;
-      let displayIncomingToken = 0;
-      let showIncoming = false;
-      if (today < incomingDate) {
-        displayIncomingToken = data.incomingTokenAmount || 0;
-        showIncoming = true;
-      } else {
-        displayBalance += data.incomingTokenAmount || 0;
-        displayIncomingToken = 0;
-        showIncoming = false;
-      }
-      return { displayBalance, displayIncomingToken, showIncoming, incomingDate };
-    }
+    <div class="main-container" id="main-container">
+        <!-- Login box -->
+        <div class="login-box" id="login-box">
+            <h2>Welcome to Bet Trading</h2>
+            <input type="password" id="pin-input" maxlength="8" placeholder="Enter your PIN" autocomplete="off" />
+            <br>
+            <button onclick="loginUser()">Open Profile</button>
+            <p id="login-error" style="color:#e57373; margin-top:10px; font-size:0.98em; display:none;">Invalid PIN, try again.</p>
+        </div>
+        <!-- Profile and rest of UI will be injected here -->
+    </div>
 
-    function authenticate() {
-      const accountId = document.getElementById('accountIdInput').value.trim();
-      const profiles = document.querySelectorAll('.profile-card');
-      profiles.forEach(profile => profile.classList.remove('active'));
-      const profileCard = document.getElementById(`profile${accountId}`);
-      if (profileCard) {
-        profileCard.classList.add('active');
-        document.getElementById('loginForm').style.display = 'none';
-        updateProfileCard(profileCard, accountId);
-      } else {
-        alert('Invalid Account PIN');
-      }
-    }
-    function withdrawToken(accountId) {
-      document.getElementById('withdrawModal').style.display = 'block';
-      document.getElementById('withdrawAccountId').value = accountId;
-      document.getElementById('withdrawAccountNumber').value = '';
-      document.getElementById('withdrawBank').selectedIndex = 0;
-      document.getElementById('withdrawAccountName').value = '';
-      document.getElementById('withdrawPhone').value = '';
-      document.getElementById('withdrawAmount').value = '';
-      document.getElementById('withdrawCharge').value = '';
-      document.getElementById('withdrawPin').value = '';
-      document.getElementById('withdrawChargeNote').textContent = 'Charge: ₦0';
-      document.getElementById('withdrawError').style.display = 'none';
-      document.getElementById('withdrawError').textContent = '';
-    }
-    function closeWithdrawModal() {
-      document.getElementById('withdrawModal').style.display = 'none';
-    }
-    function calcCharge(amount) {
-      if (amount >= 1000 && amount <= 5000) return 500;
-      if (amount >= 6000 && amount <= 10000) return 1000;
-      if (amount >= 11000 && amount <= 20000) return 2000;
-      if (amount >= 21000 && amount <= 30000) return 3000;
-      if (amount >= 31000 && amount <= 40000) return 4000;
-      if (amount >= 41000 && amount <= 50000) return 5000;
-      return 0;
-    }
-    function showSuccess(msg) {
-      const box = document.getElementById('successMessage');
-      box.textContent = msg;
-      box.style.display = 'block';
-      setTimeout(() => {
-        box.style.display = 'none';
-        box.textContent = '';
-      }, 3000);
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('withdrawAmount').addEventListener('input', function() {
-        let val = parseInt(this.value, 10) || 0;
-        let charge = calcCharge(val);
-        document.getElementById('withdrawCharge').value = charge;
-        document.getElementById('withdrawChargeNote').textContent = `Charge: ₦${charge.toLocaleString()}`;
-      });
-      document.getElementById('withdrawModal').addEventListener('click', function(event) {
-        if (event.target === this) closeWithdrawModal();
-      });
-      document.getElementById('accountIdInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { authenticate(); }
-      });
-      document.getElementById('withdrawForm').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          return false;
+    <!-- Payment History Modal -->
+    <div class="modal-bg" id="payment-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <h3>Payment History</h3>
+            <div class="payment-history-list" id="payment-history-list">
+                <!-- Payment rows injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo users data
+        const users = {
+            "1234": {
+                pin: "1234",
+                name: "Adebola Yusuf",
+                image: "https://randomuser.me/api/portraits/men/32.jpg",
+                registered: "2023-10-12",
+                account_name: "Adebola Yusuf",
+                account_number: "1234567891",
+                bank: "Access Bank",
+                payment_history: [
+                    { date: "2025-07-26", amount: 12800, odd: "2.10", status: true },
+                    { date: "2025-07-25", amount: 7000, odd: "1.85", status: false },
+                    { date: "2025-07-22", amount: 2500, odd: "2.01", status: true },
+                ]
+            },
+            "2468": {
+                pin: "2468",
+                name: "Ngozi Okafor",
+                image: "https://randomuser.me/api/portraits/women/44.jpg",
+                registered: "2025-01-08",
+                account_name: "Ngozi Okafor",
+                account_number: "2233445566",
+                bank: "UBA",
+                payment_history: [
+                    { date: "2025-07-26", amount: 14500, odd: "2.50", status: true },
+                    { date: "2025-07-21", amount: 4200, odd: "1.90", status: false }
+                ]
+            }
+            // Add more users as needed
+        };
+
+        let currentUser = null;
+
+        function loginUser() {
+            const pin = document.getElementById('pin-input').value.trim();
+            if (users.hasOwnProperty(pin)) {
+                currentUser = users[pin];
+                document.getElementById('login-error').style.display = 'none';
+                showProfile();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
         }
-      });
-      document.getElementById('withdrawBtn').addEventListener('click', function(e) {
-        const amountInput = document.getElementById('withdrawAmount');
-        const errorDiv = document.getElementById('withdrawError');
-        let amount = parseInt(amountInput.value, 10) || 0;
-        if (amount > 50000) {
-          errorDiv.style.display = 'block';
-          errorDiv.textContent = 'Amount cannot be more than ₦50,000.';
-          e.preventDefault();
-          return false;
-        } else if (!amountInput.value) {
-          errorDiv.style.display = 'block';
-          errorDiv.textContent = 'Please enter withdrawal amount.';
-          e.preventDefault();
-          return false;
-        } else {
-          errorDiv.style.display = 'none';
-          errorDiv.textContent = '';
-          document.getElementById('withdrawForm').requestSubmit();
+
+        function showProfile() {
+            // Hide login, show menu, render profile
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('profile-menu-bar').style.display = 'flex';
+
+            // Update profile menu button
+            document.getElementById('profile-menu-img').src = currentUser.image;
+            document.getElementById('profile-menu-name').textContent = currentUser.name;
+
+            // Fill menu details
+            document.getElementById('registered-date').innerText = currentUser.registered;
+            document.getElementById('account-name').innerText = currentUser.account_name;
+            document.getElementById('account-number').innerText = currentUser.account_number;
+            document.getElementById('bank-name').innerText = currentUser.bank;
+
+            // Build profile card + Website iframe section
+            const container = document.getElementById('main-container');
+            container.innerHTML = `
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <img src="${currentUser.image}" alt="User Image"/>
+                        <div class="user-name">${currentUser.name}</div>
+                        <div class="indicator">
+                            Trade starts every <span style="color:#ffd54f">Saturday</span>. Results are released on <span style="color:#ab47bc">Sunday</span>.<br>
+                            <span style="color:#4fc3f7">Make your payment before Friday 5:00 PM to participate.</span>
+                        </div>
+                        <div class="site-iframe-section">
+                            <div class="site-iframe-header">Available Fixture For Trading</div>
+                            <iframe class="site-iframe-wrapper" src="https://example.com" id="odd-iframe" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div style="font-size:0.98em; margin-bottom:10px; color:var(--muted);">
+                            When results are out, your winning will be sent to your Bank account immediately.
+                        </div>
+                        <div class="action-btns">
+                            <button onclick="window.open('https://www.bet9ja.com', '_blank')">Trade Now</button>
+                            <button onclick="openPaymentHistory()">Payment History</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            // To set your real fixture provider page, replace the src value above from 'https://example.com' to your desired URL.
         }
-      });
-      document.getElementById('transactionModal').addEventListener('click', function(event) {
-        if (event.target === this) closeTransactionModal();
-      });
-    });
-    document.getElementById('withdrawForm').onsubmit = function(e) {
-      const accountId = document.getElementById('withdrawAccountId').value;
-      const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
-      const charge = calcCharge(amount);
-      document.getElementById('withdrawCharge').value = charge;
-      const { displayBalance } = getDisplayData(accountData[accountId]);
-      if (amount > 50000) {
-        const errorDiv = document.getElementById('withdrawError');
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = 'Amount cannot be more than ₦50,000.';
-        e.preventDefault();
-        return false;
-      }
-      if (amount > displayBalance) {
-        const errorDiv = document.getElementById('withdrawError');
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = `Insufficient balance. You only have ₦${displayBalance.toLocaleString()}.`;
-        e.preventDefault();
-        return false;
-      }
-      return true;
-    };
-    function regenerateToken(accountId) {
-      window.open("https://paystack.com/pay/gw3o7xxgvo", "_blank");
-    }
-    function updateProfileCard(profileCard, accountId) {
-      const data = accountData[accountId];
-      if (!data) return;
-      const balanceSpan = profileCard.querySelector('.balance-value');
-      const noticeDiv = profileCard.querySelector('.incoming-token-notice');
-      const incomingTokenAmountSpan = profileCard.querySelector('.incoming-token-amount');
-      const incomingDateSpan = profileCard.querySelector('.incoming-date');
-      const { displayBalance, displayIncomingToken, showIncoming, incomingDate } = getDisplayData(data);
-      balanceSpan.textContent = "₦" + displayBalance.toLocaleString();
-      incomingTokenAmountSpan.textContent = "₦" + displayIncomingToken.toLocaleString();
-      incomingDateSpan.textContent = showIncoming ? data.incomingDate : "";
-      if (showIncoming) {
-        noticeDiv.style.display = "block";
-        noticeDiv.textContent = `Incoming Token of ₦${displayIncomingToken.toLocaleString()} will be added to your balance on ${incomingDate.toDateString()}.`;
-      } else {
-        noticeDiv.style.display = "none";
-        noticeDiv.textContent = "";
-      }
-    }
-    // Transaction History Logic - OPEN IN MODAL IFRAME
-    function showTransactionHistory(accountId) {
-      var url = "https://empirestatebank.github.io/Transaction-History/?";
-      document.getElementById('transactionIframe').src = url;
-      document.getElementById('transactionModal').style.display = 'block';
-    }
-    function closeTransactionModal() {
-      document.getElementById('transactionModal').style.display = 'none';
-      document.getElementById('transactionIframe').src = '';
-    }
-  </script>
+
+        // Profile Menu logic
+        document.getElementById("profile-menu-btn").addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('profile-menu-dropdown').classList.toggle('active');
+        });
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.profile-menu-bar')) {
+                document.getElementById('profile-menu-dropdown').classList.remove('active');
+            }
+        });
+
+        // Payment History Modal
+        function openPaymentHistory() {
+            const modal = document.getElementById('payment-modal');
+            modal.classList.add('active');
+            const list = document.getElementById('payment-history-list');
+            list.innerHTML = ''; // clear
+            if (currentUser && currentUser.payment_history.length) {
+                currentUser.payment_history.forEach(item => {
+                    list.innerHTML += `
+                        <div class="payment-item">
+                            <div class="payment-details">
+                                <div><b>Date:</b> ${item.date}</div>
+                                <div><b>Amount:</b> ₦${item.amount.toLocaleString()}</div>
+                                <div><b>Trade ODD:</b> ${item.odd}</div>
+                            </div>
+                            <div class="payment-status">
+                                ${item.status ? '<span class="success">&#x2714;</span>' : '<span class="fail">&#10060;</span>'}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                list.innerHTML = `<div style="color:var(--muted);padding:24px 0;text-align:center;">No payment history yet.</div>`;
+            }
+        }
+        function closeModal() {
+            document.getElementById('payment-modal').classList.remove('active');
+        }
+
+        // Enter key to login
+        document.getElementById('pin-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') loginUser();
+        });
+    </script>
 </body>
 </html>
