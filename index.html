@@ -380,6 +380,7 @@
             <div class="info-row"><span class="info-title">Account Name:</span> <span class="info-val" id="account-name"></span></div>
             <div class="info-row"><span class="info-title">Account Number:</span> <span class="info-val" id="account-number"></span></div>
             <div class="info-row"><span class="info-title">Bank Name:</span> <span class="info-val" id="bank-name"></span></div>
+            <div class="info-row"><span class="info-title">Beneficiary's Number:</span> <span class="info-val" id="beneficiary-number"></span></div>
         </div>
     </div>
 
@@ -406,17 +407,34 @@
         </div>
     </div>
 
+    <!-- Trade Guide Modal -->
+    <div class="modal-bg" id="trade-guide-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeTradeGuide()">&times;</button>
+            <h3>How to Trade Successfully</h3>
+            <ol style="text-align:left; color:var(--text); margin-top: 10px; padding-left: 24px; font-size: 1.04em;">
+                <li>Enter your details in the registration form and click <b>Pay Now</b>.</li>
+                <li>Select <b>Pay with Transfer</b> for the most reliable payment experience.</li>
+                <li>Make your payment to the account number provided.</li>
+                <li>Keep your browser open, wait for the process to finish, and complete any "I’m not a robot" checks before closing the page.</li>
+                <li>If you encounter any issues, contact support with your payment details for assistance.</li>
+            </ol>
+            <button style="margin-top:18px; width:100%; padding:12px 0; border-radius:8px; background:linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%); color:#191c24; font-weight:700; font-size:1.1em; cursor:pointer; border:none;" onclick="proceedToTradeSite()">Proceed</button>
+        </div>
+    </div>
+
     <script>
-        // Demo users data
+        // Demo users data (all users have 'registered', and empty payment_history is [])
         const users = {
             "3572": {
                 pin: "3572",
                 name: "EMMANUEL EKPA",
                 image: "AddText_05-22-01.29.33.png",
-                Beneficiary: "08105866469",
+                beneficiary: "08105866469",
                 account_name: "EMMANUEL EMMANUEL EKPA",
                 account_number: "8145300013",
                 bank: "F.C.M.B",
+                registered: "2024-03-15",
                 payment_history: [
                     { date: "2025-07-26", amount: 12800, odd: "2.10", status: true },
                     { date: "2025-07-25", amount: 7000, odd: "1.85", status: false },
@@ -427,66 +445,56 @@
                 pin: "4073",
                 name: "ESTHER AMOS",
                 image: "AddText_05-25-10.37.46.png",
-                Beneficiary: "08130024073",
+                beneficiary: "08130024073",
                 account_name: "ESTHER EKERETTE AMOS",
                 account_number: "4301808534",
                 bank: "Zenith Bank International",
-                payment_history: [
-                    { date: "", amount: , odd: "", status:  },
-                    { date: "", amount: , odd: "", status:  }
-                ]
+                registered: "2024-04-20",
+                payment_history: []
             },
             "1313": {
                 pin: "1313",
                 name: "ITOHOWO AKAN",
                 image: "AddText_05-25-10.37.07.png",
-                Beneficiary: "09037060454",
+                beneficiary: "09037060454",
                 account_name: "ITOHOWO JOHN AKAN",
                 account_number: "2088350310",
                 bank: "Zenith Bank International",
-                payment_history: [
-                    { date: "", amount: , odd: "", status:  },
-                    { date: "", amount: , odd: "", status:  }
-                ]
+                registered: "2024-06-01",
+                payment_history: []
             },
             "5012": {
                 pin: "5012",
                 name: "SAMUEL AKPAN",
                 image: "AddText_06-03-08.29.58.png",
-                Beneficiary: "09138109857",
+                beneficiary: "09138109857",
                 account_name: "SAMUEL MONDAY AKPAN",
                 account_number: "2309320542",
                 bank: "UBA",
-                payment_history: [
-                    { date: "", amount: , odd: "", status:  },
-                    { date: "", amount: , odd: "", status:  }
-                ]
+                registered: "2024-06-10",
+                payment_history: []
             },
             "1266": {
                 pin: "1266",
                 name: "SAMUEL IME",
                 image: "AddText_05-22-09.03.57.png",
-                Beneficiary: "N/N",
+                beneficiary: "N/N",
                 account_name: "SAMUEL IME",
                 account_number: "N/N",
                 bank: "N/N",
-                payment_history: [
-                    { date: "", amount: , odd: "", status:  },
-                    { date: "", amount: , odd: "", status:  }
-                ]
+                registered: "2024-07-01",
+                payment_history: []
             },
             "1220": {
                 pin: "1220",
                 name: "SAVIOUR EKONG",
                 image: "AddText_05-29-09.19.44.png",
-                Beneficiary: "N/N",
+                beneficiary: "N/N",
                 account_name: "SAVIOUR EKONG",
                 account_number: "N/N",
-                Bank: "N/N",
-                payment_history: [
-                    { date: "", amount: , odd: "", status:  },
-                    { date: "", amount: , odd: "", status:  }
-                ]
+                bank: "N/N",
+                registered: "2024-07-05",
+                payment_history: []
             },
             "2019": {
                 pin: "2019",
@@ -496,10 +504,8 @@
                 account_name: "CHARITY ASUQUO HANSON",
                 account_number: "2266867085",
                 bank: "UBA",
-                payment_history: [
-                    { date: "", amount: , odd: "", status:  },
-                    { date: "", amount: , odd: "", status:  }
-                ]
+                registered: "2024-07-10",
+                payment_history: []
             },
             "1908": {
                 pin: "1908",
@@ -509,10 +515,8 @@
                 account_name: "USHIE IKPI ONEN",
                 account_number: "2061660821",
                 bank: "UBA",
-                payment_history: [
-                    { date: "", amount: , odd: "", status:  },
-                    { date: "", amount: , odd: "", status:  }
-                ]
+                registered: "2024-07-18",
+                payment_history: []
             }
             // Add more users as needed
         };
@@ -540,10 +544,11 @@
             document.getElementById('profile-menu-name').textContent = currentUser.name;
 
             // Fill menu details
-            document.getElementById('registered-date').innerText = currentUser.registered;
-            document.getElementById('account-name').innerText = currentUser.account_name;
-            document.getElementById('account-number').innerText = currentUser.account_number;
-            document.getElementById('bank-name').innerText = currentUser.bank;
+            document.getElementById('registered-date').innerText = currentUser.registered || 'N/A';
+            document.getElementById('account-name').innerText = currentUser.account_name || 'N/A';
+            document.getElementById('account-number').innerText = currentUser.account_number || 'N/A';
+            document.getElementById('bank-name').innerText = currentUser.bank || 'N/A';
+            document.getElementById('beneficiary-number').innerText = currentUser.beneficiary || 'N/A';
 
             // Build profile card + Website iframe section
             const container = document.getElementById('main-container');
@@ -564,13 +569,12 @@
                             When results are out, your winning will be sent to your Bank account immediately.
                         </div>
                         <div class="action-btns">
-                            <button onclick="window.open('https://www.bet9ja.com', '_blank')">Trade Now</button>
+                            <button onclick="showTradeGuide()">Trade Now</button>
                             <button onclick="openPaymentHistory()">Payment History</button>
                         </div>
                     </div>
                 </div>
             `;
-            // To set your real fixture provider page, replace the src value above from 'https://example.com' to your desired URL.
         }
 
         // Profile Menu logic
@@ -590,7 +594,7 @@
             modal.classList.add('active');
             const list = document.getElementById('payment-history-list');
             list.innerHTML = ''; // clear
-            if (currentUser && currentUser.payment_history.length) {
+            if (currentUser && currentUser.payment_history && currentUser.payment_history.length) {
                 currentUser.payment_history.forEach(item => {
                     list.innerHTML += `
                         <div class="payment-item">
@@ -611,6 +615,19 @@
         }
         function closeModal() {
             document.getElementById('payment-modal').classList.remove('active');
+        }
+
+        // Trade Guide Modal logic
+        function showTradeGuide() {
+            document.getElementById('trade-guide-modal').classList.add('active');
+        }
+        function closeTradeGuide() {
+            document.getElementById('trade-guide-modal').classList.remove('active');
+        }
+        function proceedToTradeSite() {
+            closeTradeGuide();
+            // Replace this link with your actual payment link
+            window.open('https://your-payment-link.com', '_blank');
         }
 
         // Enter key to login
