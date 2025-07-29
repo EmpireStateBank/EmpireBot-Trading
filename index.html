@@ -6,6 +6,7 @@
     <title>Bet Trading - Available Fixture</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
     <style>
+        /* ...styles unchanged, see previous file... */
         :root {
             --primary-bg: #121212;
             --secondary-bg: #23272f;
@@ -21,363 +22,73 @@
             --success: #81c784;
             --fail: #e57373;
         }
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: var(--primary-bg);
-            color: var(--text);
-            font-family: 'Roboto', sans-serif;
-        }
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-box {
-            background: var(--card-bg);
-            padding: 32px 24px;
-            border-radius: 14px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.7);
-            width: 92vw;
-            max-width: 340px;
-            text-align: center;
-        }
-        .login-box h2 {
-            font-size: 1.3em;
-            margin-bottom: 18px;
-            letter-spacing: 1px;
-            color: var(--accent);
-            background: linear-gradient(90deg, #4fc3f7, #ab47bc 60%, #ffd54f 90%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .login-box input {
-            width: 80%;
-            padding: 12px;
-            margin-bottom: 18px;
-            border-radius: 8px;
-            border: 1.5px solid var(--accent2);
-            background: var(--secondary-bg);
-            color: var(--text);
-            font-size: 1em;
-            transition: border 0.2s;
-        }
-        .login-box input:focus {
-            outline: none;
-            border: 1.5px solid var(--accent);
-        }
-        .login-box button {
-            padding: 12px 32px;
-            background: var(--btn);
-            color: var(--primary-bg);
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 8px;
-            font-size: 1em;
-            letter-spacing: 0.5px;
-            transition: background 0.2s, box-shadow 0.2s;
-            box-shadow: 0 2px 8px rgba(79,195,247,0.13);
-        }
-        .login-box button:hover {
-            background: var(--btn-hover);
-            color: #fff;
-            box-shadow: 0 6px 18px rgba(79,195,247,0.18);
-        }
-        .profile-container {
-            width: 100vw;
-            min-height: 100vh;
-            background: var(--primary-bg);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 70px;
-            box-sizing: border-box;
-        }
-        .profile-card {
-            background: var(--card-bg);
-            border-radius: 18px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.24);
-            width: 96vw;
-            max-width: 410px;
-            margin-top: 20px;
-            padding: 24px 18px 28px 18px;
-            text-align: center;
-            position: relative;
-            border-top: 3px solid var(--accent2);
-        }
-        .profile-card img {
-            width: 84px;
-            height: 84px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 12px;
-            border: 3px solid var(--accent3);
-            box-shadow: 0 2px 12px 2px rgba(171,71,188,0.10);
-        }
-        .profile-card .user-name {
-            font-size: 1.29em;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--accent2);
-            letter-spacing: 0.5px;
-        }
-        .profile-card .indicator {
-            font-size: 1em;
-            color: var(--accent-dark);
-            margin-bottom: 16px;
-            font-weight: 500;
-            background: linear-gradient(90deg, #4fc3f7, #ffd54f 60%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .site-iframe-section {
-            margin: 25px auto 15px auto;
-            background: var(--secondary-bg);
-            border-radius: 16px;
-            padding: 0;
-            width: 96vw;
-            max-width: 420px;
-            box-shadow: 0 2px 12px rgba(171,71,188,0.08);
-            overflow: hidden;
-            border-left: 4px solid var(--accent3);
-        }
-        .site-iframe-header {
-            font-size: 1.19em;
-            color: var(--accent2);
-            font-weight: bold;
-            padding: 13px 0 9px 0;
-            background: var(--secondary-bg);
-            border-bottom: 1.5px solid var(--accent3);
-            letter-spacing: 0.5px;
-        }
-        .site-iframe-wrapper {
-            width: 100%;
-            height: 340px;
-            background: #101015;
-            border: none;
-        }
-        .profile-card .action-btns {
-            display: flex;
-            justify-content: space-between;
-            margin: 16px 0 8px 0;
-            gap: 12px;
-        }
+        html, body { height: 100%; margin: 0; padding: 0; background: var(--primary-bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+        body { min-height: 100vh; display: flex; flex-direction: column; }
+        .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { background: var(--card-bg); padding: 32px 24px; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.7); width: 92vw; max-width: 340px; text-align: center; }
+        .login-box h2 { font-size: 1.3em; margin-bottom: 18px; letter-spacing: 1px; color: var(--accent); background: linear-gradient(90deg, #4fc3f7, #ab47bc 60%, #ffd54f 90%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .login-box input { width: 80%; padding: 12px; margin-bottom: 18px; border-radius: 8px; border: 1.5px solid var(--accent2); background: var(--secondary-bg); color: var(--text); font-size: 1em; transition: border 0.2s; }
+        .login-box input:focus { outline: none; border: 1.5px solid var(--accent); }
+        .login-box button { padding: 12px 32px; background: var(--btn); color: var(--primary-bg); border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 8px; font-size: 1em; letter-spacing: 0.5px; transition: background 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(79,195,247,0.13); }
+        .login-box button:hover { background: var(--btn-hover); color: #fff; box-shadow: 0 6px 18px rgba(79,195,247,0.18); }
+        .profile-container { width: 100vw; min-height: 100vh; background: var(--primary-bg); position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 70px; box-sizing: border-box; }
+        .profile-card { background: var(--card-bg); border-radius: 18px; box-shadow: 0 2px 16px rgba(0,0,0,0.24); width: 96vw; max-width: 410px; margin-top: 20px; padding: 24px 18px 28px 18px; text-align: center; position: relative; border-top: 3px solid var(--accent2); }
+        .profile-card img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 3px solid var(--accent3); box-shadow: 0 2px 12px 2px rgba(171,71,188,0.10); }
+        .profile-card .user-name { font-size: 1.29em; font-weight: 700; margin-bottom: 8px; color: var(--accent2); letter-spacing: 0.5px; }
+        .profile-card .indicator { font-size: 1em; color: var(--accent-dark); margin-bottom: 16px; font-weight: 500; background: linear-gradient(90deg, #4fc3f7, #ffd54f 60%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .site-iframe-section { margin: 25px auto 15px auto; background: var(--secondary-bg); border-radius: 16px; padding: 0; width: 96vw; max-width: 420px; box-shadow: 0 2px 12px rgba(171,71,188,0.08); overflow: hidden; border-left: 4px solid var(--accent3); }
+        .site-iframe-header { font-size: 1.19em; color: var(--accent2); font-weight: bold; padding: 13px 0 9px 0; background: var(--secondary-bg); border-bottom: 1.5px solid var(--accent3); letter-spacing: 0.5px; }
+        .site-iframe-wrapper { width: 100%; height: 340px; background: #101015; border: none; }
+        .profile-card .action-btns { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 8px 0; }
         .profile-card button,
-        .profile-card .recent-trade-link-btn {
-            flex: 1;
-            padding: 10px 0;
-            margin: 0 2px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 700;
-            font-size: 1.06em;
-            transition: background 0.18s, color 0.18s;
-            cursor: pointer;
-            box-shadow: 0 1px 5px rgba(79,195,247,0.08);
-            text-align: center;
-            text-decoration: none;
-            background: linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%);
-            color: #191c24;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .profile-card .recent-trade-link-btn {
-            background: linear-gradient(90deg, #ab47bc 0%, #4fc3f7 100%);
-        }
+        .profile-card .recent-trade-link-btn,
+        .profile-card .fund-wallet-btn,
+        .profile-card .trade-now-link { flex: 1 1 40%; padding: 10px 0; margin: 0 2px; border-radius: 8px; border: none; font-weight: 700; font-size: 1.06em; transition: background 0.18s, color 0.18s; cursor: pointer; box-shadow: 0 1px 5px rgba(79,195,247,0.08); text-align: center; text-decoration: none; background: linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%); color: #191c24; display: flex; align-items: center; justify-content: center; }
+        .profile-card .recent-trade-link-btn { background: linear-gradient(90deg, #ab47bc 0%, #4fc3f7 100%); }
         .profile-card button:hover,
-        .profile-card .recent-trade-link-btn:hover {
-            background: linear-gradient(90deg, #0288d1 0%, #ab47bc 100%);
-            color: #fff;
-        }
-        /* Modern Account Profile Menu */
-        .profile-menu-bar {
-            width: 100vw;
-            max-width: 100vw;
-            height: 56px;
-            background: var(--card-bg);
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 15;
-            box-shadow: 0 2px 18px rgba(79,195,247,0.09);
-            padding: 0 18px;
-        }
-        .profile-menu-btn {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            outline: none;
-            color: var(--text);
-        }
-        .profile-menu-btn img {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 2px solid var(--accent2);
-        }
-        .profile-menu-btn span {
-            font-size: 1.09em;
-            font-weight: 500;
-            color: var(--accent2);
-        }
-        .menu-dropdown {
-            display: none;
-            position: absolute;
-            top: 64px;
-            right: 18px;
-            background: var(--secondary-bg);
-            box-shadow: 0 2px 12px rgba(79,195,247,0.18);
-            border-radius: 10px;
-            width: 91vw;
-            max-width: 305px;
-            z-index: 20;
-            padding: 16px 20px;
-            color: var(--text);
-            animation: fadeIn 0.2s;
-            border-top: 2px solid var(--accent3);
-        }
-        .menu-dropdown.active {
-            display: block;
-        }
-        .menu-dropdown h3 {
-            margin-top: 0;
-            color: var(--accent2);
-            font-size: 1.09em;
-            letter-spacing: 0.5px;
-        }
-        .menu-dropdown .info-row {
-            margin: 12px 0;
-            border-bottom: 1px solid var(--card-bg);
-            padding-bottom: 6px;
-        }
-        .menu-dropdown .info-title {
-            font-weight: 700;
-            font-size: 0.99em;
-            color: var(--accent3);
-        }
-        .menu-dropdown .info-val {
-            color: var(--muted);
-            font-size: 0.98em;
-        }
-        /* Payment history pop-up */
-        .modal-bg {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.88);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-bg.active {
-            display: flex;
-        }
-        .modal-content {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 6px 36px rgba(171,71,188,0.17);
-            width: 94vw;
-            max-width: 380px;
-            padding: 26px 14px 18px 14px;
-            position: relative;
-            max-height: 88vh;
-            display: flex;
-            flex-direction: column;
-            border-top: 3px solid var(--accent2);
-        }
-        .modal-content h3 {
-            color: var(--accent2);
-            text-align: center;
-            margin-bottom: 10px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-        .close-btn {
-            position: absolute;
-            top: 10px; right: 18px;
-            background: none;
-            border: none;
-            font-size: 1.45em;
-            color: var(--accent2);
-            cursor: pointer;
-        }
-        .payment-history-list {
-            background: var(--secondary-bg);
-            border-radius: 10px;
-            margin-top: 7px;
-            padding: 6px 3px;
-            overflow-y: auto;
-            max-height: 48vh;
-        }
-        .payment-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 6px;
-            border-bottom: 1px solid var(--card-bg);
-            font-size: 0.99em;
-        }
+        .profile-card .recent-trade-link-btn:hover,
+        .profile-card .fund-wallet-btn:hover,
+        .profile-card .trade-now-link:hover { background: linear-gradient(90deg, #0288d1 0%, #ab47bc 100%); color: #fff; }
+        .profile-menu-bar { width: 100vw; max-width: 100vw; height: 56px; background: var(--card-bg); display: flex; align-items: center; justify-content: flex-end; position: fixed; top: 0; left: 0; z-index: 15; box-shadow: 0 2px 18px rgba(79,195,247,0.09); padding: 0 18px; }
+        .profile-menu-btn { display: flex; align-items: center; gap: 9px; cursor: pointer; background: none; border: none; outline: none; color: var(--text); }
+        .profile-menu-btn img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--accent2); }
+        .profile-menu-btn span { font-size: 1.09em; font-weight: 500; color: var(--accent2); }
+        .menu-dropdown { display: none; position: absolute; top: 64px; right: 18px; background: var(--secondary-bg); box-shadow: 0 2px 12px rgba(79,195,247,0.18); border-radius: 10px; width: 91vw; max-width: 305px; z-index: 20; padding: 16px 20px; color: var(--text); animation: fadeIn 0.2s; border-top: 2px solid var(--accent3); }
+        .menu-dropdown.active { display: block; }
+        .menu-dropdown h3 { margin-top: 0; color: var(--accent2); font-size: 1.09em; letter-spacing: 0.5px; }
+        .menu-dropdown .info-row { margin: 12px 0; border-bottom: 1px solid var(--card-bg); padding-bottom: 6px; }
+        .menu-dropdown .info-title { font-weight: 700; font-size: 0.99em; color: var(--accent3); }
+        .menu-dropdown .info-val { color: var(--muted); font-size: 0.98em; }
+        .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.88); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-bg.active { display: flex; }
+        .modal-content { background: var(--card-bg); border-radius: 16px; box-shadow: 0 6px 36px rgba(171,71,188,0.17); width: 94vw; max-width: 380px; padding: 26px 14px 18px 14px; position: relative; max-height: 88vh; display: flex; flex-direction: column; border-top: 3px solid var(--accent2); }
+        .modal-content h3 { color: var(--accent2); text-align: center; margin-bottom: 10px; font-weight: bold; letter-spacing: 0.5px; }
+        .close-btn { position: absolute; top: 10px; right: 18px; background: none; border: none; font-size: 1.45em; color: var(--accent2); cursor: pointer; }
+        .payment-history-list { background: var(--secondary-bg); border-radius: 10px; margin-top: 7px; padding: 6px 3px; overflow-y: auto; max-height: 48vh; }
+        .payment-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 6px; border-bottom: 1px solid var(--card-bg); font-size: 0.99em; }
         .payment-item:last-child { border-bottom: none; }
-        .payment-details {
-            flex: 4;
-        }
-        .payment-status {
-            flex: 1;
-            text-align: right;
-        }
-        .payment-status .success {
-            color: var(--success);
-            font-size: 1.2em;
-        }
-        .payment-status .fail {
-            color: var(--fail);
-            font-size: 1.2em;
-        }
+        .payment-details { flex: 4; }
+        .payment-status { flex: 1; text-align: right; }
+        .payment-status .success { color: var(--success); font-size: 1.2em; }
+        .payment-status .fail { color: var(--fail); font-size: 1.2em; }
+        .recent-trade-modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.88); z-index: 1001; justify-content: center; align-items: center; }
+        .recent-trade-modal-bg.active { display: flex; }
+        .recent-trade-modal-content { background: var(--card-bg); border-radius: 16px; box-shadow: 0 6px 36px rgba(171,71,188,0.17); width: 94vw; max-width: 380px; padding: 26px 14px 18px 14px; position: relative; max-height: 88vh; display: flex; flex-direction: column; border-top: 3px solid var(--accent2); }
+        .recent-trade-modal-content h3 { color: var(--accent2); text-align: center; margin-bottom: 10px; font-weight: bold; letter-spacing: 0.5px; }
+        .recent-trade-list { background: var(--secondary-bg); border-radius: 10px; margin-top: 7px; padding: 6px 3px; overflow-y: auto; max-height: 48vh; }
+        .recent-trade-item { background: var(--card-bg); border-radius: 9px; margin-bottom: 9px; padding: 10px 10px 6px 10px; border-left: 3px solid var(--accent3); font-size: 1.01em; text-align: left; }
+        .recent-trade-item .trade-status-won { color: var(--success); }
+        .recent-trade-item .trade-status-lost { color: var(--fail); }
         @media (max-width: 480px) {
-            .profile-card, .modal-content, .site-iframe-section {
-                max-width: 98vw;
-                padding: 12px 3vw 22px 3vw;
-            }
-            .menu-dropdown {
-                max-width: 97vw;
-                padding: 10px 7vw;
-            }
-            .profile-menu-bar {
-                padding: 0 2vw;
-            }
-            .site-iframe-wrapper {
-                height: 200px;
-            }
+            .profile-card, .modal-content, .site-iframe-section, .recent-trade-modal-content { max-width: 98vw; padding: 12px 3vw 22px 3vw; }
+            .menu-dropdown { max-width: 97vw; padding: 10px 7vw; }
+            .profile-menu-bar { padding: 0 2vw; }
+            .site-iframe-wrapper { height: 200px; }
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
     </style>
 </head>
 <body>
-
-    <!-- Account Profile Bar (menu at top right) -->
     <div id="profile-menu-bar" class="profile-menu-bar" style="display:none;">
         <button id="profile-menu-btn" class="profile-menu-btn">
             <img src="" alt="Profile" id="profile-menu-img"/>
@@ -391,11 +102,10 @@
             <div class="info-row"><span class="info-title">Account Number:</span> <span class="info-val" id="account-number"></span></div>
             <div class="info-row"><span class="info-title">Bank Name:</span> <span class="info-val" id="bank-name"></span></div>
             <div class="info-row"><span class="info-title">Beneficiary's Number:</span> <span class="info-val" id="beneficiary-number"></span></div>
+            <div class="info-row"><span class="info-title">Wallet Balance:</span> <span class="info-val" id="menu-wallet-balance"></span></div>
         </div>
     </div>
-
     <div class="main-container" id="main-container">
-        <!-- Login box -->
         <div class="login-box" id="login-box">
             <h2>Welcome to Bet Trading</h2>
             <input type="password" id="pin-input" maxlength="8" placeholder="Enter your PIN" autocomplete="off" />
@@ -403,27 +113,20 @@
             <button onclick="loginUser()">Open Profile</button>
             <p id="login-error" style="color:#e57373; margin-top:10px; font-size:0.98em; display:none;">Invalid PIN, try again.</p>
         </div>
-        <!-- Profile and rest of UI will be injected here -->
     </div>
-
-    <!-- Payment History Modal -->
     <div class="modal-bg" id="payment-modal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeModal()">&times;</button>
             <h3>Payment History</h3>
-            <div class="payment-history-list" id="payment-history-list">
-                <!-- Payment rows injected here -->
-            </div>
+            <div class="payment-history-list" id="payment-history-list"></div>
         </div>
     </div>
-
-    <!-- Trade Guide Modal -->
     <div class="modal-bg" id="trade-guide-modal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeTradeGuide()">&times;</button>
             <h3>How to Trade Successfully</h3>
             <ol style="text-align:left; color:var(--text); margin-top: 10px; padding-left: 24px; font-size: 1.04em;">
-                <li>Enter your details in the registration form and click <b>Pay Now</b>.</li>
+                <li>Enter your details in the registration form and click <b>Fund Wallet</b>.</li>
                 <li>Select <b>Pay with Transfer</b> for the most reliable payment experience.</li>
                 <li>Make your payment to the account number provided.</li>
                 <li>Keep your browser open, wait for the process to finish, and complete any "I’m not a robot" checks before closing the page.</li>
@@ -432,9 +135,14 @@
             <button style="margin-top:18px; width:100%; padding:12px 0; border-radius:8px; background:linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%); color:#191c24; font-weight:700; font-size:1.1em; cursor:pointer; border:none;" onclick="proceedToTradeSite()">Proceed</button>
         </div>
     </div>
-
+    <div class="recent-trade-modal-bg" id="recent-trade-modal">
+        <div class="recent-trade-modal-content">
+            <button class="close-btn" onclick="closeRecentTradeModal()">&times;</button>
+            <h3>Recent Trade History</h3>
+            <div class="recent-trade-list" id="recent-trade-list"></div>
+        </div>
+    </div>
     <script>
-        // Demo users data (all users have 'registered', and empty payment_history is [])
         const users = {
             "3572": {
                 pin: "3572",
@@ -449,6 +157,11 @@
                     { date: "2025-07-26", amount: 12800, odd: "2.10", status: true },
                     { date: "2025-07-25", amount: 7000, odd: "1.85", status: false },
                     { date: "2025-07-22", amount: 2500, odd: "2.01", status: true },
+                ],
+                wallet_balance: 20000,
+                recent_trades: [
+                    { id: "EmpireBot>5320", odd: "1.50", status: "Won" },
+                    { id: "EmpireBot>5321", odd: "2.00", status: "Lost" }
                 ]
             },
             "4073": {
@@ -460,7 +173,11 @@
                 account_number: "4301808534",
                 bank: "Zenith Bank International",
                 registered: "2024-04-20",
-                payment_history: []
+                payment_history: [],
+                wallet_balance: 0,
+                recent_trades: [
+                    { id: "EmpireBot>7001", odd: "1.95", status: "Lost" }
+                ]
             },
             "1313": {
                 pin: "1313",
@@ -471,7 +188,9 @@
                 account_number: "2088350310",
                 bank: "Zenith Bank International",
                 registered: "2024-06-01",
-                payment_history: []
+                payment_history: [],
+                wallet_balance: 0,
+                recent_trades: []
             },
             "5012": {
                 pin: "5012",
@@ -482,7 +201,11 @@
                 account_number: "2309320542",
                 bank: "UBA",
                 registered: "2024-06-10",
-                payment_history: []
+                payment_history: [],
+                wallet_balance: 0,
+                recent_trades: [
+                    { id: "EmpireBot>8881", odd: "2.10", status: "Won" }
+                ]
             },
             "1266": {
                 pin: "1266",
@@ -493,7 +216,9 @@
                 account_number: "N/N",
                 bank: "N/N",
                 registered: "2024-07-01",
-                payment_history: []
+                payment_history: [],
+                wallet_balance: 0,
+                recent_trades: []
             },
             "1220": {
                 pin: "1220",
@@ -504,7 +229,9 @@
                 account_number: "N/N",
                 bank: "N/N",
                 registered: "2024-07-05",
-                payment_history: []
+                payment_history: [],
+                wallet_balance: 0,
+                recent_trades: []
             },
             "2019": {
                 pin: "2019",
@@ -515,7 +242,9 @@
                 account_number: "2266867085",
                 bank: "UBA",
                 registered: "2024-07-10",
-                payment_history: []
+                payment_history: [],
+                wallet_balance: 0,
+                recent_trades: []
             },
             "1908": {
                 pin: "1908",
@@ -526,12 +255,17 @@
                 account_number: "2061660821",
                 bank: "UBA",
                 registered: "2024-07-18",
-                payment_history: []
+                payment_history: [],
+                wallet_balance: 0,
+                recent_trades: []
             }
-            // Add more users as needed
         };
 
         let currentUser = null;
+
+        function getWalletBalance(user) {
+            return user && typeof user.wallet_balance === 'number' ? user.wallet_balance : 0;
+        }
 
         function loginUser() {
             const pin = document.getElementById('pin-input').value.trim();
@@ -545,28 +279,29 @@
         }
 
         function showProfile() {
-            // Hide login, show menu, render profile
             document.getElementById('login-box').style.display = 'none';
             document.getElementById('profile-menu-bar').style.display = 'flex';
 
-            // Update profile menu button
             document.getElementById('profile-menu-img').src = currentUser.image;
             document.getElementById('profile-menu-name').textContent = currentUser.name;
-
-            // Fill menu details
             document.getElementById('registered-date').innerText = currentUser.registered || 'N/A';
             document.getElementById('account-name').innerText = currentUser.account_name || 'N/A';
             document.getElementById('account-number').innerText = currentUser.account_number || 'N/A';
             document.getElementById('bank-name').innerText = currentUser.bank || 'N/A';
             document.getElementById('beneficiary-number').innerText = currentUser.beneficiary || 'N/A';
+            document.getElementById('menu-wallet-balance').innerText = "₦" + getWalletBalance(currentUser).toLocaleString();
 
-            // Build profile card + Website iframe section
+            const walletBalanceText = "₦" + getWalletBalance(currentUser).toLocaleString();
             const container = document.getElementById('main-container');
             container.innerHTML = `
                 <div class="profile-container">
                     <div class="profile-card">
                         <img src="${currentUser.image}" alt="User Image"/>
                         <div class="user-name">${currentUser.name}</div>
+                        <div style="margin-bottom:10px;">
+                            <span style="font-weight: bold; color: var(--accent3); font-size: 1.09em;">Wallet Balance:</span>
+                            <span id="profile-wallet-balance" style="color: var(--accent2); font-size: 1.09em;">${walletBalanceText}</span>
+                        </div>
                         <div class="indicator">
                             Trade starts every <span style="color:#ffd54f">Saturday</span>. Results are released on <span style="color:#ab47bc">Sunday</span>.<br>
                             <span style="color:#4fc3f7">Make your payment before Friday 5:00 PM to participate.</span>
@@ -579,16 +314,16 @@
                             When results are out, your winning will be sent to your Bank account immediately.
                         </div>
                         <div class="action-btns">
-                            <button onclick="showTradeGuide()">Trade Now</button>
+                            <a href="https://yoursite.com/trade" target="_blank" class="trade-now-link">Trade Now</a>
                             <button onclick="openPaymentHistory()">Payment History</button>
-                            <a href="https://empirestatebank.github.io/Check-Recent-Trade/" target="_blank" class="recent-trade-link-btn">Check Recent Trade</a>
+                            <button class="fund-wallet-btn" onclick="window.open('https://paystack.shop/pay/eyj535dodw','_blank')">Fund Wallet</button>
+                            <button onclick="openRecentTradeModal()">Recent Trades</button>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        // Profile Menu logic
         document.getElementById("profile-menu-btn").addEventListener('click', function(e) {
             e.stopPropagation();
             document.getElementById('profile-menu-dropdown').classList.toggle('active');
@@ -599,12 +334,11 @@
             }
         });
 
-        // Payment History Modal
         function openPaymentHistory() {
             const modal = document.getElementById('payment-modal');
             modal.classList.add('active');
             const list = document.getElementById('payment-history-list');
-            list.innerHTML = ''; // clear
+            list.innerHTML = '';
             if (currentUser && currentUser.payment_history && currentUser.payment_history.length) {
                 currentUser.payment_history.forEach(item => {
                     list.innerHTML += `
@@ -628,7 +362,28 @@
             document.getElementById('payment-modal').classList.remove('active');
         }
 
-        // Trade Guide Modal logic
+        function openRecentTradeModal() {
+            const modal = document.getElementById('recent-trade-modal');
+            modal.classList.add('active');
+            const list = document.getElementById('recent-trade-list');
+            list.innerHTML = '';
+            if (currentUser && currentUser.recent_trades && currentUser.recent_trades.length) {
+                currentUser.recent_trades.forEach(trade => {
+                    list.innerHTML += `
+                        <div class="recent-trade-item">
+                            <div><b>Trade ID:</b> ${trade.id}</div>
+                            <div><b>ODD:</b> ${trade.odd}</div>
+                            <div><b>Status:</b> <span class="trade-status-${trade.status.toLowerCase()}">${trade.status}</span></div>
+                        </div>
+                    `;
+                });
+            } else {
+                list.innerHTML = `<div style="color:var(--muted);padding:24px 0;text-align:center;">No recent trade history yet.</div>`;
+            }
+        }
+        function closeRecentTradeModal() {
+            document.getElementById('recent-trade-modal').classList.remove('active');
+        }
         function showTradeGuide() {
             document.getElementById('trade-guide-modal').classList.add('active');
         }
@@ -637,11 +392,8 @@
         }
         function proceedToTradeSite() {
             closeTradeGuide();
-            // Replace this link with your actual payment link
             window.open('https://paystack.shop/pay/eyj535dodw');
         }
-
-        // Enter key to login
         document.getElementById('pin-input').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') loginUser();
         });
