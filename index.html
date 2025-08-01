@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bet Trading - Available Fixture</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #23272f;
+            --accent: #4fc3f7;
+            --accent-dark: #0288d1;
+            --accent2: #ab47bc;
+            --accent3: #ffd54f;
+            --text: #fff;
+            --muted: #bdbdbd;
+            --btn: linear-gradient(90deg, #4fc3f7 0%, #ab47bc 100%);
+            --btn-hover: linear-gradient(90deg, #0288d1 0%, #7e57c2 100%);
+            --card-bg: #191c24;
+            --success: #81c784;
+            --fail: #e57373;
+        }
+        html, body { height: 100%; margin: 0; padding: 0; background: var(--primary-bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+        body { min-height: 100vh; display: flex; flex-direction: column; }
+        .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { background: var(--card-bg); padding: 32px 24px; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.7); width: 92vw; max-width: 340px; text-align: center; }
+        .login-box h2 { font-size: 1.3em; margin-bottom: 18px; letter-spacing: 1px; color: var(--accent); background: linear-gradient(90deg, #4fc3f7, #ab47bc 60%, #ffd54f 90%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .login-box input { width: 80%; padding: 12px; margin-bottom: 18px; border-radius: 8px; border: 1.5px solid var(--accent2); background: var(--secondary-bg); color: var(--text); font-size: 1em; transition: border 0.2s; }
+        .login-box input:focus { outline: none; border: 1.5px solid var(--accent); }
+        .login-box button { padding: 12px 32px; background: var(--btn); color: var(--primary-bg); border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 8px; font-size: 1em; letter-spacing: 0.5px; transition: background 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(79,195,247,0.13); }
+        .login-box button:hover { background: var(--btn-hover); color: #fff; box-shadow: 0 6px 18px rgba(79,195,247,0.18); }
+        .profile-container { width: 100vw; min-height: 100vh; background: var(--primary-bg); position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 70px; box-sizing: border-box; }
+        .profile-card { background: var(--card-bg); border-radius: 18px; box-shadow: 0 2px 16px rgba(0,0,0,0.24); width: 96vw; max-width: 410px; margin-top: 20px; padding: 24px 18px 28px 18px; text-align: center; position: relative; border-top: 3px solid var(--accent2); }
+        .profile-card img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 3px solid var(--accent3); box-shadow: 0 2px 12px 2px rgba(171,71,188,0.10); }
+        .profile-card .user-name { font-size: 1.29em; font-weight: 700; margin-bottom: 8px; color: var(--accent2); letter-spacing: 0.5px; }
+        .profile-card .indicator { font-size: 1em; color: var(--accent-dark); margin-bottom: 16px; font-weight: 500; background: linear-gradient(90deg, #4fc3f7, #ffd54f 60%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .site-iframe-section { margin: 25px auto 15px auto; background: var(--secondary-bg); border-radius: 16px; padding: 0; width: 96vw; max-width: 420px; box-shadow: 0 2px 12px rgba(171,71,188,0.08); overflow: hidden; border-left: 4px solid var(--accent3); }
+        .site-iframe-header { font-size: 1.19em; color: var(--accent2); font-weight: bold; padding: 13px 0 9px 0; background: var(--secondary-bg); border-bottom: 1.5px solid var(--accent3); letter-spacing: 0.5px; }
+        .site-iframe-wrapper { width: 100%; height: 340px; background: #101015; border: none; }
+        .profile-card .action-btns { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 8px 0; }
+        .profile-card button,
+        .profile-card .recent-trade-link-btn,
+        .profile-card .fund-wallet-btn,
+        .profile-card .trade-now-link { flex: 1 1 40%; padding: 10px 0; margin: 0 2px; border-radius: 8px; border: none; font-weight: 700; font-size: 1.06em; transition: background 0.18s, color 0.18s; cursor: pointer; box-shadow: 0 1px 5px rgba(79,195,247,0.08); text-align: center; text-decoration: none; background: linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%); color: #191c24; display: flex; align-items: center; justify-content: center; }
+        .profile-card .recent-trade-link-btn { background: linear-gradient(90deg, #ab47bc 0%, #4fc3f7 100%); }
+        .profile-card button:hover,
+        .profile-card .recent-trade-link-btn:hover,
+        .profile-card .fund-wallet-btn:hover,
+        .profile-card .trade-now-link:hover { background: linear-gradient(90deg, #0288d1 0%, #ab47bc 100%); color: #fff; }
+        .profile-menu-bar { width: 100vw; max-width: 100vw; height: 56px; background: var(--card-bg); display: flex; align-items: center; justify-content: flex-end; position: fixed; top: 0; left: 0; z-index: 15; box-shadow: 0 2px 18px rgba(79,195,247,0.09); padding: 0 18px; }
+        .profile-menu-btn { display: flex; align-items: center; gap: 9px; cursor: pointer; background: none; border: none; outline: none; color: var(--text); }
+        .profile-menu-btn img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--accent2); }
+        .profile-menu-btn span { font-size: 1.09em; font-weight: 500; color: var(--accent2); }
+        .menu-dropdown { display: none; position: absolute; top: 64px; right: 18px; background: var(--secondary-bg); box-shadow: 0 2px 12px rgba(79,195,247,0.18); border-radius: 10px; width: 91vw; max-width: 305px; z-index: 20; padding: 16px 20px; color: var(--text); animation: fadeIn 0.2s; border-top: 2px solid var(--accent3); }
+        .menu-dropdown.active { display: block; }
+        .menu-dropdown h3 { margin-top: 0; color: var(--accent2); font-size: 1.09em; letter-spacing: 0.5px; }
+        .menu-dropdown .info-row { margin: 12px 0; border-bottom: 1px solid var(--card-bg); padding-bottom: 6px; }
+        .menu-dropdown .info-title { font-weight: 700; font-size: 0.99em; color: var(--accent3); }
+        .menu-dropdown .info-val { color: var(--muted); font-size: 0.98em; }
+        .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.88); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-bg.active { display: flex; }
+        .modal-content { background: var(--card-bg); border-radius: 16px; box-shadow: 0 6px 36px rgba(171,71,188,0.17); width: 94vw; max-width: 380px; padding: 26px 14px 18px 14px; position: relative; max-height: 88vh; display: flex; flex-direction: column; border-top: 3px solid var(--accent2); }
+        .modal-content h3 { color: var(--accent2); text-align: center; margin-bottom: 10px; font-weight: bold; letter-spacing: 0.5px; }
+        .close-btn { position: absolute; top: 10px; right: 18px; background: none; border: none; font-size: 1.45em; color: var(--accent2); cursor: pointer; }
+        .payment-history-list { background: var(--secondary-bg); border-radius: 10px; margin-top: 7px; padding: 6px 3px; overflow-y: auto; max-height: 48vh; }
+        .payment-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 6px; border-bottom: 1px solid var(--card-bg); font-size: 0.99em; }
+        .payment-item:last-child { border-bottom: none; }
+        .payment-details { flex: 4; }
+        .payment-status { flex: 1; text-align: right; }
+        .payment-status .success { color: var(--success); font-size: 1.2em; }
+        .payment-status .fail { color: var(--fail); font-size: 1.2em; }
+        .recent-trade-modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.88); z-index: 1001; justify-content: center; align-items: center; }
+        .recent-trade-modal-bg.active { display: flex; }
+        .recent-trade-modal-content { background: var(--card-bg); border-radius: 16px; box-shadow: 0 6px 36px rgba(171,71,188,0.17); width: 94vw; max-width: 380px; padding: 26px 14px 18px 14px; position: relative; max-height: 88vh; display: flex; flex-direction: column; border-top: 3px solid var(--accent2); }
+        .recent-trade-modal-content h3 { color: var(--accent2); text-align: center; margin-bottom: 10px; font-weight: bold; letter-spacing: 0.5px; }
+        .recent-trade-list { background: var(--secondary-bg); border-radius: 10px; margin-top: 7px; padding: 6px 3px; overflow-y: auto; max-height: 48vh; }
+        .recent-trade-item { background: var(--card-bg); border-radius: 9px; margin-bottom: 9px; padding: 10px 10px 6px 10px; border-left: 3px solid var(--accent3); font-size: 1.01em; text-align: left; }
+        .recent-trade-item .trade-status-won { color: var(--success); }
+        .recent-trade-item .trade-status-lost { color: var(--fail); }
+        .expiry-indicator {
+            font-size: 1.08em;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(90deg, #ab47bc 0%, #e57373 60%, #ffd54f 100%);
+            border-radius: 12px;
+            padding: 13px 0;
+            margin: 18px 0 10px 0;
+            text-align: center;
+            box-shadow: 0 2px 16px rgba(171,71,188,0.22);
+            letter-spacing: 1px;
+            border: 2px dashed #e57373;
+            animation: expiryBlink 1.2s linear infinite;
+            position: relative;
+        }
+        .expiry-indicator .icon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+            font-size: 1.3em;
+            color: #ffd54f;
+            filter: drop-shadow(0 0 4px #e57373);
+        }
+        @keyframes expiryBlink {
+            0%, 100% { opacity: 1; }
+            55%, 70% { opacity: 0.5; }
+        }
+        .update-btn {
+            width: 100%;
+            padding: 13px 0;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%);
+            color: #23272f;
+            font-weight: 700;
+            font-size: 1.09em;
+            cursor: pointer;
+            border: none;
+            margin-bottom: 10px;
+            margin-top: 0px;
+            box-shadow: 0 2px 8px rgba(171,71,188,0.10);
+            transition: background 0.18s, color 0.18s;
+            letter-spacing: 0.5px;
+        }
+        .update-btn:hover {
+            background: linear-gradient(90deg, #ab47bc 0%, #e57373 100%);
+            color: #fff;
+        }
+        .menu-expiry-indicator {
+            font-size: 1.02em;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(90deg, #ab47bc 0%, #e57373 60%, #ffd54f 100%);
+            border-radius: 10px;
+            padding: 10px 0;
+            margin: 10px 0 6px 0;
+            text-align: left;
+            box-shadow: 0 1px 12px rgba(171,71,188,0.13);
+            border: 2px dashed #e57373;
+            animation: expiryBlink 1.2s linear infinite;
+            position: relative;
+        }
+        .menu-expiry-indicator .icon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 7px;
+            font-size: 1.15em;
+            color: #ffd54f;
+            filter: drop-shadow(0 0 3px #e57373);
+        }
+        @media (max-width: 480px) {
+            .profile-card, .modal-content, .site-iframe-section, .recent-trade-modal-content { max-width: 98vw; padding: 12px 3vw 22px 3vw; }
+            .menu-dropdown { max-width: 97vw; padding: 10px 7vw; }
+            .profile-menu-bar { padding: 0 2vw; }
+            .site-iframe-wrapper { height: 200px; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
+
+        /* Custom modal for wallet restriction */
+        .restrict-modal-bg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .restrict-modal-bg.active {
+            display: flex;
+        }
+        .restrict-modal-content {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 26px 16px 18px 16px;
+            position: relative;
+            max-width: 340px;
+            color: var(--text);
+            box-shadow: 0 6px 30px rgba(171,71,188,0.21);
+            border-top: 3px solid var(--fail);
+            text-align: center;
+        }
+        .restrict-modal-content h3 {
+            color: var(--fail);
+            margin-bottom: 10px;
+        }
+        .restrict-modal-content .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.4em;
+            color: var(--accent2);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="profile-menu-bar" class="profile-menu-bar" style="display:none;">
+        <button id="profile-menu-btn" class="profile-menu-btn">
+            <img src="" alt="Profile" id="profile-menu-img"/>
+            <span id="profile-menu-name"></span>
+            <svg id="profile-menu-arrow" width="18" height="18" style="vertical-align: middle;" viewBox="0 0 20 20"><polyline points="4 8 10 14 16 8" fill="none" stroke="#ab47bc" stroke-width="2"></polyline></svg>
+        </button>
+        <div id="profile-menu-dropdown" class="menu-dropdown">
+            <h3>Account Details</h3>
+            <div class="info-row"><span class="info-title">Registered Date:</span> <span class="info-val" id="registered-date"></span></div>
+            <div class="info-row"><span class="info-title">Account Name:</span> <span class="info-val" id="account-name"></span></div>
+            <div class="info-row"><span class="info-title">Account Number:</span> <span class="info-val" id="account-number"></span></div>
+            <div class="info-row"><span class="info-title">Bank Name:</span> <span class="info-val" id="bank-name"></span></div>
+            <div class="info-row"><span class="info-title">Beneficiary's Number:</span> <span class="info-val" id="beneficiary-number"></span></div>
+            <div class="info-row"><span class="info-title">Wallet Balance:</span> <span class="info-val" id="menu-wallet-balance"></span></div>
+            <div class="info-row" id="menu-expiry-date-row">
+                <span class="info-title">Expiry Date:</span> <span class="info-val" id="menu-expiry-date"></span>
+            </div>
+            <div id="menu-expiry-indicator" class="menu-expiry-indicator" style="display:none;">
+                <span class="icon">&#9888;</span>Your account is out of date, <b>Update</b> your account to gain back access.
+            </div>
+            <button id="menu-update-btn" class="update-btn" style="display:none;">Update Account</button>
+        </div>
+    </div>
+    <div class="main-container" id="main-container">
+        <div class="login-box" id="login-box">
+            <h2>Welcome to Bet Trading</h2>
+            <input type="password" id="pin-input" maxlength="8" placeholder="Enter your PIN" autocomplete="off" />
+            <br>
+            <button onclick="loginUser()">Open Profile</button>
+            <p id="login-error" style="color:#e57373; margin-top:10px; font-size:0.98em; display:none;">Invalid PIN, try again.</p>
+        </div>
+    </div>
+    <div class="restrict-modal-bg" id="restrict-modal">
+        <div class="restrict-modal-content">
+            <button class="close-btn" onclick="closeRestrictModal()">&times;</button>
+            <h3>Insufficient Wallet Balance</h3>
+            <div id="restrict-modal-msg" style="margin:12px 0 0 0; font-size:1.02em"></div>
+            <button style="margin-top:18px; width:100%; padding:12px 0; border-radius:8px; background:linear-gradient(90deg, #e57373 0%, #ffd54f 100%); color:#191c24; font-weight:700; font-size:1.1em; cursor:pointer; border:none;" onclick="closeRestrictModal()">Got it</button>
+        </div>
+    </div>
+    <div class="modal-bg" id="payment-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <h3>Payment History</h3>
+            <div class="payment-history-list" id="payment-history-list"></div>
+        </div>
+    </div>
+    <div class="modal-bg" id="trade-guide-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeTradeGuide()">&times;</button>
+            <h3>How to Trade Successfully</h3>
+            <ol style="text-align:left; color:var(--text); margin-top: 10px; padding-left: 24px; font-size: 1.04em;">
+                <li>Enter your details in the registration form and click <b>Fund Wallet</b>.</li>
+                <li>Select <b>Pay with Transfer</b> for the most reliable payment experience.</li>
+                <li>Make your payment to the account number provided.</li>
+                <li>Keep your browser open, wait for the process to finish, and complete any "I’m not a robot" checks before closing the page.</li>
+                <li>If you encounter any issues, contact support with your payment details for assistance.</li>
+            </ol>
+            <button style="margin-top:18px; width:100%; padding:12px 0; border-radius:8px; background:linear-gradient(90deg, #4fc3f7 0%, #ffd54f 100%); color:#191c24; font-weight:700; font-size:1.1em; cursor:pointer; border:none;" onclick="proceedToTradeSite()">Proceed</button>
+        </div>
+    </div>
+    <div class="recent-trade-modal-bg" id="recent-trade-modal">
+        <div class="recent-trade-modal-content">
+            <button class="close-btn" onclick="closeRecentTradeModal()">&times;</button>
+            <h3>Recent Trade History</h3>
+            <div class="recent-trade-list" id="recent-trade-list"></div>
+        </div>
+    </div>
+    <script>
+        const users = {
+            "3572": {
+                pin: "3572",
+                name: "EMMANUEL EKPA",
+                image: "AddText_05-22-01.29.33.png",
+                beneficiary: "08105866469",
+                account_name: "EMMANUEL EMMANUEL EKPA",
+                account_number: "8145300013",
+                bank: "F.C.M.B",
+                registered: "2024-03-15",
+                expiry: "2025-09-27",
+                update_link: "https://paystack.shop/pay/fpjpxhey-5",
+                payment_history: [
+                    { date: "2025-07-26", amount: 12800, status: true },
+                    { date: "2025-07-25", amount: 7000, status: true },
+                    { date: "2025-07-22", amount: 6000, status: true },
+                ],
+                wallet_balance: 55000,
+                recent_trades: [
+                    { id: "EmpireBot>5320", odd: "1.50", status: "Won" },
+                    { id: "EmpireBot>5321", odd: "2.00", status: "Lost" }
+                ]
+            },
+            "4073": {
+                pin: "4073",
+                name: "ESTHER AMOS",
+                image: "AddText_05-25-10.37.46.png",
+                beneficiary: "08130024073",
+                account_name: "ESTHER EKERETTE AMOS",
+                account_number: "4301808534",
+                bank: "Zenith Bank International",
+                registered: "2024-04-20",
+                expiry: "2025-09-14",
+                update_link: "https://paystack.shop/pay/fpjpxhey-5",
+                payment_history: [],
+                wallet_balance: 10000,
+                recent_trades: []
+            },
+            "1313": {
+                pin: "1313",
+                name: "ITOHOWO AKAN",
+                image: "AddText_05-25-10.37.07.png",
+                beneficiary: "09037060454",
+                account_name: "ITOHOWO JOHN AKAN",
+                account_number: "2088350310",
+                bank: "Zenith Bank International",
+                registered: "2024-06-01",
+                expiry: "2025-09-10",
+                update_link: "https://paystack.shop/pay/fpjpxhey-5",
+                payment_history: [],
+                wallet_balance: 10000,
+                recent_trades: []
+            },
+            "5012": {
+                pin: "5012",
+                name: "SAMUEL AKPAN",
+                image: "AddText_06-03-08.29.58.png",
+                beneficiary: "09138109857",
+                account_name: "SAMUEL MONDAY AKPAN",
+                account_number: "2309320542",
+                bank: "UBA",
+                registered: "2024-06-10",
+                expiry: "2025-09-20",
+                update_link: "https://paystack.shop/pay/fpjpxhey-5",
+                payment_history: [],
+                wallet_balance: 20000,
+                recent_trades: []
+            },
+            "1266": {
+                pin: "1266",
+                name: "SAMUEL IME",
+                image: "AddText_05-22-09.03.57.png",
+                beneficiary: "N/N",
+                account_name: "SAMUEL IME",
+                account_number: "N/N",
+                bank: "N/N",
+                registered: "2024-07-01",
+                expiry: "2025-09-20",
+                update_link: "https://paystack.shop/pay/fpjpxhey-5",
+                payment_history: [],
+                wallet_balance: 18000,
+                recent_trades: []
+            },
+            "1220": {
+                pin: "1220",
+                name: "SAVIOUR EKONG",
+                image: "AddText_05-29-09.19.44.png",
+                beneficiary: "N/N",
+                account_name: "SAVIOUR EKONG",
+                account_number: "N/N",
+                bank: "N/N",
+                registered: "2024-07-05",
+                expiry: "2025-09-06",
+                update_link: "https://paystack.shop/pay/fpjpxhey-5",
+                payment_history: [],
+                wallet_balance: 10000,
+                recent_trades: []
+            },
+            "2019": {
+                pin: "2019",
+                name: "CHARITY HANSON",
+                image: "AddText_06-02-03.50.45.png",
+                beneficiary: "08028803872",
+                account_name: "CHARITY ASUQUO HANSON",
+                account_number: "2266867085",
+                bank: "UBA",
+                registered: "2024-07-10",
+                expiry: "2025-09-05",
+                update_link: "https://paystack.shop/pay/fpjpxhey-5",
+                payment_history: [],
+                wallet_balance: 18000,
+                recent_trades: []
+            },
+            "1908": {
+                pin: "1908",
+                name: "USHIE ONEN",
+                image: "AddText_06-05-09.14.49.png",
+                beneficiary: "07032325480",
+                account_name: "USHIE IKPI ONEN",
+                account_number: "2061660821",
+                bank: "UBA",
+                registered: "2024-07-18",
+                expiry: "2025-09-03",
+                update_link: "https://paystack.shop/pay/fpjpxhey-5",
+                payment_history: [],
+                wallet_balance: 10000,
+                recent_trades: []
+            }
+        };
+
+        let currentUser = null;
+
+        function getWalletBalance(user) {
+            return user && typeof user.wallet_balance === 'number' ? user.wallet_balance : 0;
+        }
+
+        function isExpired(user) {
+            if (!user || !user.expiry) return false;
+            const today = new Date();
+            const expiryDate = new Date(user.expiry + "T23:59:59");
+            return today > expiryDate;
+        }
+
+        function updateMenuExpiryState() {
+            if (!currentUser) return;
+            const expired = isExpired(currentUser);
+            document.getElementById('menu-expiry-indicator').style.display = expired ? 'block' : 'none';
+            const menuUpdateBtn = document.getElementById('menu-update-btn');
+            menuUpdateBtn.style.display = expired ? 'block' : 'none';
+            menuUpdateBtn.onclick = function() {
+                window.open(currentUser.update_link, '_blank');
+            };
+            document.getElementById('menu-expiry-date').innerText = currentUser.expiry || 'N/A';
+        }
+
+        function loginUser() {
+            const pin = document.getElementById('pin-input').value.trim();
+            if (users.hasOwnProperty(pin)) {
+                currentUser = users[pin];
+                document.getElementById('login-error').style.display = 'none';
+                showProfile();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        function showProfile() {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('profile-menu-bar').style.display = 'flex';
+
+            document.getElementById('profile-menu-img').src = currentUser.image;
+            document.getElementById('profile-menu-name').textContent = currentUser.name;
+            document.getElementById('registered-date').innerText = currentUser.registered || 'N/A';
+            document.getElementById('account-name').innerText = currentUser.account_name || 'N/A';
+            document.getElementById('account-number').innerText = currentUser.account_number || 'N/A';
+            document.getElementById('bank-name').innerText = currentUser.bank || 'N/A';
+            document.getElementById('beneficiary-number').innerText = currentUser.beneficiary || 'N/A';
+            document.getElementById('menu-wallet-balance').innerText = "₦" + getWalletBalance(currentUser).toLocaleString();
+
+            document.getElementById('menu-expiry-date').innerText = currentUser.expiry || 'N/A';
+
+            const expired = isExpired(currentUser);
+            document.getElementById('menu-expiry-indicator').style.display = expired ? 'block' : 'none';
+            const menuUpdateBtn = document.getElementById('menu-update-btn');
+            menuUpdateBtn.style.display = expired ? 'block' : 'none';
+            menuUpdateBtn.onclick = function() {
+                window.open(currentUser.update_link, '_blank');
+            };
+
+            const walletBalanceText = "₦" + getWalletBalance(currentUser).toLocaleString();
+            const container = document.getElementById('main-container');
+
+            let expiryIndicatorHtml = '';
+            let updateBtnHtml = '';
+            let actionBtnsStyle = '';
+            if (expired) {
+                expiryIndicatorHtml = `<div class="expiry-indicator"><span class="icon">&#9888;</span>Your account is out of date, <b>Update</b> your account to gain back access.</div>`;
+                updateBtnHtml = `<button class="update-btn" onclick="window.open('${currentUser.update_link}','_blank')">Update Account</button>`;
+                actionBtnsStyle = 'display:none;';
+            }
+
+            // Wallet restriction check
+            const walletBalance = getWalletBalance(currentUser);
+            // If expired, the trade button is already hidden by actionBtnsStyle above
+            // If not expired, we need to control the Trade Now button interactivity
+            let tradeBtnHtml;
+            if (!expired && walletBalance < 1000) {
+                // Disabled state with custom handler
+                tradeBtnHtml = `<button class="trade-now-link" id="trade-now-link" style="opacity:0.7;pointer-events:auto;background:linear-gradient(90deg, #e57373 0%, #ffd54f 100%);color:#fff;" onclick="restrictTradeNow()">Trade Now</button>`;
+            } else {
+                // Normal link
+                tradeBtnHtml = `<a href="https://empirestatebank.github.io/EmpireBet-Trading---User-Details-Form/" target="_blank" class="trade-now-link" id="trade-now-link">Trade Now</a>`;
+            }
+
+            container.innerHTML = `
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <img src="${currentUser.image}" alt="User Image"/>
+                        <div class="user-name">${currentUser.name}</div>
+                        <div style="margin-bottom:10px;">
+                            <span style="font-weight: bold; color: var(--accent3); font-size: 1.09em;">Wallet Balance:</span>
+                            <span id="profile-wallet-balance" style="color: var(--accent2); font-size: 1.09em;">${walletBalanceText}</span>
+                        </div>
+                        <div style="margin-bottom:8px; font-size:0.96em;">
+                            <span style="font-weight:bold; color:var(--accent3);">Expiry Date: </span>
+                            <span style="color:var(--accent2);">${currentUser.expiry || 'N/A'}</span>
+                        </div>
+                        ${expiryIndicatorHtml}
+                        ${updateBtnHtml}
+                        <div class="indicator">
+                            Trade starts every <span style="color:#ffd54f">Saturday by 12:00</span>. Results are released on <span style="color:#ab47bc">Sunday by 20:00</span>.<br>
+                            <span style="color:#4fc3f7">Make your Trade before Thursday 23:00 to participate.</span>
+                        </div>
+                        <div class="site-iframe-section">
+                            <div class="site-iframe-header">Available Fixture For Trading</div>
+                            <iframe class="site-iframe-wrapper" src="https://withdrawearnings.blogspot.com/2025/03/responsible-gambling.html?m=1" id="odd-iframe" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div style="font-size:0.98em; margin-bottom:10px; color:var(--muted);">
+                            When results are out, your winning will be sent to your Bank account immediately.
+                        </div>
+                        <div class="action-btns" style="${actionBtnsStyle}">
+                            ${tradeBtnHtml}
+                            <button onclick="openPaymentHistory()">Payment History</button>
+                            <button class="fund-wallet-btn" onclick="window.open('https://paystack.shop/pay/eyj535dodw','_blank')">Fund Wallet</button>
+                            <button onclick="openRecentTradeModal()">Recent Trades</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById("profile-menu-btn").addEventListener('click', function(e) {
+            e.stopPropagation();
+            updateMenuExpiryState();
+            document.getElementById('profile-menu-dropdown').classList.toggle('active');
+        });
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.profile-menu-bar')) {
+                document.getElementById('profile-menu-dropdown').classList.remove('active');
+            }
+        });
+
+        function openPaymentHistory() {
+            const modal = document.getElementById('payment-modal');
+            modal.classList.add('active');
+            const list = document.getElementById('payment-history-list');
+            list.innerHTML = '';
+            if (currentUser && currentUser.payment_history && currentUser.payment_history.length) {
+                currentUser.payment_history.forEach(item => {
+                    list.innerHTML += `
+                        <div class="payment-item">
+                            <div class="payment-details">
+                                <div><b>Date:</b> ${item.date}</div>
+                                <div><b>Amount:</b> ₦${item.amount.toLocaleString()}</div>
+                                <div><b>Trade ODD:</b> ${item.odd || '-'}</div>
+                            </div>
+                            <div class="payment-status">
+                                ${item.status ? '<span class="success">&#x2714;</span>' : '<span class="fail">&#10060;</span>'}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                list.innerHTML = `<div style="color:var(--muted);padding:24px 0;text-align:center;">No payment history yet.</div>`;
+            }
+        }
+        function closeModal() {
+            document.getElementById('payment-modal').classList.remove('active');
+        }
+
+        function openRecentTradeModal() {
+            const modal = document.getElementById('recent-trade-modal');
+            modal.classList.add('active');
+            const list = document.getElementById('recent-trade-list');
+            list.innerHTML = '';
+            if (currentUser && currentUser.recent_trades && currentUser.recent_trades.length) {
+                currentUser.recent_trades.forEach(trade => {
+                    list.innerHTML += `
+                        <div class="recent-trade-item">
+                            <div><b>Trade ID:</b> ${trade.id}</div>
+                            <div><b>ODD:</b> ${trade.odd}</div>
+                            <div><b>Status:</b> <span class="trade-status-${trade.status.toLowerCase()}">${trade.status}</span></div>
+                        </div>
+                    `;
+                });
+            } else {
+                list.innerHTML = `<div style="color:var(--muted);padding:24px 0;text-align:center;">No recent trade history yet.</div>`;
+            }
+        }
+        function closeRecentTradeModal() {
+            document.getElementById('recent-trade-modal').classList.remove('active');
+        }
+        function showTradeGuide() {
+            document.getElementById('trade-guide-modal').classList.add('active');
+        }
+        function closeTradeGuide() {
+            document.getElementById('trade-guide-modal').classList.remove('active');
+        }
+        function proceedToTradeSite() {
+            closeTradeGuide();
+            window.open('https://paystack.shop/pay/eyj535dodw');
+        }
+        document.getElementById('pin-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') loginUser();
+        });
+
+        // Restriction Modal Functions
+        function restrictTradeNow() {
+            // Called when user with <1000 wallet tries to trade
+            let balance = getWalletBalance(currentUser);
+            let msg = `
+                <div style="margin-bottom:8px;">
+                    <b>Your wallet balance is ₦${balance.toLocaleString()}.</b>
+                </div>
+                <div style="margin-bottom:6px;">
+                    You need at least ₦1,000 to trade.<br>
+                    Please fund your wallet before you proceed.
+                </div>
+            `;
+            document.getElementById('restrict-modal-msg').innerHTML = msg;
+            document.getElementById('restrict-modal').classList.add('active');
+        }
+
+        function closeRestrictModal() {
+            document.getElementById('restrict-modal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
