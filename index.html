@@ -154,8 +154,6 @@
             .site-iframe-wrapper { height: 200px; }
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
-
-        /* Custom modal for wallet restriction */
         .restrict-modal-bg {
             display: none;
             position: fixed;
@@ -401,11 +399,41 @@
             return user && typeof user.wallet_balance === 'number' ? user.wallet_balance : 0;
         }
 
+        // Improved expiry function
         function isExpired(user) {
             if (!user || !user.expiry) return false;
-            const today = new Date();
-            const expiryDate = new Date(user.expiry + "T23:59:59");
-            return today > expiryDate;
+            const now = new Date();
+            const expiryParts = user.expiry.split('-');
+            if (expiryParts.length !== 3) return false;
+            // Set expiry to end of day
+            const expiryDate = new Date(
+                parseInt(expiryParts[0]),
+                parseInt(expiryParts[1]) - 1,
+                parseInt(expiryParts[2]),
+                23, 59, 59
+            );
+            return now > expiryDate;
+        }
+
+        // Expiry status string: "2 days left", "Expired", etc.
+        function getExpiryStatusString(user) {
+            if (!user || !user.expiry) return '';
+            const now = new Date();
+            const expiryParts = user.expiry.split('-');
+            if (expiryParts.length !== 3) return '';
+            const expiryDate = new Date(
+                parseInt(expiryParts[0]),
+                parseInt(expiryParts[1]) - 1,
+                parseInt(expiryParts[2]),
+                23, 59, 59
+            );
+            const msLeft = expiryDate - now;
+            if (msLeft < 0) return 'Expired';
+            const days = Math.floor(msLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((msLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            if (days > 0) return `${days} day${days !== 1 ? 's' : ''} left`;
+            if (hours > 0) return `${hours} hour${hours !== 1 ? 's' : ''} left`;
+            return 'Less than 1 hour left';
         }
 
         function updateMenuExpiryState() {
@@ -417,7 +445,9 @@
             menuUpdateBtn.onclick = function() {
                 window.open(currentUser.update_link, '_blank');
             };
-            document.getElementById('menu-expiry-date').innerText = currentUser.expiry || 'N/A';
+            const expiryStr = currentUser.expiry || 'N/A';
+            const statusStr = getExpiryStatusString(currentUser);
+            document.getElementById('menu-expiry-date').innerText = expiryStr + (statusStr && statusStr !== "Expired" ? ` (${statusStr})` : '');
         }
 
         function loginUser() {
@@ -444,7 +474,9 @@
             document.getElementById('beneficiary-number').innerText = currentUser.beneficiary || 'N/A';
             document.getElementById('menu-wallet-balance').innerText = "₦" + getWalletBalance(currentUser).toLocaleString();
 
-            document.getElementById('menu-expiry-date').innerText = currentUser.expiry || 'N/A';
+            const expiryStr = currentUser.expiry || 'N/A';
+            const statusStr = getExpiryStatusString(currentUser);
+            document.getElementById('menu-expiry-date').innerText = expiryStr + (statusStr && statusStr !== "Expired" ? ` (${statusStr})` : '');
 
             const expired = isExpired(currentUser);
             document.getElementById('menu-expiry-indicator').style.display = expired ? 'block' : 'none';
@@ -464,18 +496,17 @@
                 expiryIndicatorHtml = `<div class="expiry-indicator"><span class="icon">&#9888;</span>Your account is out of date, <b>Update</b> your account to gain back access.</div>`;
                 updateBtnHtml = `<button class="update-btn" onclick="window.open('${currentUser.update_link}','_blank')">Update Account</button>`;
                 actionBtnsStyle = 'display:none;';
+            } else if (statusStr && statusStr !== "Expired" && statusStr !== "") {
+                expiryIndicatorHtml = `<div class="expiry-indicator" style="background:linear-gradient(90deg,#ffd54f,#ab47bc 80%);color:#23272f;animation:none;border:2px solid #ffd54f;">
+                    <span class="icon">&#9888;</span>Expiry: <b>${currentUser.expiry}</b> (${statusStr})
+                    </div>`;
             }
 
-            // Wallet restriction check
             const walletBalance = getWalletBalance(currentUser);
-            // If expired, the trade button is already hidden by actionBtnsStyle above
-            // If not expired, we need to control the Trade Now button interactivity
             let tradeBtnHtml;
             if (!expired && walletBalance < 1000) {
-                // Disabled state with custom handler
                 tradeBtnHtml = `<button class="trade-now-link" id="trade-now-link" style="opacity:0.7;pointer-events:auto;background:linear-gradient(90deg, #e57373 0%, #ffd54f 100%);color:#fff;" onclick="restrictTradeNow()">Trade Now</button>`;
             } else {
-                // Normal link
                 tradeBtnHtml = `<a href="https://empirestatebank.github.io/EmpireBet-Trading---User-Details-Form/" target="_blank" class="trade-now-link" id="trade-now-link">Trade Now</a>`;
             }
 
@@ -593,14 +624,13 @@
 
         // Restriction Modal Functions
         function restrictTradeNow() {
-            // Called when user with <1000 wallet tries to trade
             let balance = getWalletBalance(currentUser);
             let msg = `
                 <div style="margin-bottom:8px;">
                     <b>Your wallet balance is ₦${balance.toLocaleString()}.</b>
                 </div>
                 <div style="margin-bottom:6px;">
-                    You need at least ₦1,000 to trade.<br>
+                    You need at least ₦5,000 to trade.<br>
                     Please fund your wallet before you proceed.
                 </div>
             `;
