@@ -79,7 +79,35 @@
       color: var(--accent); font-size: 1.15em; font-weight: 600; letter-spacing: 0.5px;
       text-align: center; margin-top: 0;
     }
-    /* Profile Card */
+    .typing-loader-msg {
+      color: var(--accent2);
+      font-size: 1.15em;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-align: center;
+      margin-top: 10px;
+      min-height: 60px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      animation: none;
+      display: none;
+    }
+    #trade-proceed-btn {
+      display: none;
+      margin-top: 25px;
+      padding: 12px 38px;
+      background: var(--btn-bg);
+      color: var(--primary-bg);
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1.1em;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(79,195,247,0.13);
+      transition: background 0.2s, color 0.2s;
+    }
+    #trade-proceed-btn:hover { background: var(--btn-bg-hover); color: #fff; }
     .profile-card {
       background: var(--card-bg); border-radius: 18px; box-shadow: 0 2px 16px rgba(0,0,0,0.25);
       width: 98vw; max-width: 410px; margin: auto; margin-top: 32px; padding: 28px 20px 30px 20px;
@@ -147,7 +175,6 @@
     .profile-status-icon:active svg {
       box-shadow: 0 2px 18px #ffd54f40;
     }
-    /* Status Modal */
     .status-modal-bg {
       display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.90); z-index: 1010;
@@ -167,10 +194,6 @@
       position: absolute; top: 8px; right: 14px; background: none; border: none; font-size: 1.32em; color: var(--accent2);
       cursor: pointer;
     }
-    @media (max-width: 480px) {
-      .profile-card, .status-modal-card, .login-surface { max-width: 99vw; padding: 12px 3vw 22px 3vw;}
-    }
-    /* Form Modal */
     .trade-form-modal-bg {
       display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.94); z-index: 1020; justify-content: center; align-items: center;
@@ -208,6 +231,9 @@
     }
     .trade-summary-table th { color: var(--accent2);}
     .trade-summary-table tr:last-child td { border-bottom: none;}
+    @media (max-width: 480px) {
+      .profile-card, .status-modal-card, .login-surface { max-width: 99vw; padding: 12px 3vw 22px 3vw;}
+    }
   </style>
 </head>
 <body>
@@ -227,6 +253,8 @@
       <img src="-5890865169557472356_109.jpg" alt="loader" class="loader-spin-img"/>
     </div>
     <div class="loader-text" id="loader-text">Loading Profile...</div>
+    <div class="typing-loader-msg" id="typing-loader-msg"></div>
+    <button id="trade-proceed-btn">Proceed</button>
   </div>
   
   <!-- Status Modal -->
@@ -269,6 +297,13 @@
   </div>
 
   <script>
+    // ----------- TRADE DATE/TIME SETTINGS -----------
+    // Change these values to set trade window
+    const TRADE_DAYS = [15]; // 1st of the month
+    const TRADE_START_HOUR = 0;  // 0 = 00:00 (midnight)
+    const TRADE_END_HOUR = 18;   // 18 = 18:00 (6pm)
+    // -----------------------------------------------
+
     // User Data
     const users = {
       "3572": {
@@ -379,7 +414,6 @@
 
     let currentUser = null;
 
-    // Get local today date in yyyy-mm-dd
     function getTodayStr() {
       const now = new Date();
       const y = now.getFullYear();
@@ -387,7 +421,7 @@
       const d = String(now.getDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
     }
-    // Expiry check
+
     function isExpired(user) {
       if (!user || !user.expiry) return false;
       const now = new Date();
@@ -396,7 +430,7 @@
       const expiryDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]), 23, 59, 59);
       return now > expiryDate;
     }
-    // For Expiry string
+
     function getExpiryStatusString(user) {
       if (!user || !user.expiry) return '';
       const now = new Date();
@@ -409,16 +443,24 @@
       if (days > 0) return `${days} day${days!==1?'s':''} left`;
       return 'Less than 1 day left';
     }
-    // Is today 1st of month and is between 00:00 and 18:00 local time
+
+    // Use the settings at the top for trade window logic
     function isTradingOpen() {
       const now = new Date();
-      return (now.getDate() === 1 && now.getHours() < 18);
+      const today = now.getDate();
+      const hour = now.getHours();
+      const isTradeDay = TRADE_DAYS.includes(today);
+      const isTradeHour = hour >= TRADE_START_HOUR && hour < TRADE_END_HOUR;
+      return isTradeDay && isTradeHour;
     }
 
-    // Loader
     function showLoader(msg="Loading...", duration=6000, cb=()=>{}) {
-      const loader = document.getElementById('loader-bg');
+      document.getElementById('typing-loader-msg').textContent = "";
+      document.getElementById('typing-loader-msg').style.display = "none";
+      document.getElementById('trade-proceed-btn').style.display = "none";
+      document.getElementById('loader-text').style.display = "";
       document.getElementById('loader-text').textContent = msg;
+      const loader = document.getElementById('loader-bg');
       loader.style.display = 'flex';
       setTimeout(() => {
         loader.style.display = 'none';
@@ -426,7 +468,35 @@
       }, duration);
     }
 
-    // Login
+    function showTradeTypingLoader(cb=()=>{}) {
+      const loader = document.getElementById('loader-bg');
+      const typingMsgEl = document.getElementById('typing-loader-msg');
+      const loaderText = document.getElementById('loader-text');
+      const proceedBtn = document.getElementById('trade-proceed-btn');
+      loader.style.display = "flex";
+      loaderText.style.display = "none";
+      typingMsgEl.textContent = "";
+      typingMsgEl.style.display = "block";
+      proceedBtn.style.display = "none";
+      proceedBtn.disabled = true;
+
+      const message = "Trade with EmpireStateBank and get 2X of your investment after 30 days. Your income will be transferred directly to your Bank account.";
+      const duration = 15000; // 15 seconds
+      let idx = 0;
+      const interval = duration / message.length;
+      function typeChar() {
+        typingMsgEl.textContent += message[idx];
+        idx++;
+        if (idx < message.length) {
+          setTimeout(typeChar, interval);
+        } else {
+          proceedBtn.style.display = "block";
+          proceedBtn.disabled = false;
+        }
+      }
+      setTimeout(typeChar, interval);
+    }
+
     function doLogin() {
       const pin = document.getElementById('pin-input').value.trim();
       if (users.hasOwnProperty(pin)) {
@@ -443,7 +513,6 @@
       if (e.key === 'Enter') doLogin();
     });
 
-    // Show profile
     function showProfile() {
       const user = currentUser;
       const expired = isExpired(user);
@@ -452,7 +521,6 @@
       const canTrade = !expired && tradingOpen && user.wallet_balance >= 5000;
       const fundWalletUrl = 'https://paystack.shop/pay/eyj535dodw';
       const todayStr = getTodayStr();
-      // Expiry date display - red if expired
       let expiryNotice = '';
       if (expired) {
         expiryNotice = `
@@ -461,17 +529,15 @@
           </div>
         `;
       }
-      // Trade schedule note
       const tradeSchedule = `
-        Trading Commence: <b>1st of every month, 00:00 - 18:00</b>
+        Trading Commence: <b>${TRADE_DAYS.join(", ")}${TRADE_DAYS.length==1?"st":""} of every month, ${String(TRADE_START_HOUR).padStart(2,"0")}:00 - ${String(TRADE_END_HOUR).padStart(2,"0")}:00</b>
       `;
-      // Buttons
       let tradeNowBtn = '';
       if (!expired) {
         if (canTrade) {
           tradeNowBtn = `<button onclick="startTradeNow()" id="trade-now-btn">Trade Now</button>`;
         } else if (!tradingOpen) {
-          tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Trading opens only on 1st day</small></button>`;
+          tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Trading opens only on ${TRADE_DAYS.join(", ")}${TRADE_DAYS.length==1?"st":""}</small></button>`;
         } else if (user.wallet_balance < 5000) {
           tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Min ₦5,000 balance</small></button>`;
         }
@@ -481,13 +547,11 @@
       if (expired) {
         updateBtn = `<button onclick="updateAccount()" id="update-btn">Update Account</button>`;
       }
-      // Status icon
       let statusIcon = `
         <button class="profile-status-icon" onclick="openStatusModal()">
           <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" stroke-width="2"/><path d="M16 10v8M16 22h.01" stroke-width="2"/></svg>
         </button>
       `;
-      // Profile Card HTML
       document.getElementById('main-content').innerHTML = `
         <div class="profile-card">
           ${statusIcon}
@@ -508,46 +572,45 @@
       `;
     }
 
-    // Trade Now logic
     window.startTradeNow = function() {
-      showLoader("Preparing trade form...", 6000, () => {
-        openTradeFormModal();
-      });
+      showTradeTypingLoader();
+    };
+
+    document.getElementById('trade-proceed-btn').onclick = function() {
+      document.getElementById('loader-bg').style.display = 'none';
+      document.getElementById('typing-loader-msg').textContent = "";
+      document.getElementById('typing-loader-msg').style.display = "none";
+      document.getElementById('trade-proceed-btn').style.display = "none";
+      openTradeFormModal();
     };
 
     function openTradeFormModal() {
-      // Pre-fill form
       document.getElementById('form-name').value = currentUser.name;
       document.getElementById('form-pin').value = currentUser.pin;
       document.getElementById('form-date').value = getTodayStr();
       document.getElementById('form-amount').value = 5000;
       document.getElementById('form-trade-pin').value = '';
-      // Show modal
       document.getElementById('trade-form-modal').classList.add('active');
     }
     function closeTradeFormModal() {
       document.getElementById('trade-form-modal').classList.remove('active');
     }
-    // Only 4 digits for PIN
     document.getElementById('form-trade-pin').addEventListener('input',function(e){
       this.value = this.value.replace(/\D/g,'').slice(0,4);
     });
 
-    // Fund wallet logic
     window.fundWallet = function() {
       showLoader("Redirecting to Fund Wallet...", 6000, () => {
         window.open('https://paystack.shop/pay/eyj535dodw','_blank');
       });
     };
 
-    // Update account logic
     window.updateAccount = function() {
       showLoader("Redirecting to Update Account...", 6000, () => {
         window.open(currentUser.update_link, '_blank');
       });
     };
 
-    // Status Modal
     window.openStatusModal = function() {
       showLoader("Loading Status...", 1200, () => {
         const user = currentUser;
@@ -568,28 +631,23 @@
       document.getElementById('status-modal').classList.remove('active');
     }
 
-    // Form validation for Trade Form
     document.getElementById('trade-form').onsubmit = function(e) {
-      // Validate amount
       const amount = parseInt(document.getElementById('form-amount').value,10);
       if (isNaN(amount) || amount<5000 || amount>50000) {
         alert('Amount must be between ₦5,000 and ₦50,000');
         e.preventDefault();
         return false;
       }
-      // Validate PIN (4 digits)
       const tpin = document.getElementById('form-trade-pin').value;
       if (!/^\d{4}$/.test(tpin)) {
         alert('PIN must be 4 digits');
         e.preventDefault();
         return false;
       }
-      // Allow submit; show loader
       closeTradeFormModal();
       showLoader("Submitting trade...", 3000, ()=>{});
     };
 
-    // Close modal on outside click
     document.addEventListener('mousedown', function(e){
       if (document.getElementById('status-modal').classList.contains('active')) {
         if (!e.target.closest('.status-modal-card')) closeStatusModal();
