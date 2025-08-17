@@ -125,6 +125,13 @@
     .profile-row {
       margin-bottom: 8px; font-size: 1.06em;
     }
+    .profile-referral {
+      font-size: 1.08em;
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
     .profile-name {
       font-size: 1.33em; font-weight: 700; margin-bottom: 10px; color: var(--accent2); letter-spacing: 0.5px;
     }
@@ -140,7 +147,7 @@
       animation: blink 1.1s linear infinite;
     }
     @keyframes blink {
-      0%,100%{opacity:1;} 50%{opacity:0.5;}
+      0%,100{opacity:1;} 50%{opacity:0.5;}
     }
     .profile-trade-schedule {
       font-size: 1.02em; color: var(--muted); margin-bottom: 15px;
@@ -323,6 +330,7 @@
       "4073": {
         pin: "4073",
         name: "ESTHER AMOS",
+        referral_code: "BOT-02",
         image: "AddText_05-25-10.37.46.png",
         beneficiary: "08130024073",
         account_name: "ESTHER EKERETTE AMOS",
@@ -336,6 +344,7 @@
       "1313": {
         pin: "1313",
         name: "ITOHOWO AKAN",
+        referral_code: "BOT-03",
         image: "AddText_05-25-10.37.07.png",
         beneficiary: "09037060454",
         account_name: "ITOHOWO JOHN AKAN",
@@ -349,6 +358,7 @@
       "5012": {
         pin: "5012",
         name: "SAMUEL AKPAN",
+        referral_code: "BOT-04",
         image: "AddText_06-03-08.29.58.png",
         beneficiary: "09138109857",
         account_name: "SAMUEL MONDAY AKPAN",
@@ -362,6 +372,7 @@
       "1266": {
         pin: "1266",
         name: "SAMUEL IME",
+        referral_code: "BOT-05",
         image: "AddText_05-22-09.03.57.png",
         beneficiary: "N/N",
         account_name: "SAMUEL IME",
@@ -375,6 +386,7 @@
       "1220": {
         pin: "1220",
         name: "SAVIOUR EKONG",
+        referral_code: "BOT-06",
         image: "AddText_05-29-09.19.44.png",
         beneficiary: "N/N",
         account_name: "SAVIOUR EKONG",
@@ -388,6 +400,7 @@
       "2019": {
         pin: "2019",
         name: "CHARITY HANSON",
+        referral_code: "BOT-07",
         image: "AddText_06-02-03.50.45.png",
         beneficiary: "08028803872",
         account_name: "CHARITY ASUQUO HANSON",
@@ -401,6 +414,7 @@
       "1908": {
         pin: "1908",
         name: "USHIE ONEN",
+        referral_code: "BOT-08",
         image: "AddText_06-05-09.14.49.png",
         beneficiary: "07032325480",
         account_name: "USHIE IKPI ONEN",
@@ -552,11 +566,16 @@
           <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" stroke-width="2"/><path d="M16 10v8M16 22h.01" stroke-width="2"/></svg>
         </button>
       `;
+      let referralCode = '';
+      if (user.referral_code) {
+        referralCode = `<div class="profile-referral">Referral Code: <span>${user.referral_code}</span></div>`;
+      }
       document.getElementById('main-content').innerHTML = `
         <div class="profile-card">
           ${statusIcon}
           <img src="${user.image}" alt="User Image" class="profile-img"/>
           <div class="profile-name">${user.name}</div>
+          ${referralCode}
           <div class="profile-row profile-balance">Wallet: ₦${user.wallet_balance.toLocaleString()}</div>
           <div class="profile-row profile-expiry">
             Expiry Date: <span>${user.expiry} ${expiryStatus && expiryStatus!=="Expired"?`<small>(${expiryStatus})</small>`:""}</span>
@@ -671,6 +690,7 @@
         const user = currentUser;
         const html = `
           <div class="status-row"><span>PIN:</span> ${user.pin}</div>
+          <div class="status-row"><span>Referral code:</span> ${user.referral_code || ''}</div>
           <div class="status-row"><span>Register date:</span> ${user.registered}</div>
           <div class="status-row"><span>Account name:</span> ${user.account_name}</div>
           <div class="status-row"><span>Account number:</span> ${user.account_number}</div>
