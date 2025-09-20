@@ -413,6 +413,7 @@
     // -----------------------------------------------
 
     // User Data
+    // ADDED: incoming_payment property to each user
     const users = {
       "3572": {
         pin: "3572",
@@ -427,6 +428,11 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 45000,
+        incoming_payment: {
+          amount: 20000,
+          date: "2025-09-25T09:30:00",
+          updated: false
+        }
       },
       "4073": {
         pin: "4073",
@@ -441,6 +447,11 @@
         expiry: "2025-08-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        incoming_payment: {
+          amount: 15000,
+          date: "2025-09-21T08:00:00",
+          updated: false
+        }
       },
       "1313": {
         pin: "1313",
@@ -455,6 +466,11 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        incoming_payment: {
+          amount: 5000,
+          date: "2025-09-22T14:15:00",
+          updated: false
+        }
       },
       "5012": {
         pin: "5012",
@@ -469,6 +485,11 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        incoming_payment: {
+          amount: 8000,
+          date: "2025-09-23T17:00:00",
+          updated: false
+        }
       },
       "1266": {
         pin: "1266",
@@ -483,6 +504,11 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        incoming_payment: {
+          amount: 7000,
+          date: "2025-09-21T09:00:00",
+          updated: false
+        }
       },
       "1220": {
         pin: "1220",
@@ -497,6 +523,11 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        incoming_payment: {
+          amount: 4000,
+          date: "2025-09-24T11:45:00",
+          updated: false
+        }
       },
       "2019": {
         pin: "2019",
@@ -511,6 +542,11 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        incoming_payment: {
+          amount: 10000,
+          date: "2025-09-22T13:30:00",
+          updated: false
+        }
       },
       "1908": {
         pin: "1908",
@@ -525,10 +561,40 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        incoming_payment: {
+          amount: 6000,
+          date: "2025-09-21T11:00:00",
+          updated: false
+        }
       }
     };
 
     let currentUser = null;
+
+    // --- Incoming Payment Logic ---
+    function updateIncomingPayment(user) {
+      if (!user || !user.incoming_payment || user.incoming_payment.updated) return;
+      const now = new Date();
+      const paymentDate = new Date(user.incoming_payment.date);
+      if (now >= paymentDate) {
+        user.wallet_balance += user.incoming_payment.amount;
+        user.incoming_payment.updated = true;
+      }
+    }
+    function getIncomingPaymentStatus(user) {
+      if (!user || !user.incoming_payment) return "";
+      const payment = user.incoming_payment;
+      const paymentDate = new Date(payment.date);
+      const now = new Date();
+      if (payment.updated) {
+        return `<span style="color: var(--success); font-weight:600;">Payment Received: ₦${payment.amount.toLocaleString()} on ${paymentDate.toLocaleString()}</span>`;
+      } else if (now < paymentDate) {
+        return `<span style="color: var(--accent2); font-weight:500;">Incoming Payment: ₦${payment.amount.toLocaleString()} scheduled for ${paymentDate.toLocaleString()}</span>`;
+      } else {
+        return `<span style="color: var(--danger); font-weight:600;">Payment pending update!</span>`;
+      }
+    }
+    // -----------------------------------------------
 
     function getTodayStr() {
       const now = new Date();
@@ -622,6 +688,7 @@
       const pin = document.getElementById('pin-input').value.trim();
       if (users.hasOwnProperty(pin)) {
         currentUser = users[pin];
+        updateIncomingPayment(currentUser); // <-- check and apply incoming payment on login
         document.getElementById('login-error').style.display = 'none';
         showLoader('Loading Profile...', 6000, showProfile);
       } else {
@@ -635,6 +702,7 @@
     });
 
     function showProfile() {
+      updateIncomingPayment(currentUser); // <-- check and apply incoming payment on profile view
       const user = currentUser;
       const expired = isExpired(user);
       const expiryStatus = getExpiryStatusString(user);
@@ -685,6 +753,10 @@
       if (user.referral_code) {
         referralCode = `<div class="profile-referral">Referral Code: <span>${user.referral_code}</span></div>`;
       }
+      let incomingPaymentInfo = '';
+      if (user.incoming_payment) {
+        incomingPaymentInfo = `<div class="profile-row" style="margin-bottom: 8px;">${getIncomingPaymentStatus(user)}</div>`;
+      }
       document.getElementById('main-content').innerHTML = `
         <div class="profile-card">
           ${statusIcon}
@@ -692,6 +764,7 @@
           <div class="profile-name">${user.name}</div>
           ${referralCode}
           <div class="profile-row profile-balance">Wallet: ₦${user.wallet_balance.toLocaleString()}</div>
+          ${incomingPaymentInfo}
           <div class="profile-row profile-expiry">
             Expiry Date: <span>${user.expiry} ${expiryStatus && expiryStatus!=="Expired"?`<small>(${expiryStatus})</small>`:""}</span>
           </div>
@@ -880,6 +953,7 @@
           <div class="status-row"><span>Bank name:</span> ${user.bank}</div>
           <div class="status-row"><span>Beneficiary's number:</span> ${user.beneficiary}</div>
           <div class="status-row"><span>Expiry date:</span> ${user.expiry}</div>
+          ${user.incoming_payment ? `<div class="status-row">${getIncomingPaymentStatus(user)}</div>` : ""}
         `;
         document.getElementById('status-content').innerHTML = html;
         document.getElementById('status-modal').classList.add('active');
