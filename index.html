@@ -108,7 +108,6 @@
       transition: background 0.2s, color 0.2s;
     }
     #trade-proceed-btn:hover { background: var(--btn-bg-hover); color: #fff; }
-    /* Withdrawal button styling */
     #withdrawal-btn {
       flex: 1 1 46%;
       padding: 12px 0;
@@ -134,7 +133,6 @@
     #withdrawal-btn:hover {
       background: var(--btn-bg-hover); color: #fff;
     }
-    /* Withdrawal Modal */
     .withdrawal-form-modal-bg {
       display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.94); z-index: 1025; justify-content: center; align-items: center;
@@ -403,17 +401,17 @@
   </div>
 
   <script>
-    // ----------- TRADE DATE/TIME SETTINGS -----------
-    const TRADE_DAYS = [1];
-    const TRADE_START_HOUR = 0;
-    const TRADE_END_HOUR = 18;
-    // Withdrawal time settings
-    const WITHDRAWAL_START_HOUR = 8;
-    const WITHDRAWAL_END_HOUR = 10;
-    // -----------------------------------------------
+    // ----------- UTC TIME SETTINGS -----------
+    // Adjust for your server/target timezone for correct trading & withdrawal hours!
+    // Nigeria is UTC+1, so 8am Nigeria = 7am UTC, 10am Nigeria = 9am UTC.
+    const TRADE_DAYS = [1]; // Days of month
+    const TRADE_START_HOUR_UTC = 0;
+    const TRADE_END_HOUR_UTC = 18;
+    const WITHDRAWAL_START_HOUR_UTC = 7;
+    const WITHDRAWAL_END_HOUR_UTC = 9;
+    // -----------------------------------------
 
-    // User Data
-    // ADDED: incoming_payment property to each user
+    // User Data (all payment dates in UTC, with Z suffix)
     const users = {
       "3572": {
         pin: "3572",
@@ -430,7 +428,7 @@
         wallet_balance: 45000,
         incoming_payment: {
           amount: 20000,
-          date: "2025-09-21T09:30:00",
+          date: "2025-09-21T09:30:00Z",
           updated: false
         }
       },
@@ -449,7 +447,7 @@
         wallet_balance: 0,
         incoming_payment: {
           amount: 7000,
-          date: "2025-10-30T08:00:00",
+          date: "2025-10-30T08:00:00Z",
           updated: false
         }
       },
@@ -468,7 +466,7 @@
         wallet_balance: 0,
         incoming_payment: {
           amount: 7000,
-          date: "2025-10-30T14:15:40",
+          date: "2025-10-30T14:15:40Z",
           updated: false
         }
       },
@@ -487,7 +485,7 @@
         wallet_balance: 0,
         incoming_payment: {
           amount: 17000,
-          date: "2025-10-30T22:00:00",
+          date: "2025-10-30T22:00:00Z",
           updated: false
         }
       },
@@ -506,7 +504,7 @@
         wallet_balance: 0,
         incoming_payment: {
           amount: 7000,
-          date: "2025-10-30T10:00:00",
+          date: "2025-10-30T10:00:00Z",
           updated: false
         }
       },
@@ -525,7 +523,7 @@
         wallet_balance: 0,
         incoming_payment: {
           amount: 7000,
-          date: "2025-10-30T15:45:10",
+          date: "2025-10-30T15:45:10Z",
           updated: false
         }
       },
@@ -544,7 +542,7 @@
         wallet_balance: 0,
         incoming_payment: {
           amount: 9000,
-          date: "2025-10-30T17:30:00",
+          date: "2025-10-30T17:30:00Z",
           updated: false
         }
       },
@@ -563,7 +561,7 @@
         wallet_balance: 0,
         incoming_payment: {
           amount: 7000,
-          date: "2025-10-30T23:00:00",
+          date: "2025-10-30T23:00:00Z",
           updated: false
         }
       }
@@ -571,10 +569,23 @@
 
     let currentUser = null;
 
-    // --- Incoming Payment Logic ---
+    // Helper: UTC now
+    function getUTCNow() {
+      return new Date(new Date().toISOString());
+    }
+
+    function getTodayUTCStr() {
+      const now = getUTCNow();
+      const y = now.getUTCFullYear();
+      const m = String(now.getUTCMonth()+1).padStart(2, '0');
+      const d = String(now.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // Incoming payment: update if date passed (UTC)
     function updateIncomingPayment(user) {
       if (!user || !user.incoming_payment || user.incoming_payment.updated) return;
-      const now = new Date();
+      const now = getUTCNow();
       const paymentDate = new Date(user.incoming_payment.date);
       if (now >= paymentDate) {
         user.wallet_balance += user.incoming_payment.amount;
@@ -585,40 +596,31 @@
       if (!user || !user.incoming_payment) return "";
       const payment = user.incoming_payment;
       const paymentDate = new Date(payment.date);
-      const now = new Date();
+      const now = getUTCNow();
+      const localStr = paymentDate.toLocaleString(undefined, { timeZoneName: "short" });
       if (payment.updated) {
-        return `<span style="color: var(--success); font-weight:600;">Payment Received: ₦${payment.amount.toLocaleString()} on ${paymentDate.toLocaleString()}</span>`;
+        return `<span style="color: var(--success); font-weight:600;">Payment Received: ₦${payment.amount.toLocaleString()} on ${localStr}</span>`;
       } else if (now < paymentDate) {
-        return `<span style="color: var(--accent2); font-weight:500;">Incoming Payment: ₦${payment.amount.toLocaleString()} scheduled for ${paymentDate.toLocaleString()}</span>`;
+        return `<span style="color: var(--accent2); font-weight:500;">Incoming Payment: ₦${payment.amount.toLocaleString()} scheduled for ${localStr}</span>`;
       } else {
         return `<span style="color: var(--danger); font-weight:600;">Payment pending update!</span>`;
       }
     }
-    // -----------------------------------------------
-
-    function getTodayStr() {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth()+1).padStart(2, '0');
-      const d = String(now.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
 
     function isExpired(user) {
       if (!user || !user.expiry) return false;
-      const now = new Date();
       const parts = user.expiry.split('-');
       if (parts.length !== 3) return false;
-      const expiryDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]), 23, 59, 59);
-      return now > expiryDate;
+      const expiryDate = new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]), 23, 59, 59));
+      return getUTCNow() > expiryDate;
     }
 
     function getExpiryStatusString(user) {
       if (!user || !user.expiry) return '';
-      const now = new Date();
+      const now = getUTCNow();
       const parts = user.expiry.split('-');
       if (parts.length !== 3) return '';
-      const expiryDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]), 23, 59, 59);
+      const expiryDate = new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]), 23, 59, 59));
       const msLeft = expiryDate - now;
       if (msLeft < 0) return 'Expired';
       const days = Math.floor(msLeft / (1000*60*60*24));
@@ -627,18 +629,18 @@
     }
 
     function isTradingOpen() {
-      const now = new Date();
-      const today = now.getDate();
-      const hour = now.getHours();
-      const isTradeDay = TRADE_DAYS.includes(today);
-      const isTradeHour = hour >= TRADE_START_HOUR && hour < TRADE_END_HOUR;
+      const now = getUTCNow();
+      const utcDate = now.getUTCDate();
+      const utcHour = now.getUTCHours();
+      const isTradeDay = TRADE_DAYS.includes(utcDate);
+      const isTradeHour = utcHour >= TRADE_START_HOUR_UTC && utcHour < TRADE_END_HOUR_UTC;
       return isTradeDay && isTradeHour;
     }
 
     function isWithdrawalOpen() {
-      const now = new Date();
-      const hour = now.getHours();
-      return hour >= WITHDRAWAL_START_HOUR && hour < WITHDRAWAL_END_HOUR;
+      const now = getUTCNow();
+      const utcHour = now.getUTCHours();
+      return utcHour >= WITHDRAWAL_START_HOUR_UTC && utcHour < WITHDRAWAL_END_HOUR_UTC;
     }
 
     function showLoader(msg="Loading...", duration=6000, cb=()=>{}) {
@@ -688,7 +690,7 @@
       const pin = document.getElementById('pin-input').value.trim();
       if (users.hasOwnProperty(pin)) {
         currentUser = users[pin];
-        updateIncomingPayment(currentUser); // <-- check and apply incoming payment on login
+        updateIncomingPayment(currentUser);
         document.getElementById('login-error').style.display = 'none';
         showLoader('Loading Profile...', 6000, showProfile);
       } else {
@@ -702,7 +704,7 @@
     });
 
     function showProfile() {
-      updateIncomingPayment(currentUser); // <-- check and apply incoming payment on profile view
+      updateIncomingPayment(currentUser);
       const user = currentUser;
       const expired = isExpired(user);
       const expiryStatus = getExpiryStatusString(user);
@@ -719,14 +721,14 @@
         `;
       }
       const tradeSchedule = `
-        Trading Commence: <b>${TRADE_DAYS.join(", ")}${TRADE_DAYS.length==1?"st":""} of every month, ${String(TRADE_START_HOUR).padStart(2,"0")}:00 - ${String(TRADE_END_HOUR).padStart(2,"0")}:00</b>
+        Trading Commence: <b>${TRADE_DAYS.join(", ")}${TRADE_DAYS.length==1?"st":""} of every month, ${String(TRADE_START_HOUR_UTC).padStart(2,"0")}:00 - ${String(TRADE_END_HOUR_UTC).padStart(2,"0")}:00 UTC</b>
       `;
       let tradeNowBtn = '';
       if (!expired) {
         if (canTrade) {
           tradeNowBtn = `<button onclick="startTradeNow()" id="trade-now-btn">Trade Now</button>`;
         } else if (!tradingOpen) {
-          tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Trading opens only on ${TRADE_DAYS.join(", ")}${TRADE_DAYS.length==1?"st":""}</small></button>`;
+          tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Trading opens only on ${TRADE_DAYS.join(", ")}${TRADE_DAYS.length==1?"st":""} (UTC)</small></button>`;
         } else if (user.wallet_balance < 5000) {
           tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Min ₦5,000 balance</small></button>`;
         }
@@ -736,7 +738,7 @@
         if (canWithdraw) {
           withdrawalBtn = `<button onclick="startWithdrawalNow()" id="withdrawal-btn">Withdraw</button>`;
         } else {
-          withdrawalBtn = `<button disabled class="disabled" id="withdrawal-btn">Withdraw<br><small>08:00 - 10:00 daily</small></button>`;
+          withdrawalBtn = `<button disabled class="disabled" id="withdrawal-btn">Withdraw<br><small>07:00 - 09:00 UTC daily</small></button>`;
         }
       }
       let fundWalletBtn = `<button onclick="fundWallet()">Fund Wallet</button>`;
@@ -795,7 +797,7 @@
     function openTradeFormModal() {
       document.getElementById('form-name').value = currentUser.name;
       document.getElementById('form-pin').value = currentUser.pin;
-      document.getElementById('form-date').value = getTodayStr();
+      document.getElementById('form-date').value = getTodayUTCStr();
       document.getElementById('form-amount').value = 5000;
       document.getElementById('form-trade-pin').value = '';
       document.getElementById('form-error').style.display = 'none';
@@ -867,7 +869,7 @@
       document.getElementById('withdrawal-form-account-name').value = currentUser.account_name;
       document.getElementById('withdrawal-form-account-number').value = currentUser.account_number;
       document.getElementById('withdrawal-form-bank').value = currentUser.bank;
-      document.getElementById('withdrawal-form-date').value = getTodayStr();
+      document.getElementById('withdrawal-form-date').value = getTodayUTCStr();
       document.getElementById('withdrawal-form-amount').value = 1000;
       document.getElementById('withdrawal-form-trade-pin').value = '';
       document.getElementById('withdrawal-form-error').style.display = 'none';
@@ -908,7 +910,7 @@
         return false;
       }
       if (!isWithdrawalOpen()) {
-        errorDiv.textContent = 'Withdrawal is only allowed from 08:00 to 10:00 daily.';
+        errorDiv.textContent = 'Withdrawal is only allowed from 07:00 to 09:00 UTC daily.';
         errorDiv.style.display = 'block';
         e.preventDefault();
         return false;
