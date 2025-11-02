@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
   <style>
-    /* --- [PASTE YOUR CSS AS-IS FROM YOUR ORIGINAL CODE HERE] --- */
     :root {
       --primary-bg: #111317;
       --card-bg: #181b22;
@@ -307,7 +306,6 @@
       <div class="login-error" id="login-error">Invalid PIN, try again.</div>
     </div>
   </div>
-  <!-- Loader, modals, forms etc. unchanged -->
   <div class="loader-bg" id="loader-bg" style="display:none;">
     <div class="loader-circle">
       <img src="-5890865169557472356_109.jpg" alt="loader" class="loader-spin-img"/>
@@ -401,7 +399,10 @@
     const WITHDRAWAL_START_HOUR_UTC = 7;
     const WITHDRAWAL_END_HOUR_UTC = 9;
 
+    // User data with manual wallet_balance and next_wallet_balance
     const users = {
+      // USER: EMMANUEL EKPA (PIN: 3572)
+      // next_wallet_balance: Manually set this after payment date is reached.
       "3572": {
         pin: "3572",
         name: "EMMANUEL EKPA",
@@ -415,16 +416,14 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 45000,
+        next_wallet_balance: 52000,
         incoming_payment: {
           amount: 7000,
           date: "2025-11-02T12:00:00Z",
           updated: false
-        },
-        last_payment: {
-          amount: 45000,
-          date: "2025-10-30T22:00:00Z"
         }
       },
+      // USER: ESTHER AMOS (PIN: 4073)
       "4073": {
         pin: "4073",
         name: "ESTHER AMOS",
@@ -438,17 +437,14 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        next_wallet_balance: 7000,
         incoming_payment: {
           amount: 7000,
           date: "2025-10-30T08:00:00Z",
           updated: false
-        },
-        last_payment: {
-          amount: 7000,
-          date: "2025-09-30T08:00:00Z"
         }
       },
-      // ... [Other users as per your full list. Paste all user objects here, unchanged.] ...
+      // USER: ITOHOWO AKAN (PIN: 1313)
       "1313": {
         pin: "1313",
         name: "ITOHOWO AKAN",
@@ -462,16 +458,14 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 3000,
+        next_wallet_balance: 10000,
         incoming_payment: {
           amount: 7000,
           date: "2025-10-30T14:15:40Z",
           updated: false
-        },
-        last_payment: {
-          amount: 7000,
-          date: "2025-10-30T14:15:40Z"
         }
       },
+      // USER: SAMUEL AKPAN (PIN: 5012)
       "5012": {
         pin: "5012",
         name: "SAMUEL AKPAN",
@@ -485,16 +479,14 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        next_wallet_balance: 17000,
         incoming_payment: {
           amount: 17000,
           date: "2025-10-30T22:00:00Z",
           updated: false
-        },
-        last_payment: {
-          amount: 17000,
-          date: "2025-09-30T22:00:00Z"
         }
       },
+      // USER: SAMUEL IME (PIN: 1266)
       "1266": {
         pin: "1266",
         name: "SAMUEL IME",
@@ -508,16 +500,14 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        next_wallet_balance: 7000,
         incoming_payment: {
           amount: 7000,
           date: "2025-10-30T10:00:00Z",
           updated: false
-        },
-        last_payment: {
-          amount: 7000,
-          date: "2025-09-30T10:00:00Z"
         }
       },
+      // USER: SAVIOUR EKONG (PIN: 1220)
       "1220": {
         pin: "1220",
         name: "SAVIOUR EKONG",
@@ -531,16 +521,14 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        next_wallet_balance: 7000,
         incoming_payment: {
           amount: 7000,
           date: "2025-10-30T15:45:10Z",
           updated: false
-        },
-        last_payment: {
-          amount: 7000,
-          date: "2025-09-30T15:45:10Z"
         }
       },
+      // USER: CHARITY HANSON (PIN: 2019)
       "2019": {
         pin: "2019",
         name: "CHARITY HANSON",
@@ -554,16 +542,14 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        next_wallet_balance: 9000,
         incoming_payment: {
           amount: 9000,
           date: "2025-10-30T17:30:00Z",
           updated: false
-        },
-        last_payment: {
-          amount: 9000,
-          date: "2025-09-30T17:30:00Z"
         }
       },
+      // USER: USHIE ONEN (PIN: 1908)
       "1908": {
         pin: "1908",
         name: "USHIE ONEN",
@@ -577,14 +563,11 @@
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
+        next_wallet_balance: 7000,
         incoming_payment: {
           amount: 7000,
           date: "2025-10-30T23:00:00Z",
           updated: false
-        },
-        last_payment: {
-          amount: 7000,
-          date: "2025-09-30T23:00:00Z"
         }
       }
     };
@@ -602,21 +585,6 @@
       return `${y}-${m}-${d}`;
     }
 
-    // Only update balance if incoming_payment.amount > 0 and payment date has passed
-    function updateIncomingPayment(user) {
-      if (!user || !user.incoming_payment || user.incoming_payment.updated) return;
-      const now = getUTCNow();
-      const paymentDate = new Date(user.incoming_payment.date);
-      if (user.incoming_payment.amount > 0 && now >= paymentDate) {
-        user.wallet_balance += user.incoming_payment.amount;
-        user.incoming_payment.updated = true;
-        user.last_payment = {
-          amount: user.incoming_payment.amount,
-          date: user.incoming_payment.date
-        };
-      }
-    }
-
     // Status and profile incoming payment string
     function getIncomingPaymentStatus(user) {
       if (!user || !user.incoming_payment) return "";
@@ -626,22 +594,13 @@
       const localStr = paymentDate.toLocaleString(undefined, { timeZoneName: "short" });
 
       if (payment.amount <= 0) {
-        let lastPaymentInfo = "";
-        if (user.last_payment && user.last_payment.amount > 0) {
-          const lastPaymentDate = new Date(user.last_payment.date);
-          lastPaymentInfo = `<span style="color: var(--muted); font-weight:500;">Last Payment Received: ₦${user.last_payment.amount.toLocaleString()} on ${lastPaymentDate.toLocaleString(undefined, { timeZoneName: "short" })}</span>`;
-        } else {
-          lastPaymentInfo = `<span style="color: var(--muted); font-weight:500;">No previous payments.</span>`;
-        }
-        return `<span style="color: var(--accent2); font-weight:500;">No incoming payment scheduled for this month.</span><br>${lastPaymentInfo}`;
+        return `<span style="color: var(--accent2); font-weight:500;">No incoming payment scheduled for this month.</span>`;
       }
-      if (payment.updated) {
-        return `<span style="color: var(--success); font-weight:600;">Payment Received: ₦${payment.amount.toLocaleString()} on ${localStr}</span>`;
-      } else if (now < paymentDate) {
+      if (now < paymentDate) {
         return `<span style="color: var(--accent2); font-weight:500;">Incoming Payment: ₦${payment.amount.toLocaleString()} scheduled for ${localStr}</span>`;
-      } else {
-        return `<span style="color: var(--danger); font-weight:600;">Payment pending update!</span>`;
       }
+      // Do NOT show any message after payment date passed
+      return "";
     }
 
     function isExpired(user) {
@@ -720,7 +679,6 @@
       const pin = document.getElementById('pin-input').value.trim();
       if (users.hasOwnProperty(pin)) {
         currentUser = users[pin];
-        updateIncomingPayment(currentUser);
         document.getElementById('login-error').style.display = 'none';
         showLoader('Loading Profile...', 6000, showProfile);
       } else {
@@ -733,7 +691,6 @@
     });
 
     function showProfile() {
-      updateIncomingPayment(currentUser);
       const user = currentUser;
       const expired = isExpired(user);
       const expiryStatus = getExpiryStatusString(user);
@@ -752,6 +709,11 @@
       const tradeSchedule = `
         Trading Commence: <b>${TRADE_DAYS.join(", ")}${TRADE_DAYS.length==1?"st":""} of every month, ${String(TRADE_START_HOUR_UTC).padStart(2,"0")}:00 - ${String(TRADE_END_HOUR_UTC).padStart(2,"0")}:00 UTC</b>
       `;
+      // Show the correct balance depending on the payment date
+      const now = getUTCNow();
+      const paymentDate = new Date(user.incoming_payment.date);
+      let displayBalance = now >= paymentDate ? user.next_wallet_balance : user.wallet_balance;
+
       let tradeNowBtn = '';
       if (!expired) {
         if (canTrade) {
@@ -785,7 +747,7 @@
         referralCode = `<div class="profile-referral">Referral Code: <span>${user.referral_code}</span></div>`;
       }
       let incomingPaymentInfo = '';
-      if (user.incoming_payment || user.last_payment) {
+      if (user.incoming_payment) {
         incomingPaymentInfo = `<div class="profile-row" style="margin-bottom: 8px;">${getIncomingPaymentStatus(user)}</div>`;
       }
       document.getElementById('main-content').innerHTML = `
@@ -794,7 +756,7 @@
           <img src="${user.image}" alt="User Image" class="profile-img"/>
           <div class="profile-name">${user.name}</div>
           ${referralCode}
-          <div class="profile-row profile-balance">Wallet: ₦${user.wallet_balance.toLocaleString()}</div>
+          <div class="profile-row profile-balance">Wallet: ₦${displayBalance.toLocaleString()}</div>
           ${incomingPaymentInfo}
           <div class="profile-row profile-expiry">
             Expiry Date: <span>${user.expiry} ${expiryStatus && expiryStatus!=="Expired"?`<small>(${expiryStatus})</small>`:""}</span>
@@ -862,6 +824,7 @@
         e.preventDefault();
         return false;
       }
+      // Always use the pre-payment balance for trade validation
       if (currentUser.wallet_balance < amount) {
         errorDiv.textContent = `Your wallet balance (₦${currentUser.wallet_balance.toLocaleString()}) is insufficient for this trade.`;
         errorDiv.style.display = 'block';
@@ -973,7 +936,9 @@
           <div class="status-row"><span>Bank name:</span> ${user.bank}</div>
           <div class="status-row"><span>Beneficiary's number:</span> ${user.beneficiary}</div>
           <div class="status-row"><span>Expiry date:</span> ${user.expiry}</div>
-          ${user.incoming_payment || user.last_payment ? `<div class="status-row">${getIncomingPaymentStatus(user)}</div>` : ""}
+          ${user.incoming_payment ? `<div class="status-row">${getIncomingPaymentStatus(user)}</div>` : ""}
+          <div class="status-row"><span>Current Balance:</span> ₦${user.wallet_balance.toLocaleString()}</div>
+          <div class="status-row"><span>Next Balance (after payment):</span> ₦${user.next_wallet_balance.toLocaleString()}</div>
         `;
         document.getElementById('status-content').innerHTML = html;
         document.getElementById('status-modal').classList.add('active');
