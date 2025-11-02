@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
   <style>
+    /* --- [PASTE YOUR CSS AS-IS FROM YOUR ORIGINAL CODE HERE] --- */
     :root {
       --primary-bg: #111317;
       --card-bg: #181b22;
@@ -306,8 +307,7 @@
       <div class="login-error" id="login-error">Invalid PIN, try again.</div>
     </div>
   </div>
-
-  <!-- Loader -->
+  <!-- Loader, modals, forms etc. unchanged -->
   <div class="loader-bg" id="loader-bg" style="display:none;">
     <div class="loader-circle">
       <img src="-5890865169557472356_109.jpg" alt="loader" class="loader-spin-img"/>
@@ -316,8 +316,6 @@
     <div class="typing-loader-msg" id="typing-loader-msg"></div>
     <button id="trade-proceed-btn">Proceed</button>
   </div>
-  
-  <!-- Status Modal -->
   <div class="status-modal-bg" id="status-modal">
     <div class="status-modal-card">
       <button class="status-modal-close" onclick="closeStatusModal()">&times;</button>
@@ -325,8 +323,6 @@
       <div id="status-content"></div>
     </div>
   </div>
-
-  <!-- Trade Form Modal -->
   <div class="trade-form-modal-bg" id="trade-form-modal">
     <div class="trade-form-modal-card">
       <button class="trade-form-modal-close" onclick="closeTradeFormModal()">&times;</button>
@@ -356,8 +352,6 @@
       </form>
     </div>
   </div>
-
-  <!-- Withdrawal Form Modal -->
   <div class="withdrawal-form-modal-bg" id="withdrawal-form-modal">
     <div class="withdrawal-form-modal-card">
       <button class="withdrawal-form-modal-close" onclick="closeWithdrawalFormModal()">&times;</button>
@@ -399,19 +393,14 @@
       </form>
     </div>
   </div>
-
   <script>
-    // ----------- UTC TIME SETTINGS -----------
-    // Adjust for your server/target timezone for correct trading & withdrawal hours!
-    // Nigeria is UTC+1, so 8am Nigeria = 7am UTC, 10am Nigeria = 9am UTC.
-    const TRADE_DAYS = [1]; // Days of month
+    // --- EmpireBot Trading Logic ---
+    const TRADE_DAYS = [1];
     const TRADE_START_HOUR_UTC = 0;
     const TRADE_END_HOUR_UTC = 18;
     const WITHDRAWAL_START_HOUR_UTC = 7;
     const WITHDRAWAL_END_HOUR_UTC = 9;
-    // -----------------------------------------
 
-    // User Data (all payment dates in UTC, with Z suffix)
     const users = {
       "3572": {
         pin: "3572",
@@ -425,11 +414,15 @@
         registered: "2024-03-15",
         expiry: "2025-12-01",
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 65000,
+        wallet_balance: 45000,
         incoming_payment: {
-          amount: 0,
-          date: "2025-10-30T22:00:00Z",
+          amount: 7000,
+          date: "2025-11-02T12:00:00Z",
           updated: false
+        },
+        last_payment: {
+          amount: 45000,
+          date: "2025-10-30T22:00:00Z"
         }
       },
       "4073": {
@@ -449,8 +442,13 @@
           amount: 7000,
           date: "2025-10-30T08:00:00Z",
           updated: false
+        },
+        last_payment: {
+          amount: 7000,
+          date: "2025-09-30T08:00:00Z"
         }
       },
+      // ... [Other users as per your full list. Paste all user objects here, unchanged.] ...
       "1313": {
         pin: "1313",
         name: "ITOHOWO AKAN",
@@ -468,6 +466,10 @@
           amount: 7000,
           date: "2025-10-30T14:15:40Z",
           updated: false
+        },
+        last_payment: {
+          amount: 5000,
+          date: "2025-09-30T14:15:40Z"
         }
       },
       "5012": {
@@ -487,6 +489,10 @@
           amount: 17000,
           date: "2025-10-30T22:00:00Z",
           updated: false
+        },
+        last_payment: {
+          amount: 17000,
+          date: "2025-09-30T22:00:00Z"
         }
       },
       "1266": {
@@ -506,6 +512,10 @@
           amount: 7000,
           date: "2025-10-30T10:00:00Z",
           updated: false
+        },
+        last_payment: {
+          amount: 7000,
+          date: "2025-09-30T10:00:00Z"
         }
       },
       "1220": {
@@ -525,6 +535,10 @@
           amount: 7000,
           date: "2025-10-30T15:45:10Z",
           updated: false
+        },
+        last_payment: {
+          amount: 7000,
+          date: "2025-09-30T15:45:10Z"
         }
       },
       "2019": {
@@ -544,6 +558,10 @@
           amount: 9000,
           date: "2025-10-30T17:30:00Z",
           updated: false
+        },
+        last_payment: {
+          amount: 9000,
+          date: "2025-09-30T17:30:00Z"
         }
       },
       "1908": {
@@ -563,17 +581,19 @@
           amount: 7000,
           date: "2025-10-30T23:00:00Z",
           updated: false
+        },
+        last_payment: {
+          amount: 7000,
+          date: "2025-09-30T23:00:00Z"
         }
       }
     };
 
     let currentUser = null;
 
-    // Helper: UTC now
     function getUTCNow() {
       return new Date(new Date().toISOString());
     }
-
     function getTodayUTCStr() {
       const now = getUTCNow();
       const y = now.getUTCFullYear();
@@ -582,22 +602,39 @@
       return `${y}-${m}-${d}`;
     }
 
-    // Incoming payment: update if date passed (UTC)
+    // Only update balance if incoming_payment.amount > 0 and payment date has passed
     function updateIncomingPayment(user) {
       if (!user || !user.incoming_payment || user.incoming_payment.updated) return;
       const now = getUTCNow();
       const paymentDate = new Date(user.incoming_payment.date);
-      if (now >= paymentDate) {
+      if (user.incoming_payment.amount > 0 && now >= paymentDate) {
         user.wallet_balance += user.incoming_payment.amount;
         user.incoming_payment.updated = true;
+        user.last_payment = {
+          amount: user.incoming_payment.amount,
+          date: user.incoming_payment.date
+        };
       }
     }
+
+    // Status and profile incoming payment string
     function getIncomingPaymentStatus(user) {
       if (!user || !user.incoming_payment) return "";
       const payment = user.incoming_payment;
       const paymentDate = new Date(payment.date);
       const now = getUTCNow();
       const localStr = paymentDate.toLocaleString(undefined, { timeZoneName: "short" });
+
+      if (payment.amount <= 0) {
+        let lastPaymentInfo = "";
+        if (user.last_payment && user.last_payment.amount > 0) {
+          const lastPaymentDate = new Date(user.last_payment.date);
+          lastPaymentInfo = `<span style="color: var(--muted); font-weight:500;">Last Payment Received: ₦${user.last_payment.amount.toLocaleString()} on ${lastPaymentDate.toLocaleString(undefined, { timeZoneName: "short" })}</span>`;
+        } else {
+          lastPaymentInfo = `<span style="color: var(--muted); font-weight:500;">No previous payments.</span>`;
+        }
+        return `<span style="color: var(--accent2); font-weight:500;">No incoming payment scheduled for this month.</span><br>${lastPaymentInfo}`;
+      }
       if (payment.updated) {
         return `<span style="color: var(--success); font-weight:600;">Payment Received: ₦${payment.amount.toLocaleString()} on ${localStr}</span>`;
       } else if (now < paymentDate) {
@@ -614,7 +651,6 @@
       const expiryDate = new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]), 23, 59, 59));
       return getUTCNow() > expiryDate;
     }
-
     function getExpiryStatusString(user) {
       if (!user || !user.expiry) return '';
       const now = getUTCNow();
@@ -627,7 +663,6 @@
       if (days > 0) return `${days} day${days!==1?'s':''} left`;
       return 'Less than 1 day left';
     }
-
     function isTradingOpen() {
       const now = getUTCNow();
       const utcDate = now.getUTCDate();
@@ -636,13 +671,11 @@
       const isTradeHour = utcHour >= TRADE_START_HOUR_UTC && utcHour < TRADE_END_HOUR_UTC;
       return isTradeDay && isTradeHour;
     }
-
     function isWithdrawalOpen() {
       const now = getUTCNow();
       const utcHour = now.getUTCHours();
       return utcHour >= WITHDRAWAL_START_HOUR_UTC && utcHour < WITHDRAWAL_END_HOUR_UTC;
     }
-
     function showLoader(msg="Loading...", duration=6000, cb=()=>{}) {
       document.getElementById('typing-loader-msg').textContent = "";
       document.getElementById('typing-loader-msg').style.display = "none";
@@ -656,7 +689,6 @@
         cb();
       }, duration);
     }
-
     function showTradeTypingLoader(cb=()=>{}) {
       const loader = document.getElementById('loader-bg');
       const typingMsgEl = document.getElementById('typing-loader-msg');
@@ -668,7 +700,6 @@
       typingMsgEl.style.display = "block";
       proceedBtn.style.display = "none";
       proceedBtn.disabled = true;
-
       const message = "Trade with EmpireStateBank and get 2X of your investment after 30 days. Don't make multiple trade. Your income will be transferred directly to your StateBank account. You can Withdraw your Profit Anyday.";
       const duration = 15000;
       let idx = 0;
@@ -685,7 +716,6 @@
       }
       setTimeout(typeChar, interval);
     }
-
     function doLogin() {
       const pin = document.getElementById('pin-input').value.trim();
       if (users.hasOwnProperty(pin)) {
@@ -697,7 +727,6 @@
         document.getElementById('login-error').style.display = 'block';
       }
     }
-
     document.getElementById('login-btn').onclick = doLogin;
     document.getElementById('pin-input').addEventListener('keydown', function(e){
       if (e.key === 'Enter') doLogin();
@@ -756,7 +785,7 @@
         referralCode = `<div class="profile-referral">Referral Code: <span>${user.referral_code}</span></div>`;
       }
       let incomingPaymentInfo = '';
-      if (user.incoming_payment) {
+      if (user.incoming_payment || user.last_payment) {
         incomingPaymentInfo = `<div class="profile-row" style="margin-bottom: 8px;">${getIncomingPaymentStatus(user)}</div>`;
       }
       document.getElementById('main-content').innerHTML = `
@@ -785,7 +814,6 @@
     window.startTradeNow = function() {
       showTradeTypingLoader();
     };
-
     document.getElementById('trade-proceed-btn').onclick = function() {
       document.getElementById('loader-bg').style.display = 'none';
       document.getElementById('typing-loader-msg').textContent = "";
@@ -793,7 +821,6 @@
       document.getElementById('trade-proceed-btn').style.display = "none";
       openTradeFormModal();
     };
-
     function openTradeFormModal() {
       document.getElementById('form-name').value = currentUser.name;
       document.getElementById('form-pin').value = currentUser.pin;
@@ -810,7 +837,6 @@
     document.getElementById('form-trade-pin').addEventListener('input',function(e){
       this.value = this.value.replace(/\D/g,'').slice(0,4);
     });
-
     const tradeForm = document.getElementById('trade-form');
     tradeForm.onsubmit = function(e) {
       const amount = parseInt(document.getElementById('form-amount').value,10);
@@ -818,7 +844,6 @@
       const errorDiv = document.getElementById('form-error');
       errorDiv.style.display = 'none';
       errorDiv.textContent = '';
-
       if (isNaN(amount) || amount < 5000 || amount > 50000) {
         errorDiv.textContent = 'Amount must be between ₦5,000 and ₦50,000';
         errorDiv.style.display = 'block';
@@ -846,7 +871,6 @@
       closeTradeFormModal();
       showLoader("Submitting trade...", 3000, ()=>{});
     };
-
     document.getElementById('form-amount').addEventListener('input', function() {
       const amount = parseInt(this.value, 10);
       const errorDiv = document.getElementById('form-error');
@@ -862,7 +886,6 @@
     window.startWithdrawalNow = function() {
       openWithdrawalFormModal();
     };
-
     function openWithdrawalFormModal() {
       document.getElementById('withdrawal-form-name').value = currentUser.name;
       document.getElementById('withdrawal-form-pin').value = currentUser.pin;
@@ -882,7 +905,6 @@
     document.getElementById('withdrawal-form-trade-pin').addEventListener('input',function(e){
       this.value = this.value.replace(/\D/g,'').slice(0,4);
     });
-
     const withdrawalForm = document.getElementById('withdrawal-form');
     withdrawalForm.onsubmit = function(e) {
       const amount = parseInt(document.getElementById('withdrawal-form-amount').value,10);
@@ -890,7 +912,6 @@
       const errorDiv = document.getElementById('withdrawal-form-error');
       errorDiv.style.display = 'none';
       errorDiv.textContent = '';
-
       if (isNaN(amount) || amount < 1000 || amount > 20000) {
         errorDiv.textContent = 'Amount must be between ₦1,000 and ₦20,000';
         errorDiv.style.display = 'block';
@@ -918,7 +939,6 @@
       closeWithdrawalFormModal();
       showLoader("Submitting withdrawal...", 3000, ()=>{});
     };
-
     document.getElementById('withdrawal-form-amount').addEventListener('input', function() {
       const amount = parseInt(this.value, 10);
       const errorDiv = document.getElementById('withdrawal-form-error');
@@ -936,13 +956,11 @@
         window.open('https://paystack.shop/pay/eyj535dodw','_blank');
       });
     };
-
     window.updateAccount = function() {
       showLoader("Redirecting to Update Account...", 6000, () => {
         window.open(currentUser.update_link, '_blank');
       });
     };
-
     window.openStatusModal = function() {
       showLoader("Loading Status...", 1200, () => {
         const user = currentUser;
@@ -955,7 +973,7 @@
           <div class="status-row"><span>Bank name:</span> ${user.bank}</div>
           <div class="status-row"><span>Beneficiary's number:</span> ${user.beneficiary}</div>
           <div class="status-row"><span>Expiry date:</span> ${user.expiry}</div>
-          ${user.incoming_payment ? `<div class="status-row">${getIncomingPaymentStatus(user)}</div>` : ""}
+          ${user.incoming_payment || user.last_payment ? `<div class="status-row">${getIncomingPaymentStatus(user)}</div>` : ""}
         `;
         document.getElementById('status-content').innerHTML = html;
         document.getElementById('status-modal').classList.add('active');
@@ -964,7 +982,6 @@
     function closeStatusModal() {
       document.getElementById('status-modal').classList.remove('active');
     }
-
     document.addEventListener('mousedown', function(e){
       if (document.getElementById('status-modal').classList.contains('active')) {
         if (!e.target.closest('.status-modal-card')) closeStatusModal();
