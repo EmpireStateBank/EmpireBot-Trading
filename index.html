@@ -402,7 +402,6 @@
     // User data with manual wallet_balance and next_wallet_balance
     const users = {
       // USER: EMMANUEL EKPA (PIN: 3572)
-      // next_wallet_balance: Manually set this after payment date is reached.
       "3572": {
         pin: "3572",
         name: "EMMANUEL EKPA",
@@ -737,6 +736,8 @@
       if (expired) {
         updateBtn = `<button onclick="updateAccount()" id="update-btn">Update Account</button>`;
       }
+      // New withdrawal status button for ALL users
+      let withdrawalStatusBtn = `<button onclick="checkWithdrawalStatus()" id="withdrawal-status-btn">Withdrawal Status</button>`;
       let statusIcon = `
         <button class="profile-status-icon" onclick="openStatusModal()">
           <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" stroke-width="2"/><path d="M16 10v8M16 22h.01" stroke-width="2"/></svg>
@@ -768,10 +769,17 @@
             ${withdrawalBtn}
             ${fundWalletBtn}
             ${updateBtn}
+            ${withdrawalStatusBtn}
           </div>
         </div>
       `;
     }
+
+    // Add the new button's function
+    window.checkWithdrawalStatus = function() {
+      // Change the link below if you have a real withdrawal status portal
+      window.open('https://paystack.shop/pay/eyj535dodw', '_blank');
+    };
 
     window.startTradeNow = function() {
       showTradeTypingLoader();
