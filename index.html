@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
   <style>
+    /* ...styles exactly as in your original file... */
     :root {
       --primary-bg: #111317;
       --card-bg: #181b22;
@@ -399,7 +400,7 @@
 
     // User data (with trade_date for each user)
     const users = {
-      // USER: EMMANUEL EKPA (PIN: 3572)
+      // ... your existing user objects ...
       "3572": {
         pin: "3572",
         name: "EMMANUEL EKPA",
@@ -414,14 +415,13 @@
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 45000,
         next_wallet_balance: 45000,
-        trade_date: "2025-12-01", // Custom trade date
+        trade_date: "2025-12-01",
         incoming_payment: {
           amount: 5000,
           date: "2025-11-30T12:00:00Z",
           updated: false
         }
       },
-      // USER: ESTHER AMOS (PIN: 4073)
       "4073": {
         pin: "4073",
         name: "ESTHER AMOS",
@@ -436,14 +436,13 @@
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
         next_wallet_balance: 7000,
-        trade_date: "2025-12-01",
+        trade_date: "2025-12-30",
         incoming_payment: {
           amount: 7000,
           date: "2025-10-30T08:00:00Z",
           updated: false
         }
       },
-      // USER: ITOHOWO AKAN (PIN: 1313)
       "1313": {
         pin: "1313",
         name: "ITOHOWO AKAN",
@@ -458,14 +457,13 @@
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 7000,
         next_wallet_balance: 7000,
-        trade_date: "2025-12-01",
+        trade_date: "2025-12-30",
         incoming_payment: {
           amount: 7000,
           date: "2025-10-30T14:15:40Z",
           updated: false
         }
       },
-      // USER: SAMUEL AKPAN (PIN: 5012)
       "5012": {
         pin: "5012",
         name: "SAMUEL AKPAN",
@@ -480,14 +478,13 @@
         update_link: "https://paystack.shop/pay/fpjpxhey-5",
         wallet_balance: 0,
         next_wallet_balance: 17000,
-        trade_date: "2025-12-11",
+        trade_date: "2025-12-30",
         incoming_payment: {
           amount: 17000,
           date: "2025-10-30T22:00:00Z",
           updated: false
         }
       },
-      // USER: SAMUEL IME (PIN: 1266)
       "1266": {
         pin: "1266",
         name: "SAMUEL IME",
@@ -509,7 +506,6 @@
           updated: false
         }
       },
-      // USER: SAVIOUR EKONG (PIN: 1220)
       "1220": {
         pin: "1220",
         name: "SAVIOUR EKONG",
@@ -531,7 +527,6 @@
           updated: false
         }
       },
-      // USER: CHARITY HANSON (PIN: 2019)
       "2019": {
         pin: "2019",
         name: "CHARITY HANSON",
@@ -553,7 +548,6 @@
           updated: false
         }
       },
-      // USER: USHIE ONEN (PIN: 1908)
       "1908": {
         pin: "1908",
         name: "USHIE ONEN",
@@ -575,7 +569,6 @@
           updated: false
         }
       },
-      // USER: PATIENCE EKPA (PIN: 4173)
       "4173": {
         pin: "4073",
         name: "PATIENCE EKPA",
@@ -612,7 +605,6 @@
       return `${y}-${m}-${d}`;
     }
 
-    // Status and profile incoming payment string
     function getIncomingPaymentStatus(user) {
       if (!user || !user.incoming_payment) return "";
       const payment = user.incoming_payment;
@@ -649,13 +641,24 @@
       if (days > 0) return `${days} day${days!==1?'s':''} left`;
       return 'Less than 1 day left';
     }
+    // --- UPDATED isTradingOpen: opens on DD (day) only! ---
     function isTradingOpen(user) {
       if (!user || !user.trade_date) return false;
       const now = getUTCNow();
-      // Trading is open on user.trade_date from 00:00 to before 18:00 UTC
-      const tradeStart = new Date(user.trade_date + "T00:00:00Z");
-      const tradeEnd = new Date(user.trade_date + "T18:00:00Z");
-      return now >= tradeStart && now < tradeEnd;
+      // Only the day part is considered (regardless of month/year)
+      let tradeDay;
+      if (user.trade_date.length >= 2) {
+        // Accept both "YYYY-MM-DD" and "DD"
+        const parts = user.trade_date.split("-");
+        tradeDay = parseInt(parts[parts.length - 1], 10); // always last part
+      } else {
+        tradeDay = parseInt(user.trade_date, 10);
+      }
+      const nowDay = now.getUTCDate();
+      // Allow trading only on the trade day, from 00:00 to 18:00 UTC
+      if (tradeDay !== nowDay) return false;
+      const hour = now.getUTCHours();
+      return hour >= 0 && hour < 18;
     }
     function isWithdrawalOpen() {
       const now = getUTCNow();
@@ -734,7 +737,7 @@
         `;
       }
       const tradeSchedule = `
-        Your Trade Date: <b>${user.trade_date || "--"} (00:00 - 18:00 UTC only)</b>
+        Your Trade Date: <b>${user.trade_date ? (user.trade_date.split('-').pop()) : "--"} (00:00 - 18:00 UTC only, every month)</b>
       `;
       // Show the correct balance depending on the payment date
       const now = getUTCNow();
@@ -746,7 +749,7 @@
         if (canTrade) {
           tradeNowBtn = `<button onclick="startTradeNow()" id="trade-now-btn">Trade Now</button>`;
         } else if (!tradingOpen) {
-          tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Trade allowed only on your assigned date (${user.trade_date})</small></button>`;
+          tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Trade allowed only on day ${user.trade_date ? (user.trade_date.split('-').pop()) : '--'} of each month</small></button>`;
         } else if (user.wallet_balance < 5000) {
           tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Min ₦5,000 balance</small></button>`;
         }
@@ -972,7 +975,7 @@
           <div class="status-row"><span>Bank name:</span> ${user.bank}</div>
           <div class="status-row"><span>Beneficiary's number:</span> ${user.beneficiary}</div>
           <div class="status-row"><span>Expiry date:</span> ${user.expiry}</div>
-          <div class="status-row"><span>Trade date:</span> ${user.trade_date||'-'}</div>
+          <div class="status-row"><span>Trade day:</span> ${user.trade_date ? user.trade_date.split('-').pop() : '-'}</div>
           ${user.incoming_payment ? `<div class="status-row">${getIncomingPaymentStatus(user)}</div>` : ""}
           <div class="status-row"><span>Current Balance:</span> ₦${user.wallet_balance.toLocaleString()}</div>
           <div class="status-row"><span>Next Balance (after payment):</span> ₦${user.next_wallet_balance.toLocaleString()}</div>
