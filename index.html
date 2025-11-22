@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
   <style>
-    /* ...styles exactly as in your original file... */
     :root {
       --primary-bg: #111317;
       --card-bg: #181b22;
@@ -380,6 +379,10 @@
           <input type="text" name="Bank Name" id="withdrawal-form-bank" required readonly>
         </label>
         <label>
+          Beneficiary's Number<br>
+          <input type="text" name="Beneficiary Number" id="withdrawal-form-beneficiary" required readonly>
+        </label>
+        <label>
           Date<br>
           <input type="date" name="Date" id="withdrawal-form-date" required>
         </label>
@@ -393,14 +396,10 @@
     </div>
   </div>
   <script>
-    // --- EmpireBot Trading Logic ---
-    // Withdrawal time window
     const WITHDRAWAL_START_HOUR_UTC = 7;
     const WITHDRAWAL_END_HOUR_UTC = 9;
 
-    // User data (with trade_date for each user)
     const users = {
-      // ... your existing user objects ...
       "3572": {
         pin: "3572",
         name: "EMMANUEL EKPA",
@@ -604,24 +603,20 @@
       const d = String(now.getUTCDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
     }
-
     function getIncomingPaymentStatus(user) {
       if (!user || !user.incoming_payment) return "";
       const payment = user.incoming_payment;
       const paymentDate = new Date(payment.date);
       const now = getUTCNow();
       const localStr = paymentDate.toLocaleString(undefined, { timeZoneName: "short" });
-
       if (payment.amount <= 0) {
         return `<span style="color: var(--accent2); font-weight:500;">No incoming payment scheduled for this month.</span>`;
       }
       if (now < paymentDate) {
         return `<span style="color: var(--accent2); font-weight:500;">Incoming Payment: ₦${payment.amount.toLocaleString()} scheduled for ${localStr}</span>`;
       }
-      // Do NOT show any message after payment date passed
       return "";
     }
-
     function isExpired(user) {
       if (!user || !user.expiry) return false;
       const parts = user.expiry.split('-');
@@ -641,21 +636,17 @@
       if (days > 0) return `${days} day${days!==1?'s':''} left`;
       return 'Less than 1 day left';
     }
-    // --- UPDATED isTradingOpen: opens on DD (day) only! ---
     function isTradingOpen(user) {
       if (!user || !user.trade_date) return false;
       const now = getUTCNow();
-      // Only the day part is considered (regardless of month/year)
       let tradeDay;
       if (user.trade_date.length >= 2) {
-        // Accept both "YYYY-MM-DD" and "DD"
         const parts = user.trade_date.split("-");
-        tradeDay = parseInt(parts[parts.length - 1], 10); // always last part
+        tradeDay = parseInt(parts[parts.length - 1], 10);
       } else {
         tradeDay = parseInt(user.trade_date, 10);
       }
       const nowDay = now.getUTCDate();
-      // Allow trading only on the trade day, from 00:00 to 18:00 UTC
       if (tradeDay !== nowDay) return false;
       const hour = now.getUTCHours();
       return hour >= 0 && hour < 18;
@@ -689,7 +680,7 @@
       typingMsgEl.style.display = "block";
       proceedBtn.style.display = "none";
       proceedBtn.disabled = true;
-      const message = "Trade with EmpireStateBank and get 2X of your investment after 30 days. Don't make multiple trade. Your income will be transferred directly to your StateBank account. You can Withdraw your Profit Anyday.";
+      const message = "Trade with EmpireStateBank and get 2X of your investment after 30 days. Don't make multiple trade. Your income will be transferred directly to your StateBank account. You can Withdraw on time window every day. For support, contact admin.";
       const duration = 15000;
       let idx = 0;
       const interval = duration / message.length;
@@ -710,7 +701,7 @@
       if (users.hasOwnProperty(pin)) {
         currentUser = users[pin];
         document.getElementById('login-error').style.display = 'none';
-        showLoader('Loading Profile...', 6000, showProfile);
+        showLoader('Loading Profile...', 3000, showProfile);
       } else {
         document.getElementById('login-error').style.display = 'block';
       }
@@ -719,7 +710,6 @@
     document.getElementById('pin-input').addEventListener('keydown', function(e){
       if (e.key === 'Enter') doLogin();
     });
-
     function showProfile() {
       const user = currentUser;
       const expired = isExpired(user);
@@ -739,7 +729,6 @@
       const tradeSchedule = `
         Your Trade Date: <b>${user.trade_date ? (user.trade_date.split('-').pop()) : "--"} (00:00 - 18:00 UTC only, every month)</b>
       `;
-      // Show the correct balance depending on the payment date
       const now = getUTCNow();
       const paymentDate = new Date(user.incoming_payment.date);
       let displayBalance = now >= paymentDate ? user.next_wallet_balance : user.wallet_balance;
@@ -767,7 +756,6 @@
       if (expired) {
         updateBtn = `<button onclick="updateAccount()" id="update-btn">Update Account</button>`;
       }
-      // New withdrawal status button for ALL users
       let withdrawalStatusBtn = `<button onclick="checkWithdrawalStatus()" id="withdrawal-status-btn">Withdrawal Status</button>`;
       let statusIcon = `
         <button class="profile-status-icon" onclick="openStatusModal()">
@@ -805,10 +793,7 @@
         </div>
       `;
     }
-
-    // Add the new button's function
     window.checkWithdrawalStatus = function() {
-      // Change the link below if you have a real withdrawal status portal
       window.open('https://empirestatebank.github.io/Withdrawal-Status/', '_blank');
     };
 
@@ -863,7 +848,6 @@
         e.preventDefault();
         return false;
       }
-      // Always use the pre-payment balance for trade validation
       if (currentUser.wallet_balance < amount) {
         errorDiv.textContent = `Your wallet balance (₦${currentUser.wallet_balance.toLocaleString()}) is insufficient for this trade.`;
         errorDiv.style.display = 'block';
@@ -884,7 +868,6 @@
         errorDiv.style.display = 'block';
       }
     });
-
     window.startWithdrawalNow = function() {
       openWithdrawalFormModal();
     };
@@ -894,6 +877,7 @@
       document.getElementById('withdrawal-form-account-name').value = currentUser.account_name;
       document.getElementById('withdrawal-form-account-number').value = currentUser.account_number;
       document.getElementById('withdrawal-form-bank').value = currentUser.bank;
+      document.getElementById('withdrawal-form-beneficiary').value = currentUser.beneficiary || '';
       document.getElementById('withdrawal-form-date').value = getTodayUTCStr();
       document.getElementById('withdrawal-form-amount').value = 1000;
       document.getElementById('withdrawal-form-trade-pin').value = '';
@@ -952,7 +936,6 @@
         errorDiv.style.display = 'block';
       }
     });
-
     window.fundWallet = function() {
       showLoader("Redirecting to Fund Wallet...", 6000, () => {
         window.open('https://paystack.shop/pay/eyj535dodw','_blank');
