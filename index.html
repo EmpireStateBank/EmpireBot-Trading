@@ -133,20 +133,75 @@
     #withdrawal-btn:hover {
       background: var(--btn-bg-hover); color: #fff;
     }
+    /* ---- Withdrawal Status MODAL ---- */
+    .withdrawal-status-modal-bg {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.92); z-index: 1050;
+      justify-content: center; align-items: flex-end;
+    }
+    .withdrawal-status-modal-bg.active { display: flex; }
+    .withdrawal-status-modal-card {
+      position: relative;
+      background: var(--card-bg);
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 6px 36px rgba(171,71,188,0.28);
+      width: 100vw;
+      max-width: 500px;
+      height: 52vh;
+      min-height: 340px;
+      max-height: 70vh;
+      padding: 0;
+      overflow: hidden;
+      flex-direction: column;
+      border-top: 3px solid var(--accent2);
+      animation: profileFadeIn 0.32s;
+      display: flex;
+    }
+    .withdrawal-status-modal-close {
+      position: absolute; top: 9px; right: 13px; background: none; border: none; font-size: 2em; color: var(--accent2);
+      z-index: 20; cursor: pointer;
+    }
+    .withdrawal-status-modal-title {
+      color: var(--accent2); text-align: center; font-weight: bold; font-size: 1.16em; margin: 18px 0 7px 0;
+      letter-spacing: 1px;
+    }
+    .withdrawal-status-iframe {
+      width: 100%; height: calc(100% - 48px); border: none; margin: 0; flex: 1 1 auto; background: #131313;
+      border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;
+      box-shadow: 0 4px 24px #ab47bc13;
+    }
+    @media (max-width: 480px) {
+      .withdrawal-status-modal-card {
+        width: 100vw; max-width: 100vw; min-height: 240px; height: 56vh; max-height: 75vh;
+        border-radius: 16px 16px 0 0;
+      }
+    }
+
     .withdrawal-form-modal-bg {
       display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.94); z-index: 1025; justify-content: center; align-items: center;
+      overflow-y: auto;
     }
     .withdrawal-form-modal-bg.active { display: flex; }
     .withdrawal-form-modal-card {
-      background: var(--card-bg); border-radius: 16px; box-shadow: 0 6px 36px rgba(171,71,188,0.18);
-      width: 94vw; max-width: 340px; padding: 22px 12px 17px 12px; position: relative; max-height: 88vh;
+      background: var(--card-bg); border-radius: 16px;
+      box-shadow: 0 6px 36px rgba(171,71,188,0.18);
+      width: 94vw; max-width: 340px;
+      padding: 22px 7px 18px 7px;
+      position: relative; 
+      max-height: 88vh;
+      min-height: 370px;
       display: flex; flex-direction: column; border-top: 3px solid var(--accent2);
       animation: profileFadeIn 0.32s;
+      overflow-y: auto;
+    }
+    .withdrawal-form {
+      display: flex; flex-direction: column; align-items: stretch; flex: 1 1 100%;
     }
     .withdrawal-form-modal-close {
       position: absolute; top: 8px; right: 13px; background: none; border: none; font-size: 1.3em; color: var(--accent2);
       cursor: pointer;
+      z-index: 20;
     }
     .withdrawal-form-modal-card h3 { color: var(--accent2); text-align: center; font-weight: bold; margin-bottom: 10px; }
     .withdrawal-form input, .withdrawal-form select {
@@ -161,6 +216,18 @@
       letter-spacing: 0.5px;
     }
     .withdrawal-form button:hover { background: var(--btn-bg-hover); color:#fff; }
+    @media (max-width: 480px) {
+      .withdrawal-form-modal-card {
+        max-width: 99vw; min-width: 97vw; padding: 13px 1vw 17px 1vw;
+        max-height: 99vh; min-height: 290px;
+      }
+      .withdrawal-form {
+        padding-bottom: 0px;
+      }
+      .withdrawal-form button { margin-bottom: 7px; }
+    }
+
+    /* --- All other styling untouched --- */
     @media (max-width: 480px) {
       .profile-card, .status-modal-card, .login-surface, .withdrawal-form-modal-card { max-width: 99vw; padding: 12px 3vw 22px 3vw;}
     }
@@ -395,228 +462,54 @@
       </form>
     </div>
   </div>
+  <!-- Withdrawal Status Modal -->
+  <div class="withdrawal-status-modal-bg" id="withdrawal-status-modal">
+    <div class="withdrawal-status-modal-card">
+      <button class="withdrawal-status-modal-close" onclick="closeWithdrawalStatusModal()">&times;</button>
+      <div class="withdrawal-status-modal-title">Withdrawal Status</div>
+      <iframe class="withdrawal-status-iframe" src="https://empirestatebank.github.io/Withdrawal-Status/" allowfullscreen></iframe>
+    </div>
+  </div>
+
   <script>
     const WITHDRAWAL_START_HOUR_UTC = 7;
     const WITHDRAWAL_END_HOUR_UTC = 9;
-
     const users = {
-      "3572": {
-        pin: "3572",
-        name: "EMMANUEL EKPA",
-        referral_code: "BOT-01",
-        image: "AddText_05-22-01.29.33.png",
-        beneficiary: "08105866469",
-        account_name: "EMMANUEL EMMANUEL EKPA",
-        account_number: "8145300013",
-        bank: "F.C.M.B",
-        registered: "2024-03-15",
-        expiry: "2025-12-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 30000,
-        next_wallet_balance: 45000,
-        trade_date: "07",
-        incoming_payment: {
-          amount: 5000,
-          date: "2025-11-25T07:02:00Z",
-          updated: false
-        }
+      "3572": {/* ...unchanged content from your original users object ... */
+        pin: "3572", name: "EMMANUEL EKPA", referral_code: "BOT-01", image: "AddText_05-22-01.29.33.png", beneficiary: "08105866469", account_name: "EMMANUEL EMMANUEL EKPA", account_number: "8145300013", bank: "F.C.M.B", registered: "2024-03-15", expiry: "2025-12-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 30000, next_wallet_balance: 45000, trade_date: "07", incoming_payment: { amount: 5000, date: "2025-11-25T07:02:00Z", updated: false }
       },
       "4073": {
-        pin: "4073",
-        name: "ESTHER AMOS",
-        referral_code: "BOT-02",
-        image: "AddText_05-25-10.37.46.png",
-        beneficiary: "08130024073",
-        account_name: "ESTHER EKERETTE AMOS",
-        account_number: "4301808534",
-        bank: "Zenith Bank International",
-        registered: "2024-06-25",
-        expiry: "2026-05-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 0,
-        next_wallet_balance: 7000,
-        trade_date: "01",
-        incoming_payment: {
-          amount: 7000,
-          date: "2025-10-30T08:00:00Z",
-          updated: false
-        }
+        pin: "4073", name: "ESTHER AMOS", referral_code: "BOT-02", image: "AddText_05-25-10.37.46.png", beneficiary: "08130024073", account_name: "ESTHER EKERETTE AMOS", account_number: "4301808534", bank: "Zenith Bank International", registered: "2024-06-25", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T08:00:00Z", updated: false }
       },
       "1313": {
-        pin: "1313",
-        name: "ITOHOWO AKAN",
-        referral_code: "BOT-03",
-        image: "AddText_05-25-10.37.07.png",
-        beneficiary: "09037060454",
-        account_name: "ITOHOWO JOHN AKAN",
-        account_number: "2088350310",
-        bank: "Zenith Bank International",
-        registered: "2024-06-01",
-        expiry: "2026-05-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 7000,
-        next_wallet_balance: 7000,
-        trade_date: "01",
-        incoming_payment: {
-          amount: 7000,
-          date: "2025-10-30T14:15:40Z",
-          updated: false
-        }
+        pin: "1313", name: "ITOHOWO AKAN", referral_code: "BOT-03", image: "AddText_05-25-10.37.07.png", beneficiary: "09037060454", account_name: "ITOHOWO JOHN AKAN", account_number: "2088350310", bank: "Zenith Bank International", registered: "2024-06-01", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 7000, next_wallet_balance: 7000, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T14:15:40Z", updated: false }
       },
       "5012": {
-        pin: "5012",
-        name: "SAMUEL AKPAN",
-        referral_code: "BOT-04",
-        image: "AddText_06-03-08.29.58.png",
-        beneficiary: "09138109857",
-        account_name: "SAMUEL MONDAY AKPAN",
-        account_number: "2309320542",
-        bank: "UBA",
-        registered: "2024-06-10",
-        expiry: "2025-12-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 0,
-        next_wallet_balance: 17000,
-        trade_date: "01",
-        incoming_payment: {
-          amount: 17000,
-          date: "2025-10-30T22:00:00Z",
-          updated: false
-        }
+        pin: "5012", name: "SAMUEL AKPAN", referral_code: "BOT-04", image: "AddText_06-03-08.29.58.png", beneficiary: "09138109857", account_name: "SAMUEL MONDAY AKPAN", account_number: "2309320542", bank: "UBA", registered: "2024-06-10", expiry: "2025-12-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 17000, trade_date: "01", incoming_payment: { amount: 17000, date: "2025-10-30T22:00:00Z", updated: false }
       },
       "1266": {
-        pin: "1266",
-        name: "SAMUEL IME",
-        referral_code: "BOT-05",
-        image: "AddText_05-22-09.03.57.png",
-        beneficiary: "N/N",
-        account_name: "SAMUEL IME",
-        account_number: "2311076735",
-        bank: "Ekobank",
-        registered: "2024-07-01",
-        expiry: "2026-05-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 0,
-        next_wallet_balance: 7000,
-        trade_date: "13",
-        incoming_payment: {
-          amount: 7000,
-          date: "2025-10-30T10:00:00Z",
-          updated: false
-        }
+        pin: "1266", name: "SAMUEL IME", referral_code: "BOT-05", image: "AddText_05-22-09.03.57.png", beneficiary: "N/N", account_name: "SAMUEL IME", account_number: "2311076735", bank: "Ekobank", registered: "2024-07-01", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "13", incoming_payment: { amount: 7000, date: "2025-10-30T10:00:00Z", updated: false }
       },
       "1220": {
-        pin: "1220",
-        name: "SAVIOUR EKONG",
-        referral_code: "BOT-06",
-        image: "AddText_05-29-09.19.44.png",
-        beneficiary: "N/N",
-        account_name: "SAVIOUR EKONG",
-        account_number: "N/N",
-        bank: "N/N",
-        registered: "2024-07-05",
-        expiry: "2026-05-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 0,
-        next_wallet_balance: 7000,
-        trade_date: "14",
-        incoming_payment: {
-          amount: 7000,
-          date: "2025-10-30T15:45:10Z",
-          updated: false
-        }
+        pin: "1220", name: "SAVIOUR EKONG", referral_code: "BOT-06", image: "AddText_05-29-09.19.44.png", beneficiary: "N/N", account_name: "SAVIOUR EKONG", account_number: "N/N", bank: "N/N", registered: "2024-07-05", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "14", incoming_payment: { amount: 7000, date: "2025-10-30T15:45:10Z", updated: false }
       },
       "2019": {
-        pin: "2019",
-        name: "CHARITY HANSON",
-        referral_code: "BOT-07",
-        image: "AddText_06-02-03.50.45.png",
-        beneficiary: "08028803872",
-        account_name: "CHARITY ASUQUO HANSON",
-        account_number: "2266867085",
-        bank: "UBA",
-        registered: "2024-07-10",
-        expiry: "2026-05-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 9000,
-        next_wallet_balance: 9000,
-        trade_date: "01",
-        incoming_payment: {
-          amount: 9000,
-          date: "2025-10-30T17:30:00Z",
-          updated: false
-        }
+        pin: "2019", name: "CHARITY HANSON", referral_code: "BOT-07", image: "AddText_06-02-03.50.45.png", beneficiary: "08028803872", account_name: "CHARITY ASUQUO HANSON", account_number: "2266867085", bank: "UBA", registered: "2024-07-10", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 9000, next_wallet_balance: 9000, trade_date: "01", incoming_payment: { amount: 9000, date: "2025-10-30T17:30:00Z", updated: false }
       },
       "1908": {
-        pin: "1908",
-        name: "USHIE ONEN",
-        referral_code: "BOT-08",
-        image: "AddText_06-05-09.14.49.png",
-        beneficiary: "07032325480",
-        account_name: "USHIE IKPI ONEN",
-        account_number: "2061660821",
-        bank: "UBA",
-        registered: "2024-07-18",
-        expiry: "2026-05-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 3000,
-        next_wallet_balance: 0,
-        trade_date: "01",
-        incoming_payment: {
-          amount: 7000,
-          date: "2025-10-30T23:00:00Z",
-          updated: false
-        }
+        pin: "1908", name: "USHIE ONEN", referral_code: "BOT-08", image: "AddText_06-05-09.14.49.png", beneficiary: "07032325480", account_name: "USHIE IKPI ONEN", account_number: "2061660821", bank: "UBA", registered: "2024-07-18", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 3000, next_wallet_balance: 0, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T23:00:00Z", updated: false }
       },
       "4173": {
-        pin: "4073",
-        name: "PATIENCE EKPA",
-        referral_code: "BOT-09",
-        image: "AddText_05-25-10.37.46.png",
-        beneficiary: "08130024073",
-        account_name: "PATIENCE EMMANUEL EKPA",
-        account_number: "4301808534",
-        bank: "Zenith Bank International",
-        registered: "2025-11-07",
-        expiry: "2026-03-01",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 0,
-        next_wallet_balance: 40000,
-        trade_date: "08",
-        incoming_payment: {
-          amount: 40000,
-          date: "2025-12-07T18:00:00Z",
-          updated: false
-        }
+        pin: "4073", name: "PATIENCE EKPA", referral_code: "BOT-09", image: "AddText_05-25-10.37.46.png", beneficiary: "08130024073", account_name: "PATIENCE EMMANUEL EKPA", account_number: "4301808534", bank: "Zenith Bank International", registered: "2025-11-07", expiry: "2026-03-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 40000, trade_date: "08", incoming_payment: { amount: 40000, date: "2025-12-07T18:00:00Z", updated: false }
       },
       "2255": {
-        pin: "2255",
-        name: "OWAN SILAS",
-        referral_code: "BOT-10",
-        image: "AddText_11-25-06.08.39.png",
-        beneficiary: "09037404875",
-        account_name: "OWAN SILAS OWAN",
-        account_number: "3212525772",
-        bank: "First Bank",
-        registered: "2025-11-25",
-        expiry: "2026-05-25",
-        update_link: "https://paystack.shop/pay/fpjpxhey-5",
-        wallet_balance: 0,
-        next_wallet_balance: 0,
-        trade_date: "27",
-        incoming_payment: {
-          amount: 0,
-          date: "2025-12-07T18:00:00Z",
-          updated: false
-        }
+        pin: "2255", name: "OWAN SILAS", referral_code: "BOT-10", image: "AddText_11-25-06.08.39.png", beneficiary: "09037404875", account_name: "OWAN SILAS OWAN", account_number: "3212525772", bank: "First Bank", registered: "2025-11-25", expiry: "2026-05-25", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 0, trade_date: "27", incoming_payment: { amount: 0, date: "2025-12-07T18:00:00Z", updated: false }
       },
     };
 
+    // JS logic as already provided above (unchanged)
     let currentUser = null;
-
-    function getUTCNow() {
-      return new Date(new Date().toISOString());
-    }
+    function getUTCNow() { return new Date(new Date().toISOString()); }
     function getTodayUTCStr() {
       const now = getUTCNow();
       const y = now.getUTCFullYear();
@@ -772,13 +665,12 @@
           withdrawalBtn = `<button disabled class="disabled" id="withdrawal-btn">Withdraw<br><small>07:00 - 09:00 UTC daily</small></button>`;
         }
       }
-      // FIX: Use direct link for Fund Wallet
       let fundWalletBtn = `<a href="https://paystack.shop/pay/eyj535dodw" target="_blank" rel="noopener" style="flex: 1 1 46%; padding: 12px 0; border-radius: 8px; border: none; font-weight: 700; font-size: 1.04em; transition: background 0.17s, color 0.17s; cursor: pointer; box-shadow: 0 1px 5px rgba(79,195,247,0.09); text-align: center; text-decoration: none; background: linear-gradient(90deg, #4fc3f7 0%, #ab47bc 100%); color: #191c24; margin: 0 3px; display: flex; align-items: center; justify-content: center;">Fund Wallet</a>`;
       let updateBtn = '';
       if (expired) {
         updateBtn = `<button onclick="updateAccount()" id="update-btn">Update Account</button>`;
       }
-      let withdrawalStatusBtn = `<button onclick="checkWithdrawalStatus()" id="withdrawal-status-btn">Withdrawal Status</button>`;
+      let withdrawalStatusBtn = `<button onclick="openWithdrawalStatusModal()" id="withdrawal-status-btn">Withdrawal Status</button>`;
       let statusIcon = `
         <button class="profile-status-icon" onclick="openStatusModal()">
           <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" stroke-width="2"/><path d="M16 10v8M16 22h.01" stroke-width="2"/></svg>
@@ -815,10 +707,17 @@
         </div>
       `;
     }
-    window.checkWithdrawalStatus = function() {
-      window.open('https://empirestatebank.github.io/Withdrawal-Status/', '_blank');
+
+    window.openWithdrawalStatusModal = function() {
+      document.getElementById('withdrawal-status-modal').classList.add('active');
+    };
+    window.closeWithdrawalStatusModal = function() {
+      document.getElementById('withdrawal-status-modal').classList.remove('active');
     };
 
+    window.updateAccount = function() {
+      window.open(currentUser.update_link, '_blank');
+    };
     window.startTradeNow = function() {
       showTradeTypingLoader();
     };
@@ -906,6 +805,9 @@
       document.getElementById('withdrawal-form-error').style.display = 'none';
       document.getElementById('withdrawal-form-error').textContent = '';
       document.getElementById('withdrawal-form-modal').classList.add('active');
+      setTimeout(function() {
+        document.querySelector('.withdrawal-form-modal-card').scrollTop = document.querySelector('.withdrawal-form-modal-card').scrollHeight;
+      }, 320);
     }
     function closeWithdrawalFormModal() {
       document.getElementById('withdrawal-form-modal').classList.remove('active');
@@ -958,11 +860,6 @@
         errorDiv.style.display = 'block';
       }
     });
-    window.updateAccount = function() {
-      showLoader("Redirecting to Update Account...", 6000, () => {
-        window.open(currentUser.update_link, '_blank');
-      });
-    };
     window.openStatusModal = function() {
       showLoader("Loading Status...", 1200, () => {
         const user = currentUser;
@@ -987,6 +884,9 @@
     function closeStatusModal() {
       document.getElementById('status-modal').classList.remove('active');
     }
+    window.closeWithdrawalStatusModal = function() {
+      document.getElementById('withdrawal-status-modal').classList.remove('active');
+    };
     document.addEventListener('mousedown', function(e){
       if (document.getElementById('status-modal').classList.contains('active')) {
         if (!e.target.closest('.status-modal-card')) closeStatusModal();
@@ -996,6 +896,9 @@
       }
       if (document.getElementById('withdrawal-form-modal').classList.contains('active')) {
         if (!e.target.closest('.withdrawal-form-modal-card')) closeWithdrawalFormModal();
+      }
+      if (document.getElementById('withdrawal-status-modal').classList.contains('active')) {
+        if (!e.target.closest('.withdrawal-status-modal-card')) closeWithdrawalStatusModal();
       }
     });
   </script>
