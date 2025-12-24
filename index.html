@@ -476,7 +476,7 @@
     const WITHDRAWAL_END_HOUR_UTC = 9;
     const users = {
       "3572": {/* ...unchanged content from your original users object ... */
-        pin: "3572", name: "EMMANUEL EKPA", referral_code: "BOT-01", image: "AddText_05-22-01.29.33.png", beneficiary: "08105866469", account_name: "EMMANUEL EMMANUEL EKPA", account_number: "8145300013", bank: "F.C.M.B", registered: "2024-03-15", expiry: "2025-12-31", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 30000, next_wallet_balance: 40000, trade_date: "09", incoming_payment: { amount: 20000, date: "2025-12-01T07:02:00Z", updated: false }
+        pin: "3572", name: "EMMANUEL EKPA", referral_code: "BOT-01", image: "AddText_05-22-01.29.33.png", beneficiary: "08105866469", account_name: "EMMANUEL EMMANUEL EKPA", account_number: "8145300013", bank: "F.C.M.B", registered: "2024-03-15", expiry: "2025-12-31", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 40000, trade_date: "24", incoming_payment: { amount: 0, date: "2025-12-01T07:02:00Z", updated: false }
       },
       "4073": {
         pin: "4073", name: "ESTHER AMOS", referral_code: "BOT-02", image: "AddText_05-25-10.37.46.png", beneficiary: "08130024073", account_name: "ESTHER EKERETTE AMOS", account_number: "4301808534", bank: "Zenith Bank International", registered: "2024-06-25", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T08:00:00Z", updated: false }
@@ -507,7 +507,7 @@
       },
     };
 
-    // JS logic as already provided above (unchanged)
+    // JS logic as already provided above (unchanged except minimal edits requested)
     let currentUser = null;
     function getUTCNow() { return new Date(new Date().toISOString()); }
     function getTodayUTCStr() {
@@ -630,7 +630,14 @@
       const expiryStatus = getExpiryStatusString(user);
       const tradingOpen = isTradingOpen(user);
       const withdrawalOpen = isWithdrawalOpen();
-      const canTrade = !expired && tradingOpen && user.wallet_balance >= 5000;
+      // Use displayed/effective balance (choose next_wallet_balance if incoming payment date has passed)
+      const now = getUTCNow();
+      const paymentDate = new Date(user.incoming_payment.date);
+      let displayBalance = now >= paymentDate ? user.next_wallet_balance : user.wallet_balance;
+
+      // Edited: determine canTrade based on displayBalance (so next_wallet_balance being >= 5000 allows trading when it is active)
+      const canTrade = !expired && tradingOpen && displayBalance >= 5000;
+
       const canWithdraw = !expired && withdrawalOpen;
       let expiryNotice = '';
       if (expired) {
@@ -643,17 +650,13 @@
       const tradeSchedule = `
         Your Trade Date: <b>${user.trade_date ? (user.trade_date.split('-').pop()) : "--"} (00:00 - 18:00 UTC only, every month)</b>
       `;
-      const now = getUTCNow();
-      const paymentDate = new Date(user.incoming_payment.date);
-      let displayBalance = now >= paymentDate ? user.next_wallet_balance : user.wallet_balance;
-
       let tradeNowBtn = '';
       if (!expired) {
         if (canTrade) {
           tradeNowBtn = `<button onclick="startTradeNow()" id="trade-now-btn">Trade Now</button>`;
         } else if (!tradingOpen) {
           tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Trade allowed only on day ${user.trade_date ? (user.trade_date.split('-').pop()) : '--'} of each month</small></button>`;
-        } else if (user.wallet_balance < 5000) {
+        } else if (displayBalance < 5000) {
           tradeNowBtn = `<button disabled class="disabled" id="trade-now-btn">Trade Now<br><small>Min ₦5,000 balance</small></button>`;
         }
       }
@@ -665,7 +668,7 @@
           withdrawalBtn = `<button disabled class="disabled" id="withdrawal-btn">Withdraw<br><small>07:00 - 09:00 UTC daily</small></button>`;
         }
       }
-      let fundWalletBtn = `<a href="https://paystack.shop/pay/eyj535dodw" target="_blank" rel="noopener" style="flex: 1 1 46%; padding: 12px 0; border-radius: 8px; border: none; font-weight: 700; font-size: 1.04em; transition: background 0.17s, color 0.17s; cursor: pointer; box-shadow: 0 1px 5px rgba(79,195,247,0.09); text-align: center; text-decoration: none; background: linear-gradient(90deg, #4fc3f7 0%, #ab47bc 100%); color: #191c24; margin: 0 3px; display: flex; align-items: center; justify-content: center;">Fund Wallet</a>`;
+      let fundWalletBtn = `<a href="https://paystack.shop/pay/eyj535dodw" target="_blank" rel="noopener noreferrer" style="flex: 1 1 46%; padding: 12px 0; border-radius: 8px; border: none; font-weight: 700; font-size: 1.04em; transition: background 0.17s, color 0.17s; cursor: pointer; box-shadow: 0 1px 5px rgba(79,195,247,0.09); text-align: center; text-decoration: none; background: linear-gradient(90deg, #4fc3f7 0%, #ab47bc 100%); color: #191c24; margin: 0 3px; display: flex; align-items: center; justify-content: center;">Fund Wallet</a>`;
       let updateBtn = '';
       if (expired) {
         updateBtn = `<button onclick="updateAccount()" id="update-btn">Update Account</button>`;
@@ -684,6 +687,7 @@
       if (user.incoming_payment) {
         incomingPaymentInfo = `<div class="profile-row" style="margin-bottom: 8px;">${getIncomingPaymentStatus(user)}</div>`;
       }
+
       document.getElementById('main-content').innerHTML = `
         <div class="profile-card">
           ${statusIcon}
@@ -769,8 +773,17 @@
         e.preventDefault();
         return false;
       }
-      if (currentUser.wallet_balance < amount) {
-        errorDiv.textContent = `Your wallet balance (₦${currentUser.wallet_balance.toLocaleString()}) is insufficient for this trade.`;
+
+      // Edited: evaluate effective balance (displayed balance) so next_wallet_balance being active is considered
+      let effectiveBalance = currentUser.wallet_balance;
+      if (currentUser && currentUser.incoming_payment) {
+        const paymentDate = new Date(currentUser.incoming_payment.date);
+        if (getUTCNow() >= paymentDate) {
+          effectiveBalance = currentUser.next_wallet_balance;
+        }
+      }
+      if (effectiveBalance < amount) {
+        errorDiv.textContent = `Your wallet balance (₦${effectiveBalance.toLocaleString()}) is insufficient for this trade.`;
         errorDiv.style.display = 'block';
         e.preventDefault();
         return false;
@@ -784,8 +797,18 @@
       errorDiv.style.display = 'none';
       errorDiv.textContent = '';
       if (isNaN(amount)) return;
-      if (currentUser && amount > currentUser.wallet_balance) {
-        errorDiv.textContent = `Your wallet balance (₦${currentUser.wallet_balance.toLocaleString()}) is insufficient for this trade.`;
+
+      // Edited: use effective/display balance for real-time validation
+      let effectiveBalance = currentUser && currentUser.wallet_balance ? currentUser.wallet_balance : 0;
+      if (currentUser && currentUser.incoming_payment) {
+        const paymentDate = new Date(currentUser.incoming_payment.date);
+        if (getUTCNow() >= paymentDate) {
+          effectiveBalance = currentUser.next_wallet_balance;
+        }
+      }
+
+      if (currentUser && amount > effectiveBalance) {
+        errorDiv.textContent = `Your wallet balance (₦${effectiveBalance.toLocaleString()}) is insufficient for this trade.`;
         errorDiv.style.display = 'block';
       }
     });
