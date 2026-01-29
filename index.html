@@ -133,6 +133,56 @@
     #withdrawal-btn:hover {
       background: var(--btn-bg-hover); color: #fff;
     }
+
+    /* Referral badge (blinking circular) */
+    .referral-badge {
+      position: absolute;
+      left: 14px;
+      top: 10px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff9c4 0%, #ffd54f 18%, #e859e2 70%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 6px 26px rgba(233,89,226,0.22);
+      cursor: pointer;
+      z-index: 3;
+      transition: transform 0.12s;
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+    }
+    .referral-badge:active { transform: scale(0.97); }
+
+    /* Bright blinking text */
+    .referral-badge .referral-badge-text {
+      color: #111;
+      font-weight: 800;
+      font-size: 0.92em;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+      animation: referralTextBlink 1.2s infinite;
+    }
+    .referral-badge .referral-amount {
+      font-size: 0.82em;
+      margin-top: 3px;
+      color: #060606;
+      font-weight: 900;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+    }
+
+    @keyframes referralTextBlink {
+      0% { opacity: 1; filter: brightness(1.35) saturate(1.1); transform: translateY(0); }
+      50% { opacity: 0.35; filter: brightness(0.95) saturate(0.95); transform: translateY(-2px); }
+      100% { opacity: 1; filter: brightness(1.35) saturate(1.1); transform: translateY(0); }
+    }
+
     /* ---- Withdrawal Status MODAL ---- */
     .withdrawal-status-modal-bg {
       display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -225,6 +275,46 @@
         padding-bottom: 0px;
       }
       .withdrawal-form button { margin-bottom: 7px; }
+    }
+
+    /* Referral modal styles (similar to other modals) */
+    .referral-modal-bg {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.94); z-index: 1060; justify-content: center; align-items: center;
+      overflow-y: auto;
+    }
+    .referral-modal-bg.active { display: flex; }
+    .referral-modal-card {
+      background: var(--card-bg); border-radius: 16px;
+      box-shadow: 0 6px 36px rgba(171,71,188,0.18);
+      width: 94vw; max-width: 420px;
+      padding: 18px;
+      position: relative;
+      max-height: 88vh;
+      overflow-y: auto;
+      border-top: 3px solid var(--accent2);
+    }
+    .referral-modal-close {
+      position: absolute; top: 8px; right: 13px; background: none; border: none; font-size: 1.3em; color: var(--accent2);
+      cursor: pointer;
+      z-index: 20;
+    }
+    .referral-header { color: var(--accent2); font-weight: 700; text-align: center; margin-bottom: 8px; }
+    .referral-link-box {
+      background: #121214; border: 1px solid #2a2a36; padding: 10px; border-radius: 8px; margin-bottom: 12px; word-break: break-all;
+    }
+    .share-buttons { display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 12px; }
+    .share-buttons a { flex: 1 1 48%; padding: 10px; border-radius: 8px; text-align:center; color:#111; font-weight:700; text-decoration:none; }
+    .share-whatsapp { background: #25D366; }
+    .share-facebook { background: #1877F2; color: #fff; }
+    .share-telegram { background: #26A5E4; color:#fff; }
+    .share-twitter { background: #1DA1F2; color:#fff; }
+
+    .referral-stats { margin-bottom: 10px; }
+    .referral-list { max-height: 220px; overflow-y: auto; border-radius: 8px; border: 1px solid #222; padding: 8px; background: #0f1113; }
+
+    @media (max-width: 480px) {
+      .referral-modal-card { max-width: 98vw; padding: 12px; }
     }
 
     /* --- All other styling untouched --- */
@@ -367,7 +457,7 @@
   <div class="centered" id="main-content">
     <div class="login-surface" id="login-surface">
       <div class="login-title">EmpireBot Trading</div>
-      <input type="password" id="pin-input" maxlength="4" placeholder="Enter your 4-digit PIN" autocomplete="off" />
+      <input type="password" id="pin-input" maxlength="4" placeholder="Enter your 4-digit PIN" autocomplete="off" inputmode="numeric" pattern="\d{4}" />
       <br>
       <button id="login-btn">Open Profile</button>
       <div class="login-error" id="login-error">Invalid PIN, try again.</div>
@@ -388,6 +478,17 @@
       <div id="status-content"></div>
     </div>
   </div>
+
+  <!-- Referral modal -->
+  <div class="referral-modal-bg" id="referral-modal">
+    <div class="referral-modal-card" role="dialog" aria-modal="true" aria-labelledby="referral-title">
+      <button class="referral-modal-close" onclick="closeReferralModal()">&times;</button>
+      <div id="referral-content">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
   <div class="trade-form-modal-bg" id="trade-form-modal">
     <div class="trade-form-modal-card">
       <button class="trade-form-modal-close" onclick="closeTradeFormModal()">&times;</button>
@@ -410,7 +511,7 @@
         </label>
         <label>
           PIN<br>
-          <input type="password" name="Trade PIN" id="form-trade-pin" maxlength="4" required pattern="\d{4}" placeholder="4-digit PIN">
+          <input type="password" name="Trade PIN" id="form-trade-pin" maxlength="4" required pattern="\d{4}" placeholder="4-digit PIN" inputmode="numeric">
         </label>
         <div id="form-error" style="color: #e57373; display:none; margin-bottom: 10px; font-size:0.98em;"></div>
         <button type="submit">Submit Trade</button>
@@ -455,7 +556,7 @@
         </label>
         <label>
           PIN<br>
-          <input type="password" name="Withdrawal PIN" id="withdrawal-form-trade-pin" maxlength="4" required pattern="\d{4}" placeholder="4-digit PIN">
+          <input type="password" name="Withdrawal PIN" id="withdrawal-form-trade-pin" maxlength="4" required pattern="\d{4}" placeholder="4-digit PIN" inputmode="numeric">
         </label>
         <div id="withdrawal-form-error" style="color: #e57373; display:none; margin-bottom: 10px; font-size:0.98em;"></div>
         <button type="submit">Submit Withdrawal</button>
@@ -476,37 +577,67 @@
     const WITHDRAWAL_END_HOUR_UTC = 9;
     const users = {
       "3572": {/* ...unchanged content from your original users object ... */
-        pin: "3572", name: "EMMANUEL EKPA", referral_code: "BOT-01", image: "AddText_05-22-01.29.33.png", beneficiary: "08105866469", account_name: "EMMANUEL EMMANUEL EKPA", account_number: "8145300013", bank: "F.C.M.B", registered: "2024-03-15", expiry: "2025-12-31", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 40000, trade_date: "24", incoming_payment: { amount: 0, date: "2025-12-01T07:02:00Z", updated: false }
+        pin: "3572", name: "EMMANUEL EKPA", referral_code: "BOT-01", image: "AddText_05-22-01.29.33.png", beneficiary: "08105866469", account_name: "EMMANUEL EMMANUEL EKPA", account_number: "8145300013", bank: "F.C.M.B", registered: "2024-03-15", expiry: "2025-12-31", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 40000, trade_date: "24", incoming_payment: { amount: 0, date: "2025-12-01T07:02:00Z", updated: false },
+        // referral data (new)
+        referral_bonus_wallet: 1500,
+        referrals: [
+          { name: "Faith O.", date: "2025-10-01" },
+          { name: "Ike A.", date: "2025-11-04" }
+        ]
       },
       "4073": {
-        pin: "4073", name: "ESTHER AMOS", referral_code: "BOT-02", image: "AddText_05-25-10.37.46.png", beneficiary: "08130024073", account_name: "ESTHER EKERETTE AMOS", account_number: "4301808534", bank: "Zenith Bank International", registered: "2024-06-25", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T08:00:00Z", updated: false }
+        pin: "4073", name: "ESTHER AMOS", referral_code: "BOT-02", image: "AddText_05-25-10.37.46.png", beneficiary: "08130024073", account_name: "ESTHER EKERETTE AMOS", account_number: "4301808534", bank: "Zenith Bank International", registered: "2024-06-25", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T08:00:00Z", updated: false },
+        referral_bonus_wallet: 0,
+        referrals: []
       },
       "1313": {
-        pin: "1313", name: "ITOHOWO AKAN", referral_code: "BOT-03", image: "AddText_05-25-10.37.07.png", beneficiary: "09037060454", account_name: "ITOHOWO JOHN AKAN", account_number: "2088350310", bank: "Zenith Bank International", registered: "2024-06-01", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 7000, next_wallet_balance: 7000, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T14:15:40Z", updated: false }
+        pin: "1313", name: "ITOHOWO AKAN", referral_code: "BOT-03", image: "AddText_05-25-10.37.07.png", beneficiary: "09037060454", account_name: "ITOHOWO JOHN AKAN", account_number: "2088350310", bank: "Zenith Bank International", registered: "2024-06-01", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 7000, next_wallet_balance: 7000, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T14:15:40Z", updated: false },
+        referral_bonus_wallet: 5000,
+        referrals: [
+          { name: "Chinedu", date: "2025-09-10" },
+          { name: "Bisi", date: "2025-09-17" },
+          { name: "Umar", date: "2025-10-02" }
+        ]
       },
       "5012": {
-        pin: "5012", name: "SAMUEL AKPAN", referral_code: "BOT-04", image: "AddText_06-03-08.29.58.png", beneficiary: "09138109857", account_name: "SAMUEL MONDAY AKPAN", account_number: "2309320542", bank: "UBA", registered: "2024-06-10", expiry: "2025-12-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 17000, trade_date: "01", incoming_payment: { amount: 17000, date: "2025-10-30T22:00:00Z", updated: false }
+        pin: "5012", name: "SAMUEL AKPAN", referral_code: "BOT-04", image: "AddText_06-03-08.29.58.png", beneficiary: "09138109857", account_name: "SAMUEL MONDAY AKPAN", account_number: "2309320542", bank: "UBA", registered: "2024-06-10", expiry: "2025-12-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 17000, trade_date: "01", incoming_payment: { amount: 17000, date: "2025-10-30T22:00:00Z", updated: false },
+        referral_bonus_wallet: 0,
+        referrals: []
       },
       "1266": {
-        pin: "1266", name: "SAMUEL IME", referral_code: "BOT-05", image: "AddText_05-22-09.03.57.png", beneficiary: "N/N", account_name: "SAMUEL IME", account_number: "2311076735", bank: "Ekobank", registered: "2024-07-01", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "13", incoming_payment: { amount: 7000, date: "2025-10-30T10:00:00Z", updated: false }
+        pin: "1266", name: "SAMUEL IME", referral_code: "BOT-05", image: "AddText_05-22-09.03.57.png", beneficiary: "N/N", account_name: "SAMUEL IME", account_number: "2311076735", bank: "Ekobank", registered: "2024-07-01", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "13", incoming_payment: { amount: 7000, date: "2025-10-30T10:00:00Z", updated: false },
+        referral_bonus_wallet: 0,
+        referrals: []
       },
       "1220": {
-        pin: "1220", name: "SAVIOUR EKONG", referral_code: "BOT-06", image: "AddText_05-29-09.19.44.png", beneficiary: "N/N", account_name: "SAVIOUR EKONG", account_number: "N/N", bank: "N/N", registered: "2024-07-05", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "14", incoming_payment: { amount: 7000, date: "2025-10-30T15:45:10Z", updated: false }
+        pin: "1220", name: "SAVIOUR EKONG", referral_code: "BOT-06", image: "AddText_05-29-09.19.44.png", beneficiary: "N/N", account_name: "SAVIOUR EKONG", account_number: "N/N", bank: "N/N", registered: "2024-07-05", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 0, next_wallet_balance: 7000, trade_date: "14", incoming_payment: { amount: 7000, date: "2025-10-30T15:45:10Z", updated: false },
+        referral_bonus_wallet: 0,
+        referrals: []
       },
       "2019": {
-        pin: "2019", name: "CHARITY HANSON", referral_code: "BOT-07", image: "AddText_06-02-03.50.45.png", beneficiary: "08028803872", account_name: "CHARITY ASUQUO HANSON", account_number: "2266867085", bank: "UBA", registered: "2024-07-10", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 9000, next_wallet_balance: 9000, trade_date: "01", incoming_payment: { amount: 9000, date: "2025-10-30T17:30:00Z", updated: false }
+        pin: "2019", name: "CHARITY HANSON", referral_code: "BOT-07", image: "AddText_06-02-03.50.45.png", beneficiary: "08028803872", account_name: "CHARITY ASUQUO HANSON", account_number: "2266867085", bank: "UBA", registered: "2024-07-10", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 9000, next_wallet_balance: 9000, trade_date: "01", incoming_payment: { amount: 9000, date: "2025-10-30T17:30:00Z", updated: false },
+        referral_bonus_wallet: 1000,
+        referrals: [{ name: "Seyi", date: "2025-10-12" }]
       },
       "1908": {
-        pin: "1908", name: "USHIE ONEN", referral_code: "BOT-08", image: "AddText_06-05-09.14.49.png", beneficiary: "07032325480", account_name: "USHIE IKPI ONEN", account_number: "2061660821", bank: "UBA", registered: "2024-07-18", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 3000, next_wallet_balance: 0, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T23:00:00Z", updated: false }
+        pin: "1908", name: "USHIE ONEN", referral_code: "BOT-08", image: "AddText_06-05-09.14.49.png", beneficiary: "07032325480", account_name: "USHIE IKPI ONEN", account_number: "2061660821", bank: "UBA", registered: "2024-07-18", expiry: "2026-05-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 3000, next_wallet_balance: 0, trade_date: "01", incoming_payment: { amount: 7000, date: "2025-10-30T23:00:00Z", updated: false },
+        referral_bonus_wallet: 0,
+        referrals: []
       },
       "1995": {
-        pin: "1995", name: "DANIEL JOHNSON", referral_code: "BOT-09", image: "AddText_12-23-12.28.07.png", beneficiary: "08106122713", account_name: "DANIEL IME JOHNSON", account_number: "6552242407", bank: "Fidelity Bank", registered: "2025-12-23", expiry: "2026-04-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 9000, next_wallet_balance: 9000, trade_date: "24", incoming_payment: { amount: 10000, date: "2026-01-23T14:20:15Z", updated: false }
+        pin: "1995", name: "DANIEL JOHNSON", referral_code: "BOT-09", image: "AddText_12-23-12.28.07.png", beneficiary: "08106122713", account_name: "DANIEL IME JOHNSON", account_number: "6552242407", bank: "Fidelity Bank", registered: "2025-12-23", expiry: "2026-04-01", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 9000, next_wallet_balance: 9000, trade_date: "24", incoming_payment: { amount: 10000, date: "2026-01-23T14:20:15Z", updated: false },
+        referral_bonus_wallet: 0,
+        referrals: []
       },
       "2255": {
-        pin: "2255", name: "OWAN SILAS", referral_code: "BOT-10", image: "AddText_11-25-06.08.39.png", beneficiary: "09037404875", account_name: "OWAN SILAS OWAN", account_number: "3212525772", bank: "First Bank", registered: "2025-11-25", expiry: "2026-05-25", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 33000, next_wallet_balance: 33000, trade_date: "11", incoming_payment: { amount: 14000, date: "2026-01-10T18:00:00Z", updated: false }
+        pin: "2255", name: "OWAN SILAS", referral_code: "BOT-10", image: "AddText_11-25-06.08.39.png", beneficiary: "09037404875", account_name: "OWAN SILAS OWAN", account_number: "3212525772", bank: "First Bank", registered: "2025-11-25", expiry: "2026-05-25", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 33000, next_wallet_balance: 33000, trade_date: "11", incoming_payment: { amount: 14000, date: "2026-01-10T18:00:00Z", updated: false },
+        referral_bonus_wallet: 2500,
+        referrals: [{ name: "Tunde", date: "2025-12-01" }]
       },
       "2027": {
-        pin: "2027", name: "EKA JAMES", referral_code: "BOT-11", image: "AddText_01-11-09.57.24.png", beneficiary: "09167655099", account_name: "EKE JAMES ELE", account_number: "6671258114", bank: "Fidelity Bank", registered: "2026-01-11", expiry: "2026-05-11", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 6000, next_wallet_balance: 0, trade_date: "13", incoming_payment: { amount: 0, date: "2026-01-10T18:00:00Z", updated: false }
+        pin: "2027", name: "EKA JAMES", referral_code: "BOT-11", image: "AddText_01-11-09.57.24.png", beneficiary: "09167655099", account_name: "EKE JAMES ELE", account_number: "6671258114", bank: "Fidelity Bank", registered: "2026-01-11", expiry: "2026-05-11", update_link: "https://paystack.shop/pay/fpjpxhey-5", wallet_balance: 6000, next_wallet_balance: 0, trade_date: "13", incoming_payment: { amount: 0, date: "2026-01-10T18:00:00Z", updated: false },
+        referral_bonus_wallet: 0,
+        referrals: []
       },
     };
 
@@ -682,6 +813,15 @@
           <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" stroke-width="2"/><path d="M16 10v8M16 22h.01" stroke-width="2"/></svg>
         </button>
       `;
+
+      // Referral badge: always placed on profile (click to open referral modal)
+      let referralBadge = `
+        <div class="referral-badge" onclick="openReferralModal()" title="Referral Bonus">
+          <div class="referral-badge-text">Referral Bonus</div>
+          <div class="referral-amount">₦${(user.referral_bonus_wallet || 0).toLocaleString()}</div>
+        </div>
+      `;
+
       let referralCode = '';
       if (user.referral_code) {
         referralCode = `<div class="profile-referral">Referral Code: <span>${user.referral_code}</span></div>`;
@@ -693,6 +833,7 @@
 
       document.getElementById('main-content').innerHTML = `
         <div class="profile-card">
+          ${referralBadge}
           ${statusIcon}
           <img src="${user.image}" alt="User Image" class="profile-img"/>
           <div class="profile-name">${user.name}</div>
@@ -713,6 +854,114 @@
           </div>
         </div>
       `;
+    }
+
+    // Referral modal open/close
+    window.openReferralModal = function() {
+      if (!currentUser) return;
+      const user = currentUser;
+      // Use the fixed link requested
+      const referralLink = "https://empirestatebank.mssg.me";
+      const bonusAmount = user.referral_bonus_wallet || 0;
+      const referrals = Array.isArray(user.referrals) ? user.referrals : [];
+
+      // Build referral list HTML
+      let referralsHtml = '';
+      if (referrals.length === 0) {
+        referralsHtml = `<div style="padding:8px;color:var(--muted);">You have not referred anyone yet.</div>`;
+      } else {
+        referralsHtml = `<div class="referral-list">` + referrals.map(r => {
+          return `<div style="padding:8px;border-bottom:1px solid #17171a;"><strong>${r.name}</strong><div style="font-size:0.86em;color:var(--muted)">${r.date || '-'}</div></div>`;
+        }).join('') + `</div>`;
+      }
+
+      // Share message as requested (rewritten slightly for clarity)
+      const shareMessage = `Join EmpireBot Trading — earn 2× your investment when you sign up with my referral code ${user.referral_code}. Sign up here: https://empirestatebank.mssg.me`;
+      const shareText = encodeURIComponent(shareMessage);
+
+      const html = `
+        <div id="referral-title" class="referral-header">Referral Program — ₦500 per referral</div>
+        <div style="text-align:center; margin-bottom:8px; color:var(--muted);">Your referral bonus wallet: <strong style="color:var(--accent3)">₦${bonusAmount.toLocaleString()}</strong></div>
+        <div class="referral-link-box" id="referral-link-box">${referralLink}</div>
+        <div style="display:flex;gap:8px; margin-bottom:8px;">
+          <button style="flex:1;padding:8px;border-radius:8px;background:#2a2a36;color:var(--accent2);border:none;cursor:pointer;" onclick="copyReferralLink()">Copy Link</button>
+          <a class="share-whatsapp" href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        </div>
+        <div class="share-buttons">
+          <a class="share-facebook" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}" target="_blank" rel="noopener noreferrer">Facebook</a>
+          <a class="share-telegram" href="https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${shareText}" target="_blank" rel="noopener noreferrer">Telegram</a>
+          <a class="share-twitter" href="https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=${shareText}" target="_blank" rel="noopener noreferrer">Twitter</a>
+        </div>
+
+        <div class="referral-stats">
+          <div style="margin-bottom:6px;color:var(--muted)"><strong>Referred users:</strong> ${referrals.length}</div>
+          <div style="margin-bottom:6px;color:var(--muted)"><strong>Total referral bonus:</strong> ₦${bonusAmount.toLocaleString()}</div>
+        </div>
+
+        <div style="margin-bottom:10px;"><strong>Referral list</strong></div>
+        ${referralsHtml}
+
+        <div style="margin-top:12px;">
+          <button style="width:100%; padding:12px; border-radius:8px; background:var(--btn-bg); color:#111; font-weight:700; border:none;" id="open-referral-withdraw-btn">Withdraw referral bonus</button>
+          <div style="font-size:0.9em; color:var(--muted); margin-top:8px;">Referral withdrawals are processed in the same withdrawal window (07:00 - 09:00 UTC). The only difference is the allowed amount range (₦1,000 - ₦5,000).</div>
+        </div>
+      `;
+
+      document.getElementById('referral-content').innerHTML = html;
+      document.getElementById('referral-modal').classList.add('active');
+
+      // Attach handler for open referral withdraw button
+      const openBtn = document.getElementById('open-referral-withdraw-btn');
+      if (openBtn) {
+        openBtn.onclick = function() {
+          // Show caution similar to main withdraw but note the difference is amount limits
+          const note = "Caution: After you submit the referral withdrawal form via FormSubmit, please avoid making another referral withdrawal immediately if the payment is not received. Check your withdrawal status — if it shows 'Pending', wait until it updates to 'Successful' or 'Failed/Refunded' before submitting another withdrawal. Referral withdrawals accept amounts between ₦1,000 and ₦5,000 and are processed within 48 hours. Do you want to proceed?";
+          if (!confirm(note)) return;
+          openReferralWithdrawForm();
+        };
+      }
+    };
+
+    window.closeReferralModal = function() {
+      document.getElementById('referral-modal').classList.remove('active');
+    };
+
+    function copyReferralLink() {
+      const box = document.getElementById('referral-link-box');
+      if (!box) return;
+      const text = box.textContent || box.innerText || '';
+      navigator.clipboard?.writeText(text).then(() => {
+        alert('Referral link copied to clipboard');
+      }).catch(() => {
+        // fallback
+        prompt('Copy this link', text);
+      });
+    }
+
+    // Referral withdrawal form (opened from referral modal)
+    function openReferralWithdrawForm() {
+      if (!currentUser) return;
+      // Build a simple modal-like flow by reusing the withdrawal form modal, but prefill and change constraints
+      document.getElementById('withdrawal-form-name').value = currentUser.name;
+      document.getElementById('withdrawal-form-pin').value = currentUser.pin;
+      document.getElementById('withdrawal-form-account-name').value = currentUser.account_name;
+      document.getElementById('withdrawal-form-account-number').value = currentUser.account_number;
+      document.getElementById('withdrawal-form-bank').value = currentUser.bank;
+      document.getElementById('withdrawal-form-beneficiary').value = currentUser.beneficiary || '';
+      document.getElementById('withdrawal-form-date').value = getTodayUTCStr();
+      // Default amount to minimum referral withdrawal (1000)
+      document.getElementById('withdrawal-form-amount').value = 1000;
+      document.getElementById('withdrawal-form-trade-pin').value = '';
+      document.getElementById('withdrawal-form-error').style.display = 'none';
+      document.getElementById('withdrawal-form-error').textContent = '';
+      // Set note in form (not visible to FormSubmit but shown to user)
+      // Show the withdrawal modal
+      document.getElementById('withdrawal-form-modal').classList.add('active');
+      // Close referral modal so they work with withdrawal form UI
+      closeReferralModal();
+      setTimeout(function() {
+        document.querySelector('.withdrawal-form-modal-card').scrollTop = document.querySelector('.withdrawal-form-modal-card').scrollHeight;
+      }, 320);
     }
 
     window.openWithdrawalStatusModal = function() {
@@ -815,7 +1064,13 @@
         errorDiv.style.display = 'block';
       }
     });
+
     window.startWithdrawalNow = function() {
+      // Show caution note before proceeding to withdrawal form
+      const note = "Caution: After you submit the withdrawal form via FormSubmit, please avoid making another withdrawal immediately if the payment is not received. Check your withdrawal status first — if it shows \"Pending\", wait until it updates to \"Successful\" or \"Failed/Refunded\" before submitting another withdrawal. All requests are processed within 48 hours. Do you want to proceed to the withdrawal form?";
+      if (!confirm(note)) {
+        return;
+      }
       openWithdrawalFormModal();
     };
     function openWithdrawalFormModal() {
@@ -872,20 +1127,178 @@
         e.preventDefault();
         return false;
       }
+
+      // NEW: Check effective balance (use next_wallet_balance if incoming payment date has passed)
+      let effectiveBalance = currentUser && currentUser.wallet_balance ? currentUser.wallet_balance : 0;
+      if (currentUser && currentUser.incoming_payment) {
+        const paymentDate = new Date(currentUser.incoming_payment.date);
+        if (getUTCNow() >= paymentDate) {
+          effectiveBalance = currentUser.next_wallet_balance;
+        }
+      }
+      if (amount > effectiveBalance) {
+        errorDiv.textContent = `Your wallet balance (₦${effectiveBalance.toLocaleString()}) is insufficient for this withdrawal.`;
+        errorDiv.style.display = 'block';
+        e.preventDefault();
+        return false;
+      }
+
       closeWithdrawalFormModal();
       showLoader("Submitting withdrawal...", 3000, ()=>{});
     };
     document.getElementById('withdrawal-form-amount').addEventListener('input', function() {
-      const amount = parseInt(this.value, 10);
+      const maxAllowed = 20000;
+      let amount = parseInt(this.value, 10);
       const errorDiv = document.getElementById('withdrawal-form-error');
       errorDiv.style.display = 'none';
       errorDiv.textContent = '';
       if (isNaN(amount)) return;
+      // Enforce the maximum by clamping the input value so users cannot input above 20,000
+      if (amount > maxAllowed) {
+        this.value = maxAllowed;
+        amount = maxAllowed;
+        errorDiv.textContent = `Amount cannot exceed ₦${maxAllowed.toLocaleString()}`;
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // NEW: Check against user's effective balance (current or next_wallet_balance if payment date has passed)
+      let effectiveBalance = currentUser && currentUser.wallet_balance ? currentUser.wallet_balance : 0;
+      if (currentUser && currentUser.incoming_payment) {
+        const paymentDate = new Date(currentUser.incoming_payment.date);
+        if (getUTCNow() >= paymentDate) {
+          effectiveBalance = currentUser.next_wallet_balance;
+        }
+      }
+      if (amount > effectiveBalance) {
+        errorDiv.textContent = `Your wallet balance (₦${effectiveBalance.toLocaleString()}) is insufficient for this withdrawal.`;
+        errorDiv.style.display = 'block';
+        return;
+      }
+
       if (amount < 1000 || amount > 20000) {
         errorDiv.textContent = 'Amount must be between ₦1,000 and ₦20,000';
         errorDiv.style.display = 'block';
       }
     });
+
+    // --- New: Validate referral withdrawal specifically (amount range 1000-5000 and <= referral_bonus_wallet)
+    // We reuse the same withdrawal form handler but add extra checks when the withdrawal originated from referral flow.
+    // To know that, we check a flag set when opening referral withdraw form.
+    let _referralWithdrawFlow = false;
+    function openReferralWithdrawFormFlagged() {
+      _referralWithdrawFlow = true;
+      openReferralWithdrawForm();
+    }
+    // We already use openReferralWithdrawForm() above; make sure to set flag when invoked from referral modal
+    // (this is handled in the onclick in openReferralModal)
+
+    // Wrap original onsubmit by preserving reference
+    const originalWithdrawalOnsubmit = withdrawalForm.onsubmit;
+    withdrawalForm.onsubmit = function(e) {
+      // run original checks first
+      const res = originalWithdrawalOnsubmit.call(this, e);
+      // if form was prevented by original handler, it returned false / prevented default; if prevented, stop
+      // We detect errors by checking whether e.defaultPrevented is true, or if res === false.
+      if (e.defaultPrevented || res === false) {
+        // reset referral flag if needed
+        _referralWithdrawFlow = false;
+        return res;
+      }
+
+      // Now apply referral-specific checks if this is referral flow
+      if (_referralWithdrawFlow) {
+        const amount = parseInt(document.getElementById('withdrawal-form-amount').value,10);
+        const errorDiv = document.getElementById('withdrawal-form-error');
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        // referral allowed range
+        if (isNaN(amount) || amount < 1000 || amount > 5000) {
+          errorDiv.textContent = 'Referral withdrawal amount must be between ₦1,000 and ₦5,000';
+          errorDiv.style.display = 'block';
+          e.preventDefault();
+          _referralWithdrawFlow = false;
+          return false;
+        }
+        // check against user's referral bonus wallet
+        const bonusBal = currentUser && currentUser.referral_bonus_wallet ? currentUser.referral_bonus_wallet : 0;
+        if (amount > bonusBal) {
+          errorDiv.textContent = `Your referral bonus wallet (₦${bonusBal.toLocaleString()}) is insufficient for this withdrawal.`;
+          errorDiv.style.display = 'block';
+          e.preventDefault();
+          _referralWithdrawFlow = false;
+          return false;
+        }
+        // All good: proceed and reset the flag
+        _referralWithdrawFlow = false;
+        // Note: original handler already hides modal and shows loader
+      }
+      return res;
+    };
+
+    // Ensure input clamping also respects referral-specific flow when opening from referral modal:
+    document.getElementById('withdrawal-form-amount').addEventListener('input', function() {
+      // This listener already exists above; keep behavior. Additionally, if referral flow is active,
+      // enforce maxAllowed to 5000 instead of 20000.
+      let maxAllowed = 20000;
+      if (_referralWithdrawFlow) maxAllowed = 5000;
+      let amount = parseInt(this.value, 10);
+      const errorDiv = document.getElementById('withdrawal-form-error');
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+      if (isNaN(amount)) return;
+      if (amount > maxAllowed) {
+        this.value = maxAllowed;
+        amount = maxAllowed;
+        errorDiv.textContent = `Amount cannot exceed ₦${maxAllowed.toLocaleString()}`;
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Check against referral bonus wallet if in referral flow
+      if (_referralWithdrawFlow) {
+        const bonusBal = currentUser && currentUser.referral_bonus_wallet ? currentUser.referral_bonus_wallet : 0;
+        if (amount > bonusBal) {
+          errorDiv.textContent = `Your referral bonus wallet (₦${bonusBal.toLocaleString()}) is insufficient for this withdrawal.`;
+          errorDiv.style.display = 'block';
+          return;
+        }
+      } else {
+        // existing effective balance check already implemented above will run
+      }
+
+      if (amount < 1000 || amount > maxAllowed) {
+        if (_referralWithdrawFlow) {
+          errorDiv.textContent = 'Amount must be between ₦1,000 and ₦5,000 for referral withdrawal';
+        } else {
+          errorDiv.textContent = 'Amount must be between ₦1,000 and ₦20,000';
+        }
+        errorDiv.style.display = 'block';
+      }
+    });
+
+    // When opening referral withdraw, set flag so the input listener and submit know it's referral flow
+    function openReferralWithdrawForm() {
+      _referralWithdrawFlow = true;
+      // reuse the same procedure to open the withdrawal modal, but with the flag set
+      document.getElementById('withdrawal-form-name').value = currentUser.name;
+      document.getElementById('withdrawal-form-pin').value = currentUser.pin;
+      document.getElementById('withdrawal-form-account-name').value = currentUser.account_name;
+      document.getElementById('withdrawal-form-account-number').value = currentUser.account_number;
+      document.getElementById('withdrawal-form-bank').value = currentUser.bank;
+      document.getElementById('withdrawal-form-beneficiary').value = currentUser.beneficiary || '';
+      document.getElementById('withdrawal-form-date').value = getTodayUTCStr();
+      document.getElementById('withdrawal-form-amount').value = 1000;
+      document.getElementById('withdrawal-form-trade-pin').value = '';
+      document.getElementById('withdrawal-form-error').style.display = 'none';
+      document.getElementById('withdrawal-form-error').textContent = '';
+      document.getElementById('withdrawal-form-modal').classList.add('active');
+      closeReferralModal();
+      setTimeout(function() {
+        document.querySelector('.withdrawal-form-modal-card').scrollTop = document.querySelector('.withdrawal-form-modal-card').scrollHeight;
+      }, 320);
+    }
+
     window.openStatusModal = function() {
       showLoader("Loading Status...", 1200, () => {
         const user = currentUser;
@@ -925,6 +1338,9 @@
       }
       if (document.getElementById('withdrawal-status-modal').classList.contains('active')) {
         if (!e.target.closest('.withdrawal-status-modal-card')) closeWithdrawalStatusModal();
+      }
+      if (document.getElementById('referral-modal').classList.contains('active')) {
+        if (!e.target.closest('.referral-modal-card')) closeReferralModal();
       }
     });
   </script>
